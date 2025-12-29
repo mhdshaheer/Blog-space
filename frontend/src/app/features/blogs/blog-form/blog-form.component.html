@@ -19,7 +19,7 @@
       </button>
     </div>
 
-    <form [formGroup]="blogForm" (ngSubmit)="onSubmit()" class="space-y-10 animate-fade-in pb-20">
+    <form [formGroup]="blogForm" (ngSubmit)="onSubmit()" class="space-y-8 animate-fade-in pb-20">
       <!-- High-Impact Media Hub -->
       <section class="glass-card p-1 border-white/10 shadow-[0_48px_80px_-20px_rgba(0,0,0,0.6)] relative group overflow-hidden bg-bg/40 rounded-[48px]">
         <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-bg to-transparent z-10 pointer-events-none opacity-90"></div>
@@ -52,14 +52,14 @@
       </section>
 
       <!-- Creator Workspace -->
-      <div class="glass-card p-12 md:p-24 space-y-10 shadow-none border-white/5 bg-white/[0.01] rounded-[48px]">
+      <div class="glass-card p-12 md:p-24 space-y-8 shadow-none border-white/5 bg-white/[0.01] rounded-[48px]">
         <!-- Title Project -->
         <div class="form-group">
           <label class="text-[10px] font-black uppercase tracking-[0.5em] text-slate-700 mb-3 block">Publication Title</label>
           <input type="text" formControlName="title"
                  class="form-input !bg-transparent !border-x-0 !border-t-0 !border-b-4 border-slate-950 !rounded-none !px-0 !pb-10 text-4xl md:text-7xl lg:text-8xl font-black text-white placeholder:text-slate-900 transition-all focus:border-indigo-500 selection:bg-indigo-500 selection:text-white" 
                  placeholder="The title of your narrative...">
-          <div *ngIf="blogForm.get('title')?.touched && blogForm.get('title')?.invalid" class="flex items-center gap-3 mt-3 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
+          <div *ngIf="blogForm.get('title')?.touched && blogForm.get('title')?.invalid" class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
             <i class="fa-solid fa-circle-exclamation"></i> Minimum 5 characters required for publication.
           </div>
         </div>
@@ -70,7 +70,7 @@
           <textarea formControlName="content" rows="20"
                     class="form-input !bg-transparent !border-none !p-0 text-xl md:text-3xl font-bold text-slate-400 placeholder:text-slate-900 resize-none leading-[1.7] transition-all selection:bg-indigo-500 selection:text-white" 
                     placeholder="Initiate the creative flow... Ideas find their space here."></textarea>
-          <div *ngIf="blogForm.get('content')?.touched && blogForm.get('content')?.invalid" class="flex items-center gap-3 mt-3 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
+          <div *ngIf="blogForm.get('content')?.touched && blogForm.get('content')?.invalid" class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
             <i class="fa-solid fa-circle-exclamation"></i> Project requires a minimum of 10 characters.
           </div>
         </div>

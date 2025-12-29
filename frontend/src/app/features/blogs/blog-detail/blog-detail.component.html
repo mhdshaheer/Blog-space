@@ -91,28 +91,30 @@
         <!-- High-Impact Editorial Text -->
         <div class="lg:w-3/4">
           <div class="glass-card p-0 bg-transparent border-none shadow-none">
-            <div class="prose prose-strong:text-white prose-p:text-slate-400 max-w-none mb-24">
+            <div class="prose prose-strong:text-white prose-p:text-slate-400 max-w-none mb-16">
                <!-- Perspective Lead -->
-               <div class="bg-indigo-500/[0.03] border-l-4 border-indigo-500 p-10 md:p-16 rounded-r-[40px] mb-20 italic shadow-inner relative overflow-hidden">
-                  <i class="fa-solid fa-quote-left absolute top-4 right-8 text-8xl text-indigo-500/5 rotate-12"></i>
-                  <p class="text-2xl md:text-4xl font-black text-slate-200 leading-[1.6] tracking-tight relative z-10">
+               <div class="bg-gradient-to-br from-indigo-500/[0.08] via-white/[0.01] to-transparent border-l-4 border-indigo-500 p-8 md:p-12 rounded-r-[40px] mb-12 italic shadow-inner relative overflow-hidden ring-1 ring-white/10">
+                  <div class="absolute -top-24 -right-24 w-56 h-56 bg-indigo-500/10 blur-[50px] rounded-full pointer-events-none"></div>
+                  <div class="absolute -bottom-24 -left-24 w-56 h-56 bg-purple-500/10 blur-[50px] rounded-full pointer-events-none"></div>
+                  <i class="fa-solid fa-quote-left absolute top-6 right-8 text-7xl text-indigo-500/10 rotate-12"></i>
+                  <p class="text-2xl md:text-3xl font-black text-slate-200 leading-[1.55] tracking-tight relative z-10 max-w-3xl">
                     Sharing an in-depth exploration of ideas, narratives, and the digital perspectives that shape our evolving world.
                   </p>
                </div>
                
-               <div class="text-xl md:text-2xl font-semibold text-slate-400 leading-[1.8] whitespace-pre-wrap selection:bg-indigo-500 selection:text-white antialiased">
+               <div class="text-xl md:text-2xl font-semibold text-slate-400 leading-[1.8] whitespace-pre-wrap selection:bg-indigo-500 selection:text-white antialiased px-4 md:px-6">
                  {{ blog.content }}
                </div>
             </div>
 
             <!-- Footer Narrative -->
-            <div class="pt-20 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-10">
-               <a routerLink="/" class="text-xs font-black text-indigo-400 uppercase tracking-[0.3em] flex items-center gap-4 group transition-all px-10 py-5 bg-white/5 rounded-2xl hover:bg-white/10 border border-indigo-500/10 shadow-lg">
+            <div class="pt-12 md:pt-14 pb-10 px-4 md:px-6 border-t border-white/10 flex flex-col md:flex-row md:items-center items-stretch justify-between gap-8">
+               <a routerLink="/" class="w-full md:w-auto justify-center text-xs font-black text-indigo-400 uppercase tracking-[0.3em] flex items-center gap-4 group transition-all px-8 py-4 bg-white/5 rounded-2xl hover:bg-white/10 border border-indigo-500/10 shadow-lg">
                 <i class="fa-solid fa-arrow-left-long transition-transform group-hover:-translate-x-2"></i> 
                 Sync Collections
                </a>
                
-               <div class="flex items-center gap-10">
+               <div class="flex items-center justify-between md:justify-end gap-10 w-full md:w-auto">
                   <span class="text-[10px] font-black text-slate-700 uppercase tracking-widest">Syndicate</span>
                   <div class="flex items-center gap-6">
                     <a href="#" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex-center text-slate-500 hover:text-white hover:bg-indigo-500 transition-all shadow-xl"><i class="fa-brands fa-x-twitter"></i></a>
