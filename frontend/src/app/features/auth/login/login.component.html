@@ -18,8 +18,14 @@
               <i class="fa-solid fa-envelope text-slate-800 group-focus-within:text-indigo-400"></i>
             </div>
             <input type="email" formControlName="email"
-                   class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/40 !rounded-2xl !py-4.5 !text-sm !font-bold" 
+                   class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/40 !rounded-2xl !py-4.5 !text-sm !font-bold"
+                   [ngClass]="{'!border-red-500/30': (loginForm.get('email')?.touched || isSubmitted) && loginForm.get('email')?.invalid}"
                    placeholder="name@studio.com">
+          </div>
+          <div *ngIf="(loginForm.get('email')?.touched || isSubmitted) && loginForm.get('email')?.invalid" class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</span>
+            <span *ngIf="loginForm.get('email')?.errors?.['email']">Enter a valid email</span>
           </div>
         </div>
 
@@ -34,12 +40,17 @@
               <i class="fa-solid fa-lock text-slate-800 group-focus-within:text-indigo-400"></i>
             </div>
             <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
-                   class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/40 !rounded-2xl !py-4.5 !text-sm !font-bold" 
+                   class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/40 !rounded-2xl !py-4.5 !text-sm !font-bold"
+                   [ngClass]="{'!border-red-500/30': (loginForm.get('password')?.touched || isSubmitted) && loginForm.get('password')?.invalid}"
                    placeholder="••••••••">
             <button type="button" (click)="showPassword = !showPassword" 
                     class="absolute right-4 flex items-center text-slate-700 hover:text-white transition-colors">
               <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
             </button>
+          </div>
+          <div *ngIf="(loginForm.get('password')?.touched || isSubmitted) && loginForm.get('password')?.invalid" class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</span>
           </div>
         </div>
 

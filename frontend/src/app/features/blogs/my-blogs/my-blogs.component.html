@@ -72,10 +72,10 @@
                <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Active Draft</span>
             </div>
           </div>
-          <h3 class="text-2xl md:text-4xl font-black text-white mb-5 tracking-tighter leading-none group-hover:text-indigo-400 transition-colors truncate px-1">
+          <h3 class="text-2xl md:text-4xl font-black text-white mb-5 tracking-tighter leading-none group-hover:text-indigo-400 transition-colors line-clamp-2 px-1">
             <a [routerLink]="['/blogs', blog._id]">{{ blog.title }}</a>
           </h3>
-          <p class="text-slate-500 text-base md:text-lg font-bold line-clamp-1 opacity-60 pl-1 tracking-tight leading-relaxed">{{ blog.content }}</p>
+          <p class="text-slate-500 text-base md:text-lg font-bold line-clamp-2 opacity-60 pl-1 tracking-tight leading-relaxed">{{ blog.content }}</p>
         </div>
 
         <!-- Analytical Actions -->

@@ -25,7 +25,12 @@
             <input type="text" formControlName="username"
                    class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/30 !rounded-xl !py-4.5" 
                    placeholder="handle_name"
-                   [ngClass]="{'!border-red-500/30': registerForm.get('username')?.touched && registerForm.get('username')?.invalid}">
+                   [ngClass]="{'!border-red-500/30': (registerForm.get('username')?.touched || isSubmitted) && registerForm.get('username')?.invalid}">
+          </div>
+          <div *ngIf="(registerForm.get('username')?.touched || isSubmitted) && registerForm.get('username')?.invalid" class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span *ngIf="registerForm.get('username')?.errors?.['required']">Username is required</span>
+            <span *ngIf="registerForm.get('username')?.errors?.['minlength']">Minimum 3 characters</span>
           </div>
         </div>
 
@@ -39,7 +44,12 @@
             <input type="email" formControlName="email"
                    class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/30 !rounded-xl !py-4.5" 
                    placeholder="name@studio.com"
-                   [ngClass]="{'!border-red-500/30': registerForm.get('email')?.touched && registerForm.get('email')?.invalid}">
+                   [ngClass]="{'!border-red-500/30': (registerForm.get('email')?.touched || isSubmitted) && registerForm.get('email')?.invalid}">
+          </div>
+          <div *ngIf="(registerForm.get('email')?.touched || isSubmitted) && registerForm.get('email')?.invalid" class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required</span>
+            <span *ngIf="registerForm.get('email')?.errors?.['email']">Enter a valid email</span>
           </div>
         </div>
 
@@ -47,15 +57,39 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div class="flex flex-col gap-2.5">
             <label class="text-[10px] uppercase tracking-widest font-black text-slate-600 ml-1">Safe Key</label>
-            <input type="password" formControlName="password"
-                   class="form-input !bg-white/5 border-white/5 focus:border-indigo-500/30 !rounded-xl !py-4.5" 
-                   placeholder="••••••••">
+            <div class="relative group flex items-center">
+              <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                     class="form-input !bg-white/5 border-white/5 focus:border-indigo-500/30 !rounded-xl !py-4.5 pr-12" 
+                     placeholder="••••••••"
+                     [ngClass]="{'!border-red-500/30': (registerForm.get('password')?.touched || isSubmitted) && registerForm.get('password')?.invalid}">
+              <button type="button" (click)="showPassword = !showPassword" 
+                      class="absolute right-4 flex items-center text-slate-700 hover:text-white transition-colors">
+                <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+            <div *ngIf="(registerForm.get('password')?.touched || isSubmitted) && registerForm.get('password')?.invalid" class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required</span>
+              <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Minimum 6 characters</span>
+            </div>
           </div>
           <div class="flex flex-col gap-2.5">
             <label class="text-[10px] uppercase tracking-widest font-black text-slate-600 ml-1">Confirm Key</label>
-            <input type="password" formControlName="confirmPassword"
-                   class="form-input !bg-white/5 border-white/5 focus:border-indigo-500/30 !rounded-xl !py-4.5" 
-                   placeholder="••••••••">
+            <div class="relative group flex items-center">
+              <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword"
+                     class="form-input !bg-white/5 border-white/5 focus:border-indigo-500/30 !rounded-xl !py-4.5 pr-12" 
+                     placeholder="••••••••"
+                     [ngClass]="{'!border-red-500/30': ((registerForm.get('confirmPassword')?.touched || isSubmitted) && (registerForm.get('confirmPassword')?.invalid || registerForm.errors?.['mismatch']))}">
+              <button type="button" (click)="showConfirmPassword = !showConfirmPassword" 
+                      class="absolute right-4 flex items-center text-slate-700 hover:text-white transition-colors">
+                <i class="fa-solid" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+            <div *ngIf="(registerForm.get('confirmPassword')?.touched || isSubmitted) && (registerForm.get('confirmPassword')?.invalid || registerForm.errors?.['mismatch'])" class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Confirm password is required</span>
+              <span *ngIf="!registerForm.get('confirmPassword')?.errors?.['required'] && registerForm.errors?.['mismatch']">Passwords do not match</span>
+            </div>
           </div>
         </div>
 
@@ -87,7 +121,13 @@
           <label class="text-[10px] font-black uppercase tracking-widest text-slate-600">Enter Security Pin</label>
           <input type="text" formControlName="otp" maxlength="6"
                  class="form-input !bg-white/5 !border-white/10 !text-4xl !font-black !tracking-[0.5em] !p-8 text-center !rounded-[32px] shadow-2xl focus:border-indigo-500/30 w-full" 
-                 placeholder="000000">
+                 placeholder="000000"
+                 [ngClass]="{'!border-red-500/30': (otpForm.get('otp')?.touched || isOtpSubmitted) && otpForm.get('otp')?.invalid}">
+          <div *ngIf="(otpForm.get('otp')?.touched || isOtpSubmitted) && otpForm.get('otp')?.invalid" class="flex items-center justify-center gap-3 -mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span *ngIf="otpForm.get('otp')?.errors?.['required']">OTP is required</span>
+            <span *ngIf="otpForm.get('otp')?.errors?.['pattern']">Enter a valid 6-digit OTP</span>
+          </div>
         </div>
 
         <button type="submit" [disabled]="otpForm.invalid || isLoading"

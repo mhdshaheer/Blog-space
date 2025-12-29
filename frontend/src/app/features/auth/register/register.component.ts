@@ -16,6 +16,8 @@ export class RegisterComponent {
   registerForm: FormGroup;
   otpForm: FormGroup;
   isLoading = false;
+  isSubmitted = false;
+  isOtpSubmitted = false;
   showPassword = false;
   showConfirmPassword = false;
   showOtpStep = false;
@@ -46,8 +48,25 @@ export class RegisterComponent {
       : { mismatch: true };
   }
 
+  private getApiErrorMessage(err: any, fallback: string): string {
+    const apiErrors: Array<{ msg?: string }> | undefined = err?.error?.errors;
+    if (Array.isArray(apiErrors) && apiErrors.length > 0) {
+      const msg = apiErrors
+        .map(e => e?.msg)
+        .filter(Boolean)
+        .join(', ');
+      if (msg) return msg;
+    }
+
+    return err?.error?.message || fallback;
+  }
+
   onSubmit(): void {
-    if (this.registerForm.invalid) return;
+    this.isSubmitted = true;
+    if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
+      return;
+    }
 
     this.isLoading = true;
 
@@ -65,14 +84,18 @@ export class RegisterComponent {
         this.isLoading = false;
       },
       error: (err) => {
-        this.toast.error(err.error?.message || 'Something went wrong');
+        this.toast.error(this.getApiErrorMessage(err, 'Something went wrong'));
         this.isLoading = false;
       }
     });
   }
 
   onVerifyOtp(): void {
-    if (this.otpForm.invalid) return;
+    this.isOtpSubmitted = true;
+    if (this.otpForm.invalid) {
+      this.otpForm.markAllAsTouched();
+      return;
+    }
 
     this.isLoading = true;
 
@@ -89,7 +112,7 @@ export class RegisterComponent {
         this.isLoading = false;
       },
       error: (err) => {
-        this.toast.error(err.error?.message || 'Invalid or expired OTP');
+        this.toast.error(this.getApiErrorMessage(err, 'Invalid or expired OTP'));
         this.isLoading = false;
       }
     });
@@ -108,7 +131,7 @@ export class RegisterComponent {
         this.isLoading = false;
       },
       error: (err) => {
-        this.toast.error(err.error?.message || 'Failed to resend code');
+        this.toast.error(this.getApiErrorMessage(err, 'Failed to resend code'));
         this.isLoading = false;
       }
     });

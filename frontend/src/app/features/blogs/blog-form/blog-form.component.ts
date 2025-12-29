@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BlogService } from '../../../core/services/blog.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { environment } from '../../../../environments/environment';
 
@@ -24,6 +25,7 @@ export class BlogFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private blogService: BlogService,
+    private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
     private toastService: ToastService
@@ -50,7 +52,17 @@ export class BlogFormComponent implements OnInit {
     this.blogService.getBlogById(id).subscribe({
       next: (response) => {
         if (response.success) {
-          const { title, content, image } = response.blog;
+          const { title, content, image, author } = response.blog;
+          const currentUserId = this.authService.getCurrentUser()?._id;
+
+          const authorId = typeof author === 'string' ? author : author?._id;
+          if (this.isEditMode && currentUserId && authorId && authorId !== currentUserId) {
+            this.toastService.error('You can only edit your own blogs');
+            this.router.navigate(['/my-blogs']);
+            this.isLoading = false;
+            return;
+          }
+
           this.blogForm.patchValue({ title, content });
           this.imagePreview = this.getImageUrl(image);
         }
@@ -112,7 +124,15 @@ export class BlogFormComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        this.error = err.error?.message || 'Something went wrong';
+        const apiErrors: Array<{ msg?: string }> | undefined = err?.error?.errors;
+        if (Array.isArray(apiErrors) && apiErrors.length > 0) {
+          this.error = apiErrors
+            .map(e => e?.msg)
+            .filter(Boolean)
+            .join(', ');
+        } else {
+          this.error = err?.error?.message || 'Something went wrong';
+        }
         this.toastService.error(this.error);
         this.isLoading = false;
       }

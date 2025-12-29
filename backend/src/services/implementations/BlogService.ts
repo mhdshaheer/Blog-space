@@ -135,7 +135,8 @@ export class BlogService implements IBlogService {
     }
 
     // Verify ownership
-    if (existingBlog.author.toString() !== userId) {
+    const authorId = (existingBlog.author as any)?._id?.toString?.() ?? existingBlog.author.toString();
+    if (authorId !== userId) {
       throw new Error('Unauthorized: You can only update your own blogs');
     }
 
@@ -183,7 +184,8 @@ export class BlogService implements IBlogService {
     }
 
     // Verify ownership
-    if (existingBlog.author.toString() !== userId) {
+    const authorId = (existingBlog.author as any)?._id?.toString?.() ?? existingBlog.author.toString();
+    if (authorId !== userId) {
       throw new Error('Unauthorized: You can only delete your own blogs');
     }
 

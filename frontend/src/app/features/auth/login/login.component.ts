@@ -15,6 +15,7 @@ import { ToastService } from '../../../core/services/toast.service';
 export class LoginComponent {
   loginForm: FormGroup;
   isLoading = false;
+  isSubmitted = false;
 
   showPassword = false;
 
@@ -30,8 +31,25 @@ export class LoginComponent {
     });
   }
 
+  private getApiErrorMessage(err: any): string {
+    const apiErrors: Array<{ msg?: string }> | undefined = err?.error?.errors;
+    if (Array.isArray(apiErrors) && apiErrors.length > 0) {
+      const msg = apiErrors
+        .map(e => e?.msg)
+        .filter(Boolean)
+        .join(', ');
+      if (msg) return msg;
+    }
+
+    return err?.error?.message || 'Something went wrong';
+  }
+
   onSubmit(): void {
-    if (this.loginForm.invalid) return;
+    this.isSubmitted = true;
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
 
     this.isLoading = true;
 
@@ -46,7 +64,7 @@ export class LoginComponent {
         this.isLoading = false;
       },
       error: (err) => {
-        this.toast.error(err.error?.message || 'Something went wrong');
+        this.toast.error(this.getApiErrorMessage(err));
         this.isLoading = false;
       }
     });

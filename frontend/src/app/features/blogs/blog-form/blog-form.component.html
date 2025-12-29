@@ -57,7 +57,7 @@
         <div class="form-group">
           <label class="text-[10px] font-black uppercase tracking-[0.5em] text-slate-700 mb-3 block">Publication Title</label>
           <input type="text" formControlName="title"
-                 class="form-input !bg-transparent !border-x-0 !border-t-0 !border-b-4 border-slate-950 !rounded-none !px-0 !pb-10 text-4xl md:text-7xl lg:text-8xl font-black text-white placeholder:text-slate-900 transition-all focus:border-indigo-500 selection:bg-indigo-500 selection:text-white" 
+                 class="form-input !bg-transparent !border-x-0 !border-t-0 !border-b-4 border-slate-950 !rounded-none !px-0 !pb-10 font-black text-white placeholder:text-slate-900 transition-all focus:border-indigo-500 selection:bg-indigo-500 selection:text-white text-2xl md:text-4xl lg:text-5xl"
                  placeholder="The title of your narrative...">
           <div *ngIf="blogForm.get('title')?.touched && blogForm.get('title')?.invalid" class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
             <i class="fa-solid fa-circle-exclamation"></i> Minimum 5 characters required for publication.

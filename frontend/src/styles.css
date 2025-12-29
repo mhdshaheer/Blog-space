@@ -414,6 +414,14 @@ button, input, textarea { font-family: inherit; font-size: inherit; outline: non
   -webkit-line-clamp: 1;
 }
 
+ .line-clamp-2 {
+   overflow: hidden;
+   line-clamp: 2;
+   display: -webkit-box;
+   -webkit-box-orient: vertical;
+   -webkit-line-clamp: 2;
+ }
+
 .text-white { color: #fff; }
 .text-slate-400 { color: var(--slate-400); }
 .text-slate-500 { color: var(--slate-500); }
