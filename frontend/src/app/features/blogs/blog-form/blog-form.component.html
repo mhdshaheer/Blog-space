@@ -1,7 +1,7 @@
 <div class="container py-24 md:py-32">
-  <div class="max-w-5xl mx-auto px-4">
+  <div class="max-w-5xl mx-auto px-6">
     <!-- Premium Workspace Header -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-16">
       <div>
         <nav class="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mb-8">
           <a routerLink="/my-blogs" class="hover:text-indigo-400 transition-colors">Workspace Hub</a>
@@ -19,7 +19,7 @@
       </button>
     </div>
 
-    <form [formGroup]="blogForm" (ngSubmit)="onSubmit()" class="space-y-16 animate-fade-in pb-20">
+    <form [formGroup]="blogForm" (ngSubmit)="onSubmit()" class="space-y-10 animate-fade-in pb-20">
       <!-- High-Impact Media Hub -->
       <section class="glass-card p-1 border-white/10 shadow-[0_48px_80px_-20px_rgba(0,0,0,0.6)] relative group overflow-hidden bg-bg/40 rounded-[48px]">
         <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-bg to-transparent z-10 pointer-events-none opacity-90"></div>
@@ -28,22 +28,22 @@
              (click)="fileInput.click()">
           
           <!-- State 1: Awaiting Media -->
-          <div *ngIf="!imagePreview" class="relative z-20 text-center p-20 flex flex-col items-center gap-10">
+          <div *ngIf="!imagePreview" class="relative z-20 text-center p-12 flex flex-col items-center gap-6">
             <div class="w-32 h-32 rounded-[40px] bg-indigo-500/10 border-2 border-dashed border-indigo-500/20 flex-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-700 shadow-[0_0_50px_rgba(99,102,241,0.1)]">
               <i class="fa-solid fa-cloud-arrow-up text-5xl"></i>
             </div>
             <div class="max-w-sm">
               <h3 class="text-3xl font-black text-white mb-3 tracking-tight">Main Editorial Visual</h3>
-              <p class="text-slate-500 text-sm font-bold tracking-tight uppercase leading-relaxed opacity-60">High Resolution Source (16:9 Recommended)</p>
+              <p class="text-slate-500 text-sm font-bold uppercase tracking-[0.2em] leading-relaxed opacity-60">High Resolution Source (16:9 Recommended)</p>
             </div>
-            <span class="btn btn-primary !py-5 !px-16 !text-sm !font-black !rounded-2xl shadow-indigo-500/30">Connect Media Unit</span>
+            <span class="btn btn-primary py-5 px-16 text-sm font-black rounded-2xl shadow-indigo-500/30">Connect Media Unit</span>
           </div>
 
           <!-- State 2: Active Preview -->
           <div *ngIf="imagePreview" class="absolute inset-0 z-0">
             <img [src]="imagePreview" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
             <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-[6px] opacity-0 group-hover:opacity-100 flex-center transition-all duration-700">
-               <span class="btn btn-primary !bg-white !text-slate-900 shadow-3xl !py-5 !px-16 !rounded-2xl !font-black !text-sm">Replace Narrative Unit</span>
+               <span class="btn btn-primary bg-white text-slate-900 shadow-3xl py-5 px-16 rounded-2xl font-black text-sm">Replace Narrative Unit</span>
             </div>
           </div>
         </div>
@@ -52,25 +52,25 @@
       </section>
 
       <!-- Creator Workspace -->
-      <div class="glass-card p-12 md:p-24 space-y-24 shadow-none border-white/5 bg-white/[0.01] rounded-[48px]">
+      <div class="glass-card p-12 md:p-24 space-y-10 shadow-none border-white/5 bg-white/[0.01] rounded-[48px]">
         <!-- Title Project -->
         <div class="form-group">
-          <label class="text-[10px] font-black uppercase tracking-[0.5em] text-slate-700 mb-10 block">Publication Title</label>
+          <label class="text-[10px] font-black uppercase tracking-[0.5em] text-slate-700 mb-3 block">Publication Title</label>
           <input type="text" formControlName="title"
                  class="form-input !bg-transparent !border-x-0 !border-t-0 !border-b-4 border-slate-950 !rounded-none !px-0 !pb-10 text-4xl md:text-7xl lg:text-8xl font-black text-white placeholder:text-slate-900 transition-all focus:border-indigo-500 selection:bg-indigo-500 selection:text-white" 
                  placeholder="The title of your narrative...">
-          <div *ngIf="blogForm.get('title')?.touched && blogForm.get('title')?.invalid" class="flex items-center gap-3 mt-6 text-red-500 text-[10px] font-black uppercase tracking-[0.3em]">
+          <div *ngIf="blogForm.get('title')?.touched && blogForm.get('title')?.invalid" class="flex items-center gap-3 mt-3 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
             <i class="fa-solid fa-circle-exclamation"></i> Minimum 5 characters required for publication.
           </div>
         </div>
 
         <!-- Composition Feed -->
         <div class="form-group">
-          <label class="text-[10px] font-black uppercase tracking-[0.5em] text-slate-700 mb-10 block">Narrative Content</label>
+          <label class="text-[10px] font-black uppercase tracking-[0.5em] text-slate-700 mb-3 block">Narrative Content</label>
           <textarea formControlName="content" rows="20"
                     class="form-input !bg-transparent !border-none !p-0 text-xl md:text-3xl font-bold text-slate-400 placeholder:text-slate-900 resize-none leading-[1.7] transition-all selection:bg-indigo-500 selection:text-white" 
                     placeholder="Initiate the creative flow... Ideas find their space here."></textarea>
-          <div *ngIf="blogForm.get('content')?.touched && blogForm.get('content')?.invalid" class="flex items-center gap-3 mt-6 text-red-500 text-[10px] font-black uppercase tracking-[0.3em]">
+          <div *ngIf="blogForm.get('content')?.touched && blogForm.get('content')?.invalid" class="flex items-center gap-3 mt-3 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
             <i class="fa-solid fa-circle-exclamation"></i> Project requires a minimum of 10 characters.
           </div>
         </div>

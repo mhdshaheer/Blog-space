@@ -25,29 +25,29 @@
         
         <ng-container *ngIf="currentUser$ | async as user; else guestActions">
           <a routerLink="/create-blog" 
-             class="btn btn-primary !py-3 !px-8 !text-sm !font-black !rounded-2xl shadow-indigo-500/25 mr-4">
+             class="btn btn-primary py-2.5 px-8 text-sm font-black rounded-2xl shadow-indigo-500/25 mr-4">
             <i class="fa-solid fa-plus text-xs mr-2"></i> New Story
           </a>
 
           <!-- Premium Profile Menu -->
-          <div class="relative group">
-            <button class="flex items-center gap-1 p-0.5 rounded-2xl hover:bg-white/5 transition-all outline-none">
+          <div class="relative" #profileMenu>
+            <button (click)="toggleProfileMenu($event)" class="flex items-center gap-1 p-0.5 rounded-2xl hover:bg-white/5 transition-all outline-none">
               <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex-center text-white font-black text-lg border-2 border-slate-900 shadow-xl">
                  {{ user.username.charAt(0).toUpperCase() }}
               </div>
             </button>
 
             <!-- Dropdown -->
-            <div class="absolute top-[calc(100%+1.5rem)] right-0 w-72 glass-card p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] border-white/10 overflow-hidden">
+            <div *ngIf="isProfileOpen" (click)="$event.stopPropagation()" class="absolute top-[calc(100%+1.5rem)] right-0 w-72 glass-card p-4 transition-all duration-500 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] border-white/10 overflow-hidden" style="max-width: calc(100vw - 2rem);">
                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-primary"></div>
                
                <div class="flex items-center gap-4 mb-6 pt-2">
                   <div class="w-14 h-14 rounded-2xl bg-white/5 flex-center border border-white/10">
                     <span class="text-2xl font-black text-white">{{ user.username.charAt(0).toUpperCase() }}</span>
                   </div>
-                  <div class="flex-grow overflow-hidden">
-                    <h4 class="text-base font-black text-white truncate">{{ user.username }}</h4>
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate">{{ user.email }}</p>
+                  <div class="flex-grow min-w-0 overflow-hidden">
+                    <h4 class="text-sm font-black text-white truncate">{{ user.username }}</h4>
+                    <p class="text-[9px] font-semibold text-slate-500 uppercase tracking-[0.2em] truncate">{{ user.email }}</p>
                   </div>
                </div>
 
@@ -63,7 +63,7 @@
         <ng-template #guestActions>
           <div class="flex items-center gap-2">
             <a routerLink="/login" class="px-6 py-3 text-sm font-black text-slate-400 hover:text-white transition-all">Sign In</a>
-            <a routerLink="/register" class="btn btn-primary !py-3 !px-8 !text-sm !font-black !rounded-2xl shadow-indigo-500/25">Join Now</a>
+            <a routerLink="/register" class="btn btn-primary py-2.5 px-8 text-sm font-black rounded-2xl shadow-indigo-500/25">Join Now</a>
           </div>
         </ng-template>
       </div>
