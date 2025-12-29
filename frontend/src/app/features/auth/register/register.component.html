@@ -1,0 +1,105 @@
+<div class="container flex-center min-h-[90vh] py-20 px-4">
+  <div class="w-full max-w-md animate-fade-in">
+    <header class="text-center mb-12">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex-center text-white shadow-2xl mx-auto mb-6 transform -rotate-3 hover:rotate-0 transition-transform duration-500 overflow-visible">
+        <i class="fa-solid fa-feather-pointed text-2xl"></i>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 leading-none">
+        {{ showOtpStep ? 'Identity Check.' : 'Join BlogSpace.' }}
+      </h1>
+      <p class="text-slate-500 font-bold uppercase tracking-widest text-[10px]">
+        {{ showOtpStep ? 'Verifying your access key...' : 'Start your journey as a creator today.' }}
+      </p>
+    </header>
+
+    <div class="glass-card p-10 md:p-12 border-white/5 bg-white/[0.02] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] rounded-[32px]">
+      <!-- Registration Step -->
+      <form *ngIf="!showOtpStep" [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-6">
+        <!-- Username -->
+        <div class="flex flex-col gap-2.5">
+          <label class="text-[10px] uppercase tracking-widest font-black text-slate-600 ml-1">Creator Handle</label>
+          <div class="input-icon-wrapper group">
+            <div class="input-icon">
+              <i class="fa-solid fa-at text-slate-800 group-focus-within:text-indigo-400"></i>
+            </div>
+            <input type="text" formControlName="username"
+                   class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/30 !rounded-xl !py-4.5" 
+                   placeholder="handle_name"
+                   [ngClass]="{'!border-red-500/30': registerForm.get('username')?.touched && registerForm.get('username')?.invalid}">
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="flex flex-col gap-2.5">
+          <label class="text-[10px] uppercase tracking-widest font-black text-slate-600 ml-1">Email Address</label>
+          <div class="input-icon-wrapper group">
+            <div class="input-icon">
+              <i class="fa-solid fa-envelope text-slate-800 group-focus-within:text-indigo-400"></i>
+            </div>
+            <input type="email" formControlName="email"
+                   class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/30 !rounded-xl !py-4.5" 
+                   placeholder="name@studio.com"
+                   [ngClass]="{'!border-red-500/30': registerForm.get('email')?.touched && registerForm.get('email')?.invalid}">
+          </div>
+        </div>
+
+        <!-- Passwords Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="flex flex-col gap-2.5">
+            <label class="text-[10px] uppercase tracking-widest font-black text-slate-600 ml-1">Safe Key</label>
+            <input type="password" formControlName="password"
+                   class="form-input !bg-white/5 border-white/5 focus:border-indigo-500/30 !rounded-xl !py-4.5" 
+                   placeholder="••••••••">
+          </div>
+          <div class="flex flex-col gap-2.5">
+            <label class="text-[10px] uppercase tracking-widest font-black text-slate-600 ml-1">Confirm Key</label>
+            <input type="password" formControlName="confirmPassword"
+                   class="form-input !bg-white/5 border-white/5 focus:border-indigo-500/30 !rounded-xl !py-4.5" 
+                   placeholder="••••••••">
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="pt-4">
+          <button type="submit" [disabled]="registerForm.invalid || isLoading"
+                  class="w-full btn btn-primary !py-5 !rounded-2xl !text-sm !font-black shadow-indigo-500/25 flex-center gap-3 active:scale-[0.98] transition-transform">
+            <i *ngIf="isLoading" class="fa-solid fa-circle-notch fa-spin"></i>
+            {{ isLoading ? 'Initializing Profile...' : 'Begin Creative Journey' }}
+          </button>
+        </div>
+
+        <div class="pt-8 border-t border-white/5 text-center">
+          <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">
+            Already have a studio? 
+            <a routerLink="/login" class="text-indigo-400 hover:text-indigo-300 ml-2 transition-all">Enter Workspace</a>
+          </p>
+        </div>
+      </form>
+
+      <!-- OTP Step -->
+      <form *ngIf="showOtpStep" [formGroup]="otpForm" (ngSubmit)="onVerifyOtp()" class="flex flex-col gap-10 animate-fade-in">
+        <div class="p-6 bg-indigo-500/[0.03] border border-white/5 rounded-2xl text-center shadow-inner">
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-600 mb-2">Check your email</p>
+            <p class="text-sm font-black text-white px-2 truncate leading-none">{{ registeredEmail }}</p>
+        </div>
+
+        <div class="flex flex-col gap-5 text-center">
+          <label class="text-[10px] font-black uppercase tracking-widest text-slate-600">Enter Security Pin</label>
+          <input type="text" formControlName="otp" maxlength="6"
+                 class="form-input !bg-white/5 !border-white/10 !text-4xl !font-black !tracking-[0.5em] !p-8 text-center !rounded-[32px] shadow-2xl focus:border-indigo-500/30 w-full" 
+                 placeholder="000000">
+        </div>
+
+        <button type="submit" [disabled]="otpForm.invalid || isLoading"
+                class="w-full btn btn-primary !py-5 !rounded-2xl !text-sm !font-black shadow-indigo-500/25">
+          {{ isLoading ? 'Verifying Key...' : 'Verify & Launch' }}
+        </button>
+
+        <div class="flex items-center justify-between px-2">
+           <button type="button" (click)="onResendOtp()" class="text-[10px] uppercase tracking-widest font-black text-indigo-400 hover:underline">Resend Pin</button>
+           <button type="button" (click)="showOtpStep = false" class="text-[10px] uppercase tracking-widest font-black text-slate-600 hover:text-white">Back to Hub</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

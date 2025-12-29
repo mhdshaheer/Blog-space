@@ -1,0 +1,121 @@
+<!-- Hero Section - Cinematic Visual Hub -->
+<div class="relative py-24 md:py-48 px-6 overflow-hidden flex-center">
+  <!-- Perspective Dynamic Background -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-[600px] bg-gradient-to-br from-indigo-500/10 via-purple-600/5 to-transparent blur-[120px] rounded-[100px] pointer-events-none rotate-6"></div>
+  
+  <div class="container relative z-10 mx-auto text-center flex flex-col items-center">
+    <div class="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 mb-10 animate-fade-in shadow-2xl backdrop-blur-sm group">
+      <span class="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)] group-hover:scale-110 transition-transform">
+         <i class="fa-solid fa-sparkles text-[10px] text-white"></i>
+      </span>
+      <span class="text-xs font-black uppercase tracking-[0.25em] text-slate-300">The Global Creator Network</span>
+    </div>
+    
+    <h1 class="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black mb-10 tracking-tighter leading-[0.9] text-white animate-fade-in drop-shadow-2xl">
+      Thoughts Find <br class="hidden md:block"> Their <span class="text-brand-gradient">Voice.</span>
+    </h1>
+    
+    <p class="text-xl md:text-2xl text-slate-500 max-w-3xl mb-16 animate-fade-in leading-relaxed font-semibold">
+      Join a community of storytellers and innovators rewriting the digital narrative. Share your unique perspective with the world today.
+    </p>
+    
+    <div class="flex flex-wrap items-center justify-center gap-6 animate-fade-in">
+      <a routerLink="/create-blog" class="btn btn-primary !py-5 !px-12 !text-lg !font-black !rounded-2xl shadow-[0_20px_40px_-12px_rgba(99,102,241,0.5)] group overflow-hidden">
+        <span class="relative z-10 flex items-center gap-3">
+          Launch Story <i class="fa-solid fa-arrow-right-long transition-transform group-hover:translate-x-2"></i>
+        </span>
+      </a>
+      <a routerLink="/register" class="btn btn-ghost !py-5 !px-12 !text-lg !font-black !rounded-2xl border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10 transition-all text-white">
+        Discovery Hub
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Blog Showcase - Advanced Grid -->
+<section class="container mx-auto px-6 pb-40">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20 px-4">
+    <div class="max-w-xl">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="h-1 w-12 bg-indigo-500 rounded-full"></div>
+        <span class="text-xs font-black uppercase tracking-widest text-indigo-400">Curated Intelligence</span>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tighter">Featured <span class="opacity-40">Stories</span></h2>
+      <p class="text-slate-500 font-bold leading-relaxed">Inspiration and insights from our most engaged global creators.</p>
+    </div>
+    
+    <div class="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/5">
+       <button class="w-12 h-12 rounded-xl bg-indigo-500 flex-center text-white shadow-lg"><i class="fa-solid fa-grid-2"></i></button>
+       <button class="w-12 h-12 rounded-xl hover:bg-white/5 flex-center text-slate-500"><i class="fa-solid fa-list-ul"></i></button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+    <div *ngFor="let i of [1,2,3]" class="glass-card overflow-hidden animate-pulse border-white/5">
+      <div class="aspect-[16/10] bg-white/5 mb-8"></div>
+      <div class="p-10 pt-0 space-y-6">
+        <div class="h-8 bg-white/5 rounded-xl w-3/4"></div>
+        <div class="h-5 bg-white/5 rounded-lg w-full"></div>
+        <div class="h-5 bg-white/5 rounded-lg w-2/3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Grid - Cinematic Cards -->
+  <div *ngIf="!isLoading && !error && blogs.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+    <article *ngFor="let blog of blogs" 
+             class="glass-card group flex flex-col hover-scale overflow-hidden bg-white/[0.01] border-white/5 hover:bg-white/[0.03] hover:border-white/10 shadow-2xl transition-all duration-500">
+      
+      <!-- Premium Thumbnail -->
+      <div class="relative aspect-[16/10] overflow-hidden m-4 rounded-3xl">
+        <img [src]="getImageUrl(blog.image)" 
+             (error)="handleImageError($event)"
+             [alt]="blog.title" 
+             class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90"></div>
+        
+        <div class="absolute top-5 right-5 px-4 py-2 rounded-2xl bg-slate-950/80 backdrop-blur-xl border border-white/10 text-[10px] font-black text-white uppercase tracking-widest shadow-xl">
+           {{ blog.createdAt | date:'MMM d' }}
+        </div>
+      </div>
+
+      <!-- Card Ecosystem -->
+      <div class="p-10 flex-1 flex flex-col pt-4">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex-center text-indigo-400 text-xs font-black shadow-inner">
+            {{ getAuthorName(blog).charAt(0) }}
+          </div>
+          <span class="text-xs text-indigo-400 font-extrabold uppercase tracking-widest opacity-80">{{ getAuthorName(blog) }}</span>
+        </div>
+
+        <h3 class="text-2xl md:text-3xl font-black mb-6 text-white group-hover:text-indigo-400 transition-colors leading-[1.15] tracking-tight">
+          <a [routerLink]="['/blogs', blog._id]">{{ blog.title }}</a>
+        </h3>
+        
+        <p class="text-slate-500 text-base md:text-lg mb-10 line-clamp-3 font-semibold leading-relaxed">
+          {{ blog.content }}
+        </p>
+
+        <div class="mt-auto pt-8 border-t border-white/5 flex items-center justify-between">
+          <a [routerLink]="['/blogs', blog._id]" class="text-[10px] font-black text-white uppercase tracking-[0.25em] flex items-center gap-3 group/link transition-all hover:text-indigo-400">
+            Read Publication <i class="fa-solid fa-chevron-right text-[10px] transition-transform group-hover/link:translate-x-2"></i>
+          </a>
+          <div class="flex items-center gap-5 text-slate-700">
+             <i class="fa-solid fa-bookmark hover:text-indigo-400 cursor-pointer transition-colors shadow-sm"></i>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <!-- Pioneer Empty Matrix -->
+  <div *ngIf="!isLoading && !error && blogs.length === 0" class="glass-card py-32 text-center border-dashed border-white/10 bg-white/[0.01] max-w-4xl mx-auto shadow-none mt-20">
+    <div class="w-24 h-24 rounded-[32px] bg-white/5 flex-center text-slate-800 mx-auto mb-10 rotate-12 shadow-inner">
+      <i class="fa-solid fa-map text-5xl opacity-20"></i>
+    </div>
+    <h3 class="text-4xl font-black text-white mb-4 tracking-tighter">The Frontier is Open.</h3>
+    <p class="text-slate-500 mb-12 max-w-sm mx-auto font-bold text-lg">Our discovery feed is waiting for its first curator. Will it be you?</p>
+    <a routerLink="/create-blog" class="btn btn-primary !py-5 !px-16 !text-lg !font-black !rounded-2xl shadow-indigo-500/30">Claim Your Studio</a>
+  </div>
+</section>

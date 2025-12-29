@@ -1,0 +1,199 @@
+import { Request, Response, NextFunction } from 'express';
+import { IBlogController } from '../interfaces/IBlogController';
+import { IBlogService } from '../../services/interfaces/IBlogService';
+import { validationResult } from 'express-validator';
+
+// Extend Express Request to include user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        userId: string;
+        username: string;
+        email: string;
+      };
+    }
+  }
+}
+
+/**
+ * Blog Controller Implementation
+ * Implements IBlogController interface
+ * Handles HTTP requests for blog management
+ * Following Single Responsibility and Dependency Inversion Principles
+ */
+export class BlogController implements IBlogController {
+  private blogService: IBlogService;
+
+  constructor(blogService: IBlogService) {
+    this.blogService = blogService;
+  }
+
+  /**
+   * Create a new blog
+   * POST /api/blogs
+   * Protected route - requires authentication
+   */
+  createBlog = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      // Validate request
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() });
+        return;
+      }
+
+      if (!req.file) {
+        res.status(400).json({ message: 'Image is required' });
+        return;
+      }
+
+      const { title, content } = req.body;
+      const authorId = req.user!.userId;
+
+      // Call service
+      const blog = await this.blogService.createBlog(
+        { title, content },
+        authorId,
+        req.file
+      );
+
+      // Send response
+      res.status(201).json({
+        success: true,
+        message: 'Blog created successfully',
+        blog
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Get all blogs with pagination
+   * GET /api/blogs?page=1&limit=10
+   * Public route
+   */
+  getAllBlogs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      // Call service
+      const result = await this.blogService.getAllBlogs(page, limit);
+
+      // Send response
+      res.status(200).json({
+        success: true,
+        ...result
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Get blog by ID
+   * GET /api/blogs/:id
+   * Public route
+   */
+  getBlogById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+
+      // Call service
+      const blog = await this.blogService.getBlogById(id);
+
+      // Send response
+      res.status(200).json({
+        success: true,
+        blog
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Get blogs by authenticated user
+   * GET /api/blogs/user/me
+   * Protected route
+   */
+  getBlogsByUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = req.user!.userId;
+
+      // Call service
+      const blogs = await this.blogService.getBlogsByUser(userId);
+
+      // Send response
+      res.status(200).json({
+        success: true,
+        count: blogs.length,
+        blogs
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Update blog
+   * PUT /api/blogs/:id
+   * Protected route - ownership verified in service
+   */
+  updateBlog = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      // Validate request
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() });
+        return;
+      }
+
+      const { id } = req.params;
+      const { title, content } = req.body;
+      const userId = req.user!.userId;
+
+      // Call service
+      const blog = await this.blogService.updateBlog(
+        id,
+        { title, content },
+        userId,
+        req.file
+      );
+
+      // Send response
+      res.status(200).json({
+        success: true,
+        message: 'Blog updated successfully',
+        blog
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Delete blog
+   * DELETE /api/blogs/:id
+   * Protected route - ownership verified in service
+   */
+  deleteBlog = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.userId;
+
+      // Call service
+      const result = await this.blogService.deleteBlog(id, userId);
+
+      // Send response
+      res.status(200).json({
+        success: true,
+        ...result
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+}

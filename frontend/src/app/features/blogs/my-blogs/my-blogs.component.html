@@ -1,0 +1,101 @@
+<div class="container py-24 md:py-32 px-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Premium Workspace Header -->
+    <header class="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20 border-b border-white/5 pb-16">
+      <div>
+        <div class="flex items-center gap-3 mb-6 animate-fade-in px-1">
+          <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)] animate-pulse"></span>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">Workspace Hub</span>
+        </div>
+        <h1 class="text-5xl md:text-8xl font-black text-white tracking-tighter mb-4 leading-none animate-fade-in">My <span class="text-brand-gradient">Library</span></h1>
+        <p class="text-slate-500 text-lg md:text-xl font-bold max-w-xl animate-fade-in">Coordinate your global publications and manage your unique narrative space.</p>
+      </div>
+      
+      <a routerLink="/create-blog" class="btn btn-primary !py-5 !px-12 !text-base !font-black !rounded-2xl shadow-indigo-500/30 animate-fade-in group">
+        <i class="fa-solid fa-plus mr-3 text-xs group-hover:rotate-90 transition-transform"></i> New Publication
+      </a>
+    </header>
+
+    <!-- Loading Matrix -->
+    <div *ngIf="isLoading" class="space-y-8 px-2">
+      <div *ngFor="let i of [1,2,3]" class="bg-white/[0.02] border border-white/5 p-10 flex flex-col md:flex-row gap-12 items-center rounded-[40px] animate-pulse">
+        <div class="w-full md:w-64 aspect-[16/10] bg-white/5 rounded-3xl shrink-0"></div>
+        <div class="flex-grow w-full space-y-6">
+          <div class="h-8 bg-white/5 rounded-2xl w-1/3"></div>
+          <div class="h-5 bg-white/5 rounded-xl w-full"></div>
+          <div class="h-5 bg-white/5 rounded-xl w-2/3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Matrix -->
+    <div *ngIf="error" class="max-w-xl mx-auto py-32 text-center glass-card p-20 border-white/10 shadow-3xl">
+      <div class="w-24 h-24 rounded-[32px] bg-red-400/10 flex-center text-red-500 mx-auto mb-10 shadow-inner">
+        <i class="fa-solid fa-cloud-bolt text-5xl"></i>
+      </div>
+      <h3 class="text-3xl font-black text-white mb-4 tracking-tighter">Sync Interrupted</h3>
+      <p class="text-slate-500 mb-12 text-lg font-bold">{{ error }}</p>
+      <button (click)="loadMyBlogs()" class="btn btn-ghost px-12 py-4 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-white/10 transition-all">Reconnect Instance</button>
+    </div>
+
+    <!-- Empty Matrix -->
+    <div *ngIf="!isLoading && !error && blogs.length === 0" class="py-32 text-center border-2 border-dashed border-white/10 rounded-[48px] bg-white/[0.01] animate-fade-in">
+      <div class="w-20 h-20 rounded-3xl bg-white/5 flex-center text-slate-800 mx-auto mb-10 rotate-12 shadow-inner">
+        <i class="fa-solid fa-feather text-4xl opacity-30"></i>
+      </div>
+      <h3 class="text-4xl font-black text-white mb-4 tracking-tighter">Library Empty</h3>
+      <p class="text-slate-500 mb-12 text-lg font-bold max-w-sm mx-auto">Your creative repository is awaiting its first publication. Claim your space today.</p>
+      <a routerLink="/create-blog" class="btn btn-primary !py-6 !px-16 !text-lg !font-black !rounded-3xl shadow-indigo-500/30">Initiate Workspace</a>
+    </div>
+
+    <!-- Professional List Matrix -->
+    <div *ngIf="!isLoading && !error && blogs.length > 0" class="space-y-10 animate-fade-in">
+      <article *ngFor="let blog of blogs" 
+               class="glass-card bg-white/[0.01] border-white/5 p-8 md:p-10 flex flex-col md:flex-row gap-12 items-center rounded-[48px] hover:bg-white/[0.03] hover:border-white/10 transition-all duration-500 group shadow-2xl">
+        
+        <!-- Premium List Image -->
+        <div class="w-full md:w-72 aspect-[16/10] rounded-[32px] overflow-hidden shrink-0 bg-bg shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] border border-white/5 relative">
+          <img [src]="getImageUrl(blog.image)" 
+               (error)="handleImageError($event)"
+               [alt]="blog.title" 
+               class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-40"></div>
+        </div>
+
+        <!-- Analytical Details -->
+        <div class="flex-grow text-center md:text-left w-full overflow-hidden">
+          <div class="flex flex-wrap items-center justify-center md:justify-start gap-5 mb-5 px-1">
+            <span class="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">{{ blog.createdAt | date:'MMM d, y' }}</span>
+            <div class="h-4 w-px bg-white/5"></div>
+            <div class="flex items-center gap-2">
+               <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></span>
+               <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Active Draft</span>
+            </div>
+          </div>
+          <h3 class="text-2xl md:text-4xl font-black text-white mb-5 tracking-tighter leading-none group-hover:text-indigo-400 transition-colors truncate px-1">
+            <a [routerLink]="['/blogs', blog._id]">{{ blog.title }}</a>
+          </h3>
+          <p class="text-slate-500 text-base md:text-lg font-bold line-clamp-1 opacity-60 pl-1 tracking-tight">{{ blog.content }}</p>
+        </div>
+
+        <!-- Analytical Actions -->
+        <div class="flex items-center gap-5 shrink-0 py-6 md:py-0 w-full md:w-auto justify-center border-t md:border-t-0 border-white/5 md:pr-6">
+          <a [routerLink]="['/edit-blog', blog._id]" 
+             class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex-center text-slate-500 hover:text-white hover:bg-indigo-500 transition-all shadow-xl hover:shadow-indigo-500/20" 
+             title="Refine Narrative">
+            <i class="fa-solid fa-pen-to-square text-lg"></i>
+          </a>
+          <button 
+            (click)="deleteBlog(blog._id)" 
+            [disabled]="deleteLoading === blog._id"
+            class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex-center text-slate-500 hover:text-white hover:bg-red-500 transition-all shadow-xl hover:shadow-red-500/20"
+            title="Terminate Publication"
+          >
+            <i *ngIf="deleteLoading !== blog._id" class="fa-solid fa-trash-can text-lg"></i>
+            <i *ngIf="deleteLoading === blog._id" class="fa-solid fa-circle-notch fa-spin text-sm"></i>
+          </button>
+        </div>
+      </article>
+    </div>
+  </div>
+</div>
