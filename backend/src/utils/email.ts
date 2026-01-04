@@ -38,37 +38,48 @@ export const sendEmail = async (options: { email: string; subject: string; messa
   }
 
 
+  const otp = options.message.match(/\d{6}/)?.[0] || '------';
+
   const mailOptions = {
-    from: `"Event Platform Support" <${process.env.EMAIL_USER || 'no-reply@eventmanagement.com'}>`,
+    from: `"BlogSpace Creator Studio" <${process.env.EMAIL_USER || 'no-reply@blogspace.io'}>`,
     to: options.email,
-    subject: `🔐 ${options.message.match(/\d{6}/)?.[0]} is your verification code`,
-    text: `Your verification code is: ${options.message.match(/\d{6}/)?.[0]}. Valid for 10 minutes.`,
+    subject: options.subject || `🔐 ${otp} is your verification code`,
+    text: options.message,
     html: `
       <!DOCTYPE html>
       <html>
-      <body style="margin: 0; padding: 0; background-color: #f4f7fa; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+      <body style="margin: 0; padding: 0; background-color: #030712; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
           <tr>
-            <td align="center" style="padding: 40px 0;">
-              <table border="0" cellpadding="0" cellspacing="0" width="450" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <td align="center" style="padding: 60px 0;">
+              <table border="0" cellpadding="0" cellspacing="0" width="500" style="background-color: #0f172a; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
                 <tr>
-                  <td style="padding: 40px; text-align: center;">
-                    <h2 style="color: #1a1f36; margin: 0 0 10px;">Verify your email</h2>
-                    <p style="color: #4f566b; font-size: 16px; margin: 0 0 30px;">Use the following code to complete your registration.</p>
-                    
-                    <div style="background-color: #f7f9fc; border-radius: 4px; padding: 25px; border: 1px solid #e3e8ee;">
-                      <span style="font-size: 32px; font-weight: bold; color: #6366f1; letter-spacing: 5px;">${options.message.match(/\d{6}/)?.[0] || '------'}</span>
+                  <td style="padding: 50px 40px 30px; text-align: center;">
+                    <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); border-radius: 16px; margin: 0 auto 24px; display: inline-block; line-height: 64px; text-align: center;">
+                      <span style="color: white; font-size: 32px; vertical-align: middle;">🖋️</span>
                     </div>
-                    
-                    <p style="color: #697386; font-size: 14px; margin: 30px 0 0;">
-                      This code will expire in 10 minutes.<br>
-                      If you didn't request this, you can safely ignore this email.
+                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.02em;">BlogSpace</h1>
+                    <p style="color: #6366f1; margin: 4px 0 0; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3em;">Creator Studio</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 0 40px 40px; text-align: center;">
+                    <h2 style="color: #f8fafc; margin: 0 0 12px; font-size: 20px; font-weight: 700;">${options.subject}</h2>
+                    <p style="color: #94a3b8; font-size: 15px; line-height: 1.6; margin: 0 0 32px;">
+                      Use the secure key below to verify your session in the Creator Studio.
+                    </p>
+                    <div style="background-color: rgba(255,255,255,0.03); border-radius: 16px; padding: 32px; border: 1px solid rgba(255,255,255,0.05);">
+                      <div style="font-size: 36px; font-weight: 800; color: #ffffff; letter-spacing: 8px; font-family: 'Courier New', Courier, monospace;">${otp}</div>
+                    </div>
+                    <p style="color: #64748b; font-size: 13px; margin: 32px 0 0;">
+                      Code expires in <strong style="color: #6366f1;">10 minutes</strong>.<br>
+                      If you did not request this, please secure your account.
                     </p>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding: 20px; text-align: center; background-color: #fcfcfd; border-top: 1px solid #e3e8ee; color: #a3acb9; font-size: 12px;">
-                    &copy; 2025 Event Management Platform
+                  <td style="padding: 24px 40px; text-align: center; background-color: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); color: #475569; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;">
+                    &copy; 2026 BlogSpace Creator Studio &bull; End-to-End Encrypted
                   </td>
                 </tr>
               </table>
@@ -78,9 +89,8 @@ export const sendEmail = async (options: { email: string; subject: string; messa
       </body>
       </html>
     `,
-    // Important headers to reduce spam score
     headers: {
-      'List-Unsubscribe': `<mailto:no-reply@eventmanagement.com?subject=unsubscribe>`,
+      'List-Unsubscribe': `<mailto:no-reply@blogspace.io?subject=unsubscribe>`,
       'X-Entity-Ref-ID': Date.now().toString()
     }
   };

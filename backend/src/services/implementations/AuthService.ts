@@ -51,8 +51,8 @@ export class AuthService implements IAuthService {
     try {
       await sendEmail({
         email,
-        subject: 'Verify your account',
-        message: `Your verification code is ${otp}. It will expire in 10 minutes.`
+        subject: 'Account Verification | Creator Identity',
+        message: `Your secure registration code is ${otp}. It will expire in 10 minutes.`
       });
     } catch (error) {
       // Email sending failed silently
@@ -155,8 +155,8 @@ export class AuthService implements IAuthService {
 
     await sendEmail({
       email,
-      subject: 'Your new verification code',
-      message: `Your new verification code is ${otp}. It will expire in 10 minutes.`
+      subject: 'New Access Key | Verification Required',
+      message: `Your new secure access code is ${otp}. It will expire in 10 minutes.`
     });
   }
 
@@ -194,8 +194,8 @@ export class AuthService implements IAuthService {
 
     await sendEmail({
       email,
-      subject: 'Password Reset Request',
-      message: `Your password reset code is ${otp}. It will expire in 10 minutes.`
+      subject: 'Security Alert | Recovery Session Initiated',
+      message: `Your private recovery code is ${otp}. It will expire in 10 minutes.`
     });
   }
 

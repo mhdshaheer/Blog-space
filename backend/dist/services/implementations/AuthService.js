@@ -42,8 +42,8 @@ class AuthService {
         try {
             await (0, email_1.sendEmail)({
                 email,
-                subject: 'Verify your account',
-                message: `Your verification code is ${otp}. It will expire in 10 minutes.`
+                subject: 'Account Verification | Creator Identity',
+                message: `Your secure registration code is ${otp}. It will expire in 10 minutes.`
             });
         }
         catch (error) {
@@ -121,8 +121,8 @@ class AuthService {
         await redis_1.redisClient.setEx(`registration:${email}`, 600, JSON.stringify(pending));
         await (0, email_1.sendEmail)({
             email,
-            subject: 'Your new verification code',
-            message: `Your new verification code is ${otp}. It will expire in 10 minutes.`
+            subject: 'New Access Key | Verification Required',
+            message: `Your new secure access code is ${otp}. It will expire in 10 minutes.`
         });
     }
     async validateToken(token) {
@@ -151,8 +151,8 @@ class AuthService {
         await redis_1.redisClient.setEx(`password-reset:${email}`, 600, otp);
         await (0, email_1.sendEmail)({
             email,
-            subject: 'Password Reset Request',
-            message: `Your password reset code is ${otp}. It will expire in 10 minutes.`
+            subject: 'Security Alert | Recovery Session Initiated',
+            message: `Your private recovery code is ${otp}. It will expire in 10 minutes.`
         });
     }
     async verifyResetOtp(email, otp) {
