@@ -12,7 +12,7 @@ const redis_1 = require("../../utils/redis");
  */
 class AuthService {
     constructor(userRepository) {
-        this.userRepository = userRepository;
+        this._userRepository = userRepository;
     }
     generateOTP() {
         return Math.floor(100000 + Math.random() * 900000).toString();
@@ -23,7 +23,7 @@ class AuthService {
             throw new Error('Username, email, and password are required');
         }
         // Check if user already exists in permanent DB
-        const existingUser = await this.userRepository.findUserByEmail(email);
+        const existingUser = await this._userRepository.findUserByEmail(email);
         if (existingUser) {
             throw new Error('Email already exists');
         }
@@ -35,7 +35,6 @@ class AuthService {
             JSON.stringify(pendingUserData));
         }
         catch (error) {
-            console.error('Redis storage failed:', error);
             throw new Error('Internal server error during registration');
         }
         // Send Verification Email
@@ -47,7 +46,7 @@ class AuthService {
             });
         }
         catch (error) {
-            console.error('Email sending failed:', error);
+            // Email sending failed silently
         }
         return { username, email };
     }
@@ -55,7 +54,7 @@ class AuthService {
         if (!email || !password) {
             throw new Error('Email and password are required');
         }
-        const user = await this.userRepository.findUserByEmail(email);
+        const user = await this._userRepository.findUserByEmail(email);
         if (!user) {
             throw new Error('Invalid credentials');
         }
@@ -86,7 +85,7 @@ class AuthService {
             throw new Error('Invalid OTP');
         }
         // Create permanent user
-        const user = await this.userRepository.createUser({
+        const user = await this._userRepository.createUser({
             username: pending.username,
             email: pending.email,
             password: pending.password,
@@ -109,7 +108,7 @@ class AuthService {
     async resendOtp(email) {
         const pendingData = await redis_1.redisClient.get(`registration:${email}`);
         if (!pendingData) {
-            const user = await this.userRepository.findUserByEmail(email);
+            const user = await this._userRepository.findUserByEmail(email);
             if (user)
                 throw new Error('User is already verified');
             throw new Error('Registration session expired. Please register again.');
@@ -134,7 +133,7 @@ class AuthService {
         }
     }
     async getUserById(userId) {
-        const user = await this.userRepository.findUserById(userId);
+        const user = await this._userRepository.findUserById(userId);
         if (!user)
             return null;
         const userObj = user.toObject();

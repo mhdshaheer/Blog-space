@@ -8,7 +8,7 @@ import { IAuthService } from '../../services/interfaces/IAuthService';
  * Following Single Responsibility and Dependency Inversion Principles
  */
 export declare class AuthController implements IAuthController {
-    private authService;
+    private _authService;
     constructor(authService: IAuthService);
     /**
      * Handle user registration

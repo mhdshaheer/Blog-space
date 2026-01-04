@@ -11,8 +11,8 @@ import { BlogController } from '../controllers/implementations/BlogController';
  * Implements Singleton pattern for instances
  */
 declare class DIContainer {
-    private static instance;
-    private instances;
+    private static _instance;
+    private _instances;
     private constructor();
     /**
      * Get singleton instance of DI container

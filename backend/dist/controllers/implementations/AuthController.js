@@ -24,7 +24,7 @@ class AuthController {
                 }
                 const { username, email, password } = req.body;
                 // Call service
-                const user = await this.authService.registerUser({ username, email, password });
+                const user = await this._authService.registerUser({ username, email, password });
                 // Send response
                 res.status(201).json({
                     success: true,
@@ -50,7 +50,7 @@ class AuthController {
                 }
                 const { email, password } = req.body;
                 // Call service
-                const result = await this.authService.loginUser(email, password);
+                const result = await this._authService.loginUser(email, password);
                 // Send response
                 res.status(200).json({
                     success: true,
@@ -69,7 +69,7 @@ class AuthController {
         this.verifyOtp = async (req, res, next) => {
             try {
                 const { email, otp } = req.body;
-                const result = await this.authService.verifyOtp(email, otp);
+                const result = await this._authService.verifyOtp(email, otp);
                 res.status(200).json({
                     success: true,
                     message: 'Email verified successfully',
@@ -87,7 +87,7 @@ class AuthController {
         this.resendOtp = async (req, res, next) => {
             try {
                 const { email } = req.body;
-                await this.authService.resendOtp(email);
+                await this._authService.resendOtp(email);
                 res.status(200).json({
                     success: true,
                     message: 'New verification code sent to your email'
@@ -97,7 +97,7 @@ class AuthController {
                 next(error);
             }
         };
-        this.authService = authService;
+        this._authService = authService;
     }
 }
 exports.AuthController = AuthController;

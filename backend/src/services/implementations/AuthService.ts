@@ -9,10 +9,10 @@ import { redisClient } from '../../utils/redis';
  * Auth Service Implementation
  */
 export class AuthService implements IAuthService {
-  private userRepository: IUserRepository;
+  private _userRepository: IUserRepository;
 
   constructor(userRepository: IUserRepository) {
-    this.userRepository = userRepository;
+    this._userRepository = userRepository;
   }
 
   private generateOTP(): string {
@@ -27,7 +27,7 @@ export class AuthService implements IAuthService {
     }
 
     // Check if user already exists in permanent DB
-    const existingUser = await this.userRepository.findUserByEmail(email);
+    const existingUser = await this._userRepository.findUserByEmail(email);
     if (existingUser) {
       throw new Error('Email already exists');
     }
@@ -65,7 +65,7 @@ export class AuthService implements IAuthService {
       throw new Error('Email and password are required');
     }
 
-    const user = await this.userRepository.findUserByEmail(email);
+    const user = await this._userRepository.findUserByEmail(email);
     if (!user) {
       throw new Error('Invalid credentials');
     }
@@ -106,7 +106,7 @@ export class AuthService implements IAuthService {
     }
 
     // Create permanent user
-    const user = await this.userRepository.createUser({
+    const user = await this._userRepository.createUser({
       username: pending.username,
       email: pending.email,
       password: pending.password,
@@ -136,7 +136,7 @@ export class AuthService implements IAuthService {
     const pendingData = await redisClient.get(`registration:${email}`);
     
     if (!pendingData) {
-      const user = await this.userRepository.findUserByEmail(email);
+      const user = await this._userRepository.findUserByEmail(email);
       if (user) throw new Error('User is already verified');
       throw new Error('Registration session expired. Please register again.');
     }
@@ -168,7 +168,7 @@ export class AuthService implements IAuthService {
   }
 
   async getUserById(userId: string): Promise<Partial<IUser> | null> {
-    const user = await this.userRepository.findUserById(userId);
+    const user = await this._userRepository.findUserById(userId);
     if (!user) return null;
     
     const userObj = user.toObject();

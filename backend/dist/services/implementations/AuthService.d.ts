@@ -5,7 +5,7 @@ import { IUser } from '../../models/User';
  * Auth Service Implementation
  */
 export declare class AuthService implements IAuthService {
-    private userRepository;
+    private _userRepository;
     constructor(userRepository: IUserRepository);
     private generateOTP;
     registerUser(userData: Partial<IUser>): Promise<Partial<IUser>>;

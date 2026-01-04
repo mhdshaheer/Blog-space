@@ -5,69 +5,91 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendEmail = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
+// Cache for Ethereal test account to speed up development
+let cachedTestAccount = null;
 const sendEmail = async (options) => {
     let transporter;
-    // 1. Use SMTP credentials if provided in .env
+    let isTestAccount = false;
+    // 1. Use SMTP credentials if BOTH User and Pass are provided
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
         transporter = nodemailer_1.default.createTransport({
+            service: process.env.EMAIL_SERVICE || (process.env.EMAIL_USER.includes('gmail') ? 'gmail' : undefined),
             host: process.env.EMAIL_HOST || 'smtp.gmail.com',
             port: parseInt(process.env.EMAIL_PORT || '587'),
+            secure: process.env.EMAIL_SECURE === 'true',
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
             },
         });
     }
-    // 2. FALLBACK: Use Ethereal (Real Test Email Service) - No Password Needed!
+    // 2. FALLBACK: Use Ethereal (Real Test Email Service)
     else {
-        const testAccount = await nodemailer_1.default.createTestAccount();
+        isTestAccount = true;
+        if (!cachedTestAccount) {
+            cachedTestAccount = await nodemailer_1.default.createTestAccount();
+        }
         transporter = nodemailer_1.default.createTransport({
             host: 'smtp.ethereal.email',
             port: 587,
             secure: false,
             auth: {
-                user: testAccount.user,
-                pass: testAccount.pass,
+                user: cachedTestAccount.user,
+                pass: cachedTestAccount.pass,
             },
         });
     }
     const mailOptions = {
-        from: `"Event Management" <${process.env.EMAIL_FROM || 'no-reply@eventmanagement.com'}>`,
+        from: `"Event Platform Support" <${process.env.EMAIL_USER || 'no-reply@eventmanagement.com'}>`,
         to: options.email,
-        subject: options.subject,
-        text: options.message,
+        subject: `🔐 ${options.message.match(/\d{6}/)?.[0]} is your verification code`,
+        text: `Your verification code is: ${options.message.match(/\d{6}/)?.[0]}. Valid for 10 minutes.`,
         html: `
-      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff;">
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #6366f1; margin: 0;">Verification Code</h1>
-          <p style="color: #64748b; font-size: 16px;">Secure your account with the code below</p>
-        </div>
-        
-        <div style="background-color: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 8px; padding: 30px; text-align: center; margin-bottom: 30px;">
-          <span style="font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #1e293b; font-family: monospace;">${options.message.match(/\d{6}/)?.[0] || '------'}</span>
-        </div>
-        
-        <div style="color: #475569; line-height: 1.6; font-size: 14px;">
-          <p>Hello,</p>
-          <p>You are receiving this email because a request was made to register/verify your account on our platform.</p>
-          <p><strong>This code will expire in 10 minutes.</strong></p>
-          <p>If you did not request this code, please ignore this email safely.</p>
-        </div>
-        
-        <div style="border-top: 1px solid #e2e8f0; margin-top: 30px; padding-top: 20px; text-align: center; color: #94a3b8; font-size: 12px;">
-          <p>&copy; 2025 Event Management Platform. All rights reserved.</p>
-        </div>
-      </div>
-    `
+      <!DOCTYPE html>
+      <html>
+      <body style="margin: 0; padding: 0; background-color: #f4f7fa; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+          <tr>
+            <td align="center" style="padding: 40px 0;">
+              <table border="0" cellpadding="0" cellspacing="0" width="450" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <tr>
+                  <td style="padding: 40px; text-align: center;">
+                    <h2 style="color: #1a1f36; margin: 0 0 10px;">Verify your email</h2>
+                    <p style="color: #4f566b; font-size: 16px; margin: 0 0 30px;">Use the following code to complete your registration.</p>
+                    
+                    <div style="background-color: #f7f9fc; border-radius: 4px; padding: 25px; border: 1px solid #e3e8ee;">
+                      <span style="font-size: 32px; font-weight: bold; color: #6366f1; letter-spacing: 5px;">${options.message.match(/\d{6}/)?.[0] || '------'}</span>
+                    </div>
+                    
+                    <p style="color: #697386; font-size: 14px; margin: 30px 0 0;">
+                      This code will expire in 10 minutes.<br>
+                      If you didn't request this, you can safely ignore this email.
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 20px; text-align: center; background-color: #fcfcfd; border-top: 1px solid #e3e8ee; color: #a3acb9; font-size: 12px;">
+                    &copy; 2025 Event Management Platform
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `,
+        // Important headers to reduce spam score
+        headers: {
+            'List-Unsubscribe': `<mailto:no-reply@eventmanagement.com?subject=unsubscribe>`,
+            'X-Entity-Ref-ID': Date.now().toString()
+        }
     };
-    const info = await transporter.sendMail(mailOptions);
-    // If using Ethereal, log the preview URL
-    if (!process.env.EMAIL_USER) {
-        console.log('\n---------------------------------------------------------');
-        console.log('📧 TEST EMAIL SENT (Ethereal)');
-        console.log(`To: ${options.email}`);
-        console.log(`Preview URL: ${nodemailer_1.default.getTestMessageUrl(info)}`);
-        console.log('---------------------------------------------------------\n');
+    try {
+        const info = await transporter.sendMail(mailOptions);
+    }
+    catch (error) {
+        throw error;
     }
 };
 exports.sendEmail = sendEmail;

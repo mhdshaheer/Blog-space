@@ -14,8 +14,8 @@ const promises_1 = __importDefault(require("fs/promises"));
  */
 class BlogService {
     constructor(blogRepository, userRepository) {
-        this.blogRepository = blogRepository;
-        this.userRepository = userRepository;
+        this._blogRepository = blogRepository;
+        this._userRepository = userRepository;
     }
     /**
      * Create a new blog
@@ -36,14 +36,14 @@ class BlogService {
             throw new Error('Image is required');
         }
         // Verify author exists
-        const author = await this.userRepository.findUserById(authorId);
+        const author = await this._userRepository.findUserById(authorId);
         if (!author) {
             throw new Error('Author not found');
         }
         // Process image upload (file path relative to uploads folder)
         const imagePath = `/uploads/${imageFile.filename}`;
         // Create blog with author and image
-        const blog = await this.blogRepository.createBlog({
+        const blog = await this._blogRepository.createBlog({
             ...blogData,
             author: authorId,
             image: imagePath
@@ -62,8 +62,8 @@ class BlogService {
         const skip = (page - 1) * limit;
         // Get blogs and total count
         const [blogs, total] = await Promise.all([
-            this.blogRepository.findAllBlogs({ skip, limit, filters }),
-            this.blogRepository.countBlogs(filters)
+            this._blogRepository.findAllBlogs({ skip, limit, filters }),
+            this._blogRepository.countBlogs(filters)
         ]);
         // Calculate total pages
         const pages = Math.ceil(total / limit);
@@ -84,7 +84,7 @@ class BlogService {
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
             throw new Error('Invalid blog ID format');
         }
-        const blog = await this.blogRepository.findBlogById(id);
+        const blog = await this._blogRepository.findBlogById(id);
         if (!blog) {
             throw new Error('Blog not found');
         }
@@ -96,7 +96,7 @@ class BlogService {
      * @returns Array of blogs
      */
     async getBlogsByUser(userId) {
-        const blogs = await this.blogRepository.findBlogsByAuthor(userId);
+        const blogs = await this._blogRepository.findBlogsByAuthor(userId);
         return blogs;
     }
     /**
@@ -109,12 +109,13 @@ class BlogService {
      */
     async updateBlog(id, updateData, userId, imageFile) {
         // Fetch existing blog
-        const existingBlog = await this.blogRepository.findBlogById(id);
+        const existingBlog = await this._blogRepository.findBlogById(id);
         if (!existingBlog) {
             throw new Error('Blog not found');
         }
         // Verify ownership
-        if (existingBlog.author.toString() !== userId) {
+        const authorId = existingBlog.author?._id?.toString?.() ?? existingBlog.author.toString();
+        if (authorId !== userId) {
             throw new Error('Unauthorized: You can only update your own blogs');
         }
         // Validate update data
@@ -132,13 +133,13 @@ class BlogService {
                 await promises_1.default.unlink(oldImagePath);
             }
             catch (error) {
-                console.warn('Could not delete old image:', error);
+                // Silently ignore if old image cannot be deleted
             }
             // Set new image path
             updateData.image = `/uploads/${imageFile.filename}`;
         }
         // Update blog
-        const updatedBlog = await this.blogRepository.updateBlog(id, updateData);
+        const updatedBlog = await this._blogRepository.updateBlog(id, updateData);
         return updatedBlog;
     }
     /**
@@ -149,12 +150,13 @@ class BlogService {
      */
     async deleteBlog(id, userId) {
         // Fetch existing blog
-        const existingBlog = await this.blogRepository.findBlogById(id);
+        const existingBlog = await this._blogRepository.findBlogById(id);
         if (!existingBlog) {
             throw new Error('Blog not found');
         }
         // Verify ownership
-        if (existingBlog.author.toString() !== userId) {
+        const authorId = existingBlog.author?._id?.toString?.() ?? existingBlog.author.toString();
+        if (authorId !== userId) {
             throw new Error('Unauthorized: You can only delete your own blogs');
         }
         // Delete associated image file
@@ -163,10 +165,10 @@ class BlogService {
             await promises_1.default.unlink(imagePath);
         }
         catch (error) {
-            console.warn('Could not delete image file:', error);
+            // Silently ignore if image file cannot be deleted
         }
         // Delete blog from database
-        await this.blogRepository.deleteBlog(id);
+        await this._blogRepository.deleteBlog(id);
         return { message: 'Blog deleted successfully' };
     }
 }

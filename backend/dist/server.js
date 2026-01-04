@@ -19,8 +19,10 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 // Connect to database
 (0, database_1.default)();
-// Security Middleware
-app.use((0, helmet_1.default)());
+// Security Middleware (Loosened for cross-origin image sharing)
+app.use((0, helmet_1.default)({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 // CORS configuration
 app.use((0, cors_1.default)({
     origin: process.env.FRONTEND_URL || 'http://localhost:4200',
@@ -43,7 +45,7 @@ app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../
 app.use('/api/auth', authRoutes_1.default);
 app.use('/api/blogs', blogRoutes_1.default);
 // Health check route
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
     res.status(200).json({
         success: true,
         message: 'Server is running',
@@ -51,7 +53,7 @@ app.get('/health', (req, res) => {
     });
 });
 // 404 handler
-app.use((req, res) => {
+app.use((_req, res) => {
     res.status(404).json({
         success: false,
         message: 'Route not found'
@@ -62,12 +64,10 @@ app.use(errorHandler_1.errorHandler);
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-    console.log(`📡 API available at http://localhost:${PORT}/api`);
+    // Server started silently
 });
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-    console.error(`❌ Unhandled Rejection: ${err.message}`);
+process.on('unhandledRejection', () => {
     process.exit(1);
 });
 exports.default = app;

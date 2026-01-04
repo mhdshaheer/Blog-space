@@ -5,11 +5,8 @@ exports.errorHandler = void 0;
  * Global Error Handler Middleware
  * Handles all errors and sends appropriate responses
  */
-const errorHandler = (err, req, res, _next) => {
-    // Log error for development
-    if (process.env.NODE_ENV === 'development') {
-        console.error(`❌ Error [${req.method} ${req.url}]:`, err.message);
-    }
+const errorHandler = (err, _req, res, _next) => {
+    // Silent error handling
     // Default error
     let statusCode = 500;
     let message = err.message || 'Internal server error';

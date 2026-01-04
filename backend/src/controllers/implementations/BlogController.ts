@@ -23,10 +23,10 @@ declare global {
  * Following Single Responsibility and Dependency Inversion Principles
  */
 export class BlogController implements IBlogController {
-  private blogService: IBlogService;
+  private _blogService: IBlogService;
 
   constructor(blogService: IBlogService) {
-    this.blogService = blogService;
+    this._blogService = blogService;
   }
 
   /**
@@ -52,7 +52,7 @@ export class BlogController implements IBlogController {
       const authorId = req.user!.userId;
 
       // Call service
-      const blog = await this.blogService.createBlog(
+      const blog = await this._blogService.createBlog(
         { title, content },
         authorId,
         req.file
@@ -80,7 +80,7 @@ export class BlogController implements IBlogController {
       const limit = parseInt(req.query.limit as string) || 10;
 
       // Call service
-      const result = await this.blogService.getAllBlogs(page, limit);
+      const result = await this._blogService.getAllBlogs(page, limit);
 
       // Send response
       res.status(200).json({
@@ -102,7 +102,7 @@ export class BlogController implements IBlogController {
       const { id } = req.params;
 
       // Call service
-      const blog = await this.blogService.getBlogById(id);
+      const blog = await this._blogService.getBlogById(id);
 
       // Send response
       res.status(200).json({
@@ -124,7 +124,7 @@ export class BlogController implements IBlogController {
       const userId = req.user!.userId;
 
       // Call service
-      const blogs = await this.blogService.getBlogsByUser(userId);
+      const blogs = await this._blogService.getBlogsByUser(userId);
 
       // Send response
       res.status(200).json({
@@ -156,7 +156,7 @@ export class BlogController implements IBlogController {
       const userId = req.user!.userId;
 
       // Call service
-      const blog = await this.blogService.updateBlog(
+      const blog = await this._blogService.updateBlog(
         id,
         { title, content },
         userId,
@@ -185,7 +185,7 @@ export class BlogController implements IBlogController {
       const userId = req.user!.userId;
 
       // Call service
-      const result = await this.blogService.deleteBlog(id, userId);
+      const result = await this._blogService.deleteBlog(id, userId);
 
       // Send response
       res.status(200).json({

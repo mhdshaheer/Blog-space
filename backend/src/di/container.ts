@@ -12,62 +12,62 @@ import { BlogController } from '../controllers/implementations/BlogController';
  * Implements Singleton pattern for instances
  */
 class DIContainer {
-  private static instance: DIContainer;
-  private instances: Map<string, any>;
+  private static _instance: DIContainer;
+  private _instances: Map<string, any>;
 
   private constructor() {
-    this.instances = new Map();
+    this._instances = new Map();
   }
 
   /**
    * Get singleton instance of DI container
    */
   public static getInstance(): DIContainer {
-    if (!DIContainer.instance) {
-      DIContainer.instance = new DIContainer();
+    if (!DIContainer._instance) {
+      DIContainer._instance = new DIContainer();
     }
-    return DIContainer.instance;
+    return DIContainer._instance;
   }
 
   /**
    * Get User Repository instance (singleton)
    */
   getUserRepository(): UserRepository {
-    if (!this.instances.has('userRepository')) {
-      this.instances.set('userRepository', new UserRepository());
+    if (!this._instances.has('userRepository')) {
+      this._instances.set('userRepository', new UserRepository());
     }
-    return this.instances.get('userRepository');
+    return this._instances.get('userRepository');
   }
 
   /**
    * Get Blog Repository instance (singleton)
    */
   getBlogRepository(): BlogRepository {
-    if (!this.instances.has('blogRepository')) {
-      this.instances.set('blogRepository', new BlogRepository());
+    if (!this._instances.has('blogRepository')) {
+      this._instances.set('blogRepository', new BlogRepository());
     }
-    return this.instances.get('blogRepository');
+    return this._instances.get('blogRepository');
   }
 
   /**
    * Get Auth Service instance with injected dependencies
    */
   getAuthService(): AuthService {
-    if (!this.instances.has('authService')) {
-      this.instances.set(
+    if (!this._instances.has('authService')) {
+      this._instances.set(
         'authService',
         new AuthService(this.getUserRepository())
       );
     }
-    return this.instances.get('authService');
+    return this._instances.get('authService');
   }
 
   /**
    * Get Blog Service instance with injected dependencies
    */
   getBlogService(): BlogService {
-    if (!this.instances.has('blogService')) {
-      this.instances.set(
+    if (!this._instances.has('blogService')) {
+      this._instances.set(
         'blogService',
         new BlogService(
           this.getBlogRepository(),
@@ -75,33 +75,33 @@ class DIContainer {
         )
       );
     }
-    return this.instances.get('blogService');
+    return this._instances.get('blogService');
   }
 
   /**
    * Get Auth Controller instance with injected dependencies
    */
   getAuthController(): AuthController {
-    if (!this.instances.has('authController')) {
-      this.instances.set(
+    if (!this._instances.has('authController')) {
+      this._instances.set(
         'authController',
         new AuthController(this.getAuthService())
       );
     }
-    return this.instances.get('authController');
+    return this._instances.get('authController');
   }
 
   /**
    * Get Blog Controller instance with injected dependencies
    */
   getBlogController(): BlogController {
-    if (!this.instances.has('blogController')) {
-      this.instances.set(
+    if (!this._instances.has('blogController')) {
+      this._instances.set(
         'blogController',
         new BlogController(this.getBlogService())
       );
     }
-    return this.instances.get('blogController');
+    return this._instances.get('blogController');
   }
 }
 

@@ -30,7 +30,7 @@ class BlogController {
                 const { title, content } = req.body;
                 const authorId = req.user.userId;
                 // Call service
-                const blog = await this.blogService.createBlog({ title, content }, authorId, req.file);
+                const blog = await this._blogService.createBlog({ title, content }, authorId, req.file);
                 // Send response
                 res.status(201).json({
                     success: true,
@@ -52,7 +52,7 @@ class BlogController {
                 const page = parseInt(req.query.page) || 1;
                 const limit = parseInt(req.query.limit) || 10;
                 // Call service
-                const result = await this.blogService.getAllBlogs(page, limit);
+                const result = await this._blogService.getAllBlogs(page, limit);
                 // Send response
                 res.status(200).json({
                     success: true,
@@ -72,7 +72,7 @@ class BlogController {
             try {
                 const { id } = req.params;
                 // Call service
-                const blog = await this.blogService.getBlogById(id);
+                const blog = await this._blogService.getBlogById(id);
                 // Send response
                 res.status(200).json({
                     success: true,
@@ -92,7 +92,7 @@ class BlogController {
             try {
                 const userId = req.user.userId;
                 // Call service
-                const blogs = await this.blogService.getBlogsByUser(userId);
+                const blogs = await this._blogService.getBlogsByUser(userId);
                 // Send response
                 res.status(200).json({
                     success: true,
@@ -121,7 +121,7 @@ class BlogController {
                 const { title, content } = req.body;
                 const userId = req.user.userId;
                 // Call service
-                const blog = await this.blogService.updateBlog(id, { title, content }, userId, req.file);
+                const blog = await this._blogService.updateBlog(id, { title, content }, userId, req.file);
                 // Send response
                 res.status(200).json({
                     success: true,
@@ -143,7 +143,7 @@ class BlogController {
                 const { id } = req.params;
                 const userId = req.user.userId;
                 // Call service
-                const result = await this.blogService.deleteBlog(id, userId);
+                const result = await this._blogService.deleteBlog(id, userId);
                 // Send response
                 res.status(200).json({
                     success: true,
@@ -154,7 +154,7 @@ class BlogController {
                 next(error);
             }
         };
-        this.blogService = blogService;
+        this._blogService = blogService;
     }
 }
 exports.BlogController = BlogController;

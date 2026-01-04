@@ -9,8 +9,8 @@ import { IBlog } from '../../models/Blog';
  * Following Single Responsibility and Dependency Inversion Principles
  */
 export declare class BlogService implements IBlogService {
-    private blogRepository;
-    private userRepository;
+    private _blogRepository;
+    private _userRepository;
     constructor(blogRepository: IBlogRepository, userRepository: IUserRepository);
     /**
      * Create a new blog

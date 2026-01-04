@@ -19,7 +19,7 @@ declare global {
  * Following Single Responsibility and Dependency Inversion Principles
  */
 export declare class BlogController implements IBlogController {
-    private blogService;
+    private _blogService;
     constructor(blogService: IBlogService);
     /**
      * Create a new blog

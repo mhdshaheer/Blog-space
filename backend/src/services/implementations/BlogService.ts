@@ -12,12 +12,12 @@ import fs from 'fs/promises';
  * Following Single Responsibility and Dependency Inversion Principles
  */
 export class BlogService implements IBlogService {
-  private blogRepository: IBlogRepository;
-  private userRepository: IUserRepository;
+  private _blogRepository: IBlogRepository;
+  private _userRepository: IUserRepository;
 
   constructor(blogRepository: IBlogRepository, userRepository: IUserRepository) {
-    this.blogRepository = blogRepository;
-    this.userRepository = userRepository;
+    this._blogRepository = blogRepository;
+    this._userRepository = userRepository;
   }
 
   /**
@@ -42,7 +42,7 @@ export class BlogService implements IBlogService {
     }
 
     // Verify author exists
-    const author = await this.userRepository.findUserById(authorId);
+    const author = await this._userRepository.findUserById(authorId);
     if (!author) {
       throw new Error('Author not found');
     }
@@ -51,7 +51,7 @@ export class BlogService implements IBlogService {
     const imagePath = `/uploads/${imageFile.filename}`;
 
     // Create blog with author and image
-    const blog = await this.blogRepository.createBlog({
+    const blog = await this._blogRepository.createBlog({
       ...blogData,
       author: authorId,
       image: imagePath
@@ -73,8 +73,8 @@ export class BlogService implements IBlogService {
 
     // Get blogs and total count
     const [blogs, total] = await Promise.all([
-      this.blogRepository.findAllBlogs({ skip, limit, filters }),
-      this.blogRepository.countBlogs(filters)
+      this._blogRepository.findAllBlogs({ skip, limit, filters }),
+      this._blogRepository.countBlogs(filters)
     ]);
 
     // Calculate total pages
@@ -99,7 +99,7 @@ export class BlogService implements IBlogService {
       throw new Error('Invalid blog ID format');
     }
 
-    const blog = await this.blogRepository.findBlogById(id);
+    const blog = await this._blogRepository.findBlogById(id);
     
     if (!blog) {
       throw new Error('Blog not found');
@@ -114,7 +114,7 @@ export class BlogService implements IBlogService {
    * @returns Array of blogs
    */
   async getBlogsByUser(userId: string): Promise<IBlog[]> {
-    const blogs = await this.blogRepository.findBlogsByAuthor(userId);
+    const blogs = await this._blogRepository.findBlogsByAuthor(userId);
     return blogs;
   }
 
@@ -128,7 +128,7 @@ export class BlogService implements IBlogService {
    */
   async updateBlog(id: string, updateData: Partial<IBlog>, userId: string, imageFile?: Express.Multer.File): Promise<IBlog> {
     // Fetch existing blog
-    const existingBlog = await this.blogRepository.findBlogById(id);
+    const existingBlog = await this._blogRepository.findBlogById(id);
     
     if (!existingBlog) {
       throw new Error('Blog not found');
@@ -164,7 +164,7 @@ export class BlogService implements IBlogService {
     }
 
     // Update blog
-    const updatedBlog = await this.blogRepository.updateBlog(id, updateData);
+    const updatedBlog = await this._blogRepository.updateBlog(id, updateData);
     
     return updatedBlog;
   }
@@ -177,7 +177,7 @@ export class BlogService implements IBlogService {
    */
   async deleteBlog(id: string, userId: string): Promise<{ message: string }> {
     // Fetch existing blog
-    const existingBlog = await this.blogRepository.findBlogById(id);
+    const existingBlog = await this._blogRepository.findBlogById(id);
     
     if (!existingBlog) {
       throw new Error('Blog not found');
@@ -198,7 +198,7 @@ export class BlogService implements IBlogService {
     }
 
     // Delete blog from database
-    await this.blogRepository.deleteBlog(id);
+    await this._blogRepository.deleteBlog(id);
 
     return { message: 'Blog deleted successfully' };
   }
