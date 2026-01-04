@@ -64,7 +64,7 @@ app.use(errorHandler_1.errorHandler);
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    // Server started silently
+    console.log(`\x1b[32m[SERVER] Running on http://localhost:${PORT}\x1b[0m`);
 });
 // Handle unhandled promise rejections
 process.on('unhandledRejection', () => {

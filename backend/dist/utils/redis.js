@@ -54,18 +54,25 @@ const redisClient = (0, redis_1.createClient)({
     }
 });
 exports.redisClient = redisClient;
-redisClient.on('error', () => {
-    // Silent error handling
+redisClient.on('error', (err) => {
+    console.error('\x1b[31m[REDIS] Client error:', err.message, '\x1b[0m');
+});
+redisClient.on('connect', () => {
+    console.log('\x1b[36m[REDIS] Initializing connection...\x1b[0m');
+});
+redisClient.on('ready', () => {
+    console.log('\x1b[36m[REDIS] Client is ready to use\x1b[0m');
 });
 // Auto-connect to redis
 (async () => {
     try {
         if (!redisClient.isOpen) {
             await redisClient.connect();
+            console.log('\x1b[36m[REDIS] Connected successfully\x1b[0m');
         }
     }
     catch (err) {
-        // Silent error handling
+        console.error('\x1b[31m[REDIS] Connection failed:', err.message, '\x1b[0m');
     }
 })();
 exports.default = redisClient;
