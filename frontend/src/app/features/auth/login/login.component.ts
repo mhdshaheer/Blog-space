@@ -15,14 +15,14 @@ import { ToastService } from '../../../core/services/toast.service';
 })
 export class LoginComponent {
   // Inject dependencies
-  private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-  private readonly toast = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly _fb = inject(FormBuilder);
+  private readonly _authService = inject(AuthService);
+  private readonly _router = inject(Router);
+  private readonly _toast = inject(ToastService);
+  private readonly _destroyRef = inject(DestroyRef);
 
   // Form
-  readonly loginForm: FormGroup = this.fb.group({
+  readonly loginForm: FormGroup = this._fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]]
   });
@@ -54,20 +54,20 @@ export class LoginComponent {
 
     this.isLoading.set(true);
 
-    this.authService.login(this.loginForm.value)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this._authService.login(this.loginForm.value)
+      .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
-            this.toast.success(`Welcome back, ${response.user?.username}!`);
-            this.router.navigate(['/']);
+            this._toast.success(`Welcome back, ${response.user?.username}!`);
+            this._router.navigate(['/']);
           } else {
-            this.toast.error(response.message || 'Login failed');
+            this._toast.error(response.message || 'Login failed');
           }
           this.isLoading.set(false);
         },
         error: (err) => {
-          this.toast.error(this.getApiErrorMessage(err));
+          this._toast.error(this.getApiErrorMessage(err));
           this.isLoading.set(false);
         }
       });

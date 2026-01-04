@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly apiUrl = `${environment.apiUrl}/auth`;
+  private readonly _apiUrl = `${environment.apiUrl}/auth`;
   
   // Modern signal-based state management
   private readonly _currentUser = signal<User | null>(null);
@@ -19,7 +19,7 @@ export class AuthService {
   readonly currentUser = computed(() => this._currentUser());
   readonly isAuthenticated = computed(() => !!this.getToken() && !!this.currentUser());
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private _http: HttpClient, private _router: Router) {
     this.loadUserFromStorage();
   }
 
@@ -37,11 +37,11 @@ export class AuthService {
   }
 
   register(data: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data);
+    return this._http.post<AuthResponse>(`${this._apiUrl}/register`, data);
   }
 
   verifyOtp(email: string, otp: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/verify-otp`, { email, otp }).pipe(
+    return this._http.post<AuthResponse>(`${this._apiUrl}/verify-otp`, { email, otp }).pipe(
       tap(response => {
         if (response.success && response.token && response.user) {
           this.setAuthData(response.token, response.user);
@@ -51,7 +51,7 @@ export class AuthService {
   }
 
   resendOtp(email: string): Observable<{ success: boolean; message: string }> {
-    return this.http.post<{ success: boolean; message: string }>(`${this.apiUrl}/resend-otp`, { email });
+    return this._http.post<{ success: boolean; message: string }>(`${this._apiUrl}/resend-otp`, { email });
   }
 
   private setAuthData(token: string, user: User): void {
@@ -67,7 +67,7 @@ export class AuthService {
   }
 
   login(data: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
+    return this._http.post<AuthResponse>(`${this._apiUrl}/login`, data).pipe(
       tap(response => {
         if (response.success && response.token && response.user) {
           this.setAuthData(response.token, response.user);
@@ -78,7 +78,7 @@ export class AuthService {
 
   logout(): void {
     this.clearAuthData();
-    this.router.navigate(['/login']);
+    this._router.navigate(['/login']);
   }
 
   getToken(): string | null {

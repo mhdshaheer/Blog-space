@@ -13,12 +13,12 @@ export interface ConfirmOptions {
   providedIn: 'root'
 })
 export class ConfirmService {
-  private confirmSubject = new Subject<{ options: ConfirmOptions; resolver: (result: boolean) => void }>();
-  public confirm$ = this.confirmSubject.asObservable();
+  private readonly _confirmSubject = new Subject<{ options: ConfirmOptions; resolver: (result: boolean) => void }>();
+  readonly confirm$ = this._confirmSubject.asObservable();
 
   confirm(options: ConfirmOptions): Promise<boolean> {
     return new Promise((resolve) => {
-      this.confirmSubject.next({ options, resolver: resolve });
+      this._confirmSubject.next({ options, resolver: resolve });
     });
   }
 }

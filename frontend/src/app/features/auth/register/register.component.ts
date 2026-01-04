@@ -15,21 +15,21 @@ import { ToastService } from '../../../core/services/toast.service';
 })
 export class RegisterComponent {
   // Inject dependencies
-  private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-  private readonly toast = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly _fb = inject(FormBuilder);
+  private readonly _authService = inject(AuthService);
+  private readonly _router = inject(Router);
+  private readonly _toast = inject(ToastService);
+  private readonly _destroyRef = inject(DestroyRef);
 
   // Forms
-  readonly registerForm: FormGroup = this.fb.group({
+  readonly registerForm: FormGroup = this._fb.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', [Validators.required]]
   }, { validators: this.passwordMatchValidator });
 
-  readonly otpForm: FormGroup = this.fb.group({
+  readonly otpForm: FormGroup = this._fb.group({
     otp: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
   });
 
@@ -73,20 +73,20 @@ export class RegisterComponent {
     const { username, email, password } = this.registerForm.value;
     this.registeredEmail.set(email);
 
-    this.authService.register({ username, email, password })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this._authService.register({ username, email, password })
+      .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
             this.showOtpStep.set(true);
-            this.toast.success(response.message || 'Verification code sent to your email');
+            this._toast.success(response.message || 'Verification code sent to your email');
           } else {
-            this.toast.error(response.message || 'Registration failed');
+            this._toast.error(response.message || 'Registration failed');
           }
           this.isLoading.set(false);
         },
         error: (err) => {
-          this.toast.error(this.getApiErrorMessage(err, 'Something went wrong'));
+          this._toast.error(this.getApiErrorMessage(err, 'Something went wrong'));
           this.isLoading.set(false);
         }
       });
@@ -103,20 +103,20 @@ export class RegisterComponent {
 
     const { otp } = this.otpForm.value;
 
-    this.authService.verifyOtp(this.registeredEmail(), otp)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this._authService.verifyOtp(this.registeredEmail(), otp)
+      .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
-            this.toast.success('Registration successful! Welcome aboard.');
-            this.router.navigate(['/']);
+            this._toast.success('Registration successful! Welcome aboard.');
+            this._router.navigate(['/']);
           } else {
-            this.toast.error(response.message || 'Verification failed');
+            this._toast.error(response.message || 'Verification failed');
           }
           this.isLoading.set(false);
         },
         error: (err) => {
-          this.toast.error(this.getApiErrorMessage(err, 'Invalid or expired OTP'));
+          this._toast.error(this.getApiErrorMessage(err, 'Invalid or expired OTP'));
           this.isLoading.set(false);
         }
       });
@@ -125,19 +125,19 @@ export class RegisterComponent {
   onResendOtp(): void {
     this.isLoading.set(true);
 
-    this.authService.resendOtp(this.registeredEmail())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this._authService.resendOtp(this.registeredEmail())
+      .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
-            this.toast.success('New verification code sent!');
+            this._toast.success('New verification code sent!');
           } else {
-            this.toast.error('Failed to resend OTP');
+            this._toast.error('Failed to resend OTP');
           }
           this.isLoading.set(false);
         },
         error: (err) => {
-          this.toast.error(this.getApiErrorMessage(err, 'Failed to resend code'));
+          this._toast.error(this.getApiErrorMessage(err, 'Failed to resend code'));
           this.isLoading.set(false);
         }
       });

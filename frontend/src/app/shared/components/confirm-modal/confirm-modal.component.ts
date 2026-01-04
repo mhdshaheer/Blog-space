@@ -75,28 +75,28 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class ConfirmModalComponent implements OnInit {
   isOpen = false;
   options: ConfirmOptions | null = null;
-  private resolver: ((result: boolean) => void) | null = null;
+  private _resolver: ((result: boolean) => void) | null = null;
   
-  private confirmService = inject(ConfirmService);
-  private destroyRef = inject(DestroyRef);
+  private readonly _confirmService = inject(ConfirmService);
+  private readonly _destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.confirmService.confirm$
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this._confirmService.confirm$
+      .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe(data => {
         this.options = data.options;
-        this.resolver = data.resolver;
+        this._resolver = data.resolver;
         this.isOpen = true;
       });
   }
 
   confirm(): void {
     this.isOpen = false;
-    this.resolver?.(true);
+    this._resolver?.(true);
   }
 
   cancel(): void {
     this.isOpen = false;
-    this.resolver?.(false);
+    this._resolver?.(false);
   }
 }

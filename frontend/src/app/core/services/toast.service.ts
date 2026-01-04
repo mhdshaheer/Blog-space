@@ -12,10 +12,10 @@ export interface Toast {
 export class ToastService {
   private readonly _toasts = signal<Toast[]>([]);
   readonly toasts = computed(() => this._toasts());
-  private counter = 0;
+  private _counter = 0;
 
   show(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info'): void {
-    const id = this.counter++;
+    const id = this._counter++;
     const toast: Toast = { message, type, id };
     
     this._toasts.update(toasts => [...toasts, toast]);

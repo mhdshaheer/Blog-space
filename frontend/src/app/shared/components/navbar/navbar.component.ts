@@ -12,10 +12,10 @@ import { ToastService } from '../../../core/services/toast.service';
   styles: []
 })
 export class NavbarComponent {
-  private authService = inject(AuthService);
-  private toast = inject(ToastService);
+  private readonly _authService = inject(AuthService);
+  private readonly _toast = inject(ToastService);
 
-  readonly currentUser = this.authService.currentUser;
+  readonly currentUser = this._authService.currentUser;
   
   isMenuOpen = false;
   isProfileOpen = false;
@@ -59,8 +59,8 @@ export class NavbarComponent {
   }
 
   logout(): void {
-    this.authService.logout();
-    this.toast.success('Successfully logged out');
+    this._authService.logout();
+    this._toast.success('Successfully logged out');
     this.isMenuOpen = false;
     this.isProfileOpen = false;
   }

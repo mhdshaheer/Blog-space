@@ -16,10 +16,10 @@ import { ToastService } from '../../../core/services/toast.service';
 })
 export class BlogDetailComponent {
   // Inject dependencies using modern inject() function
-  private readonly route = inject(ActivatedRoute);
-  private readonly blogService = inject(BlogService);
-  private readonly toast = inject(ToastService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly _route = inject(ActivatedRoute);
+  private readonly _blogService = inject(BlogService);
+  private readonly _toast = inject(ToastService);
+  private readonly _destroyRef = inject(DestroyRef);
 
   // Signal-based state
   readonly blog = signal<Blog | null>(null);
@@ -28,8 +28,8 @@ export class BlogDetailComponent {
 
   constructor() {
     // Subscribe to route params with automatic cleanup
-    this.route.paramMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this._route.paramMap
+      .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe(params => {
         const id = params.get('id');
         if (id) {
@@ -40,8 +40,8 @@ export class BlogDetailComponent {
 
   private loadBlog(id: string): void {
     this.isLoading.set(true);
-    this.blogService.getBlogById(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this._blogService.getBlogById(id)
+      .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {

@@ -43,10 +43,10 @@ import { ToastService } from '../../../core/services/toast.service';
   `]
 })
 export class ToastComponent {
-  private toastService = inject(ToastService);
-  toasts = this.toastService.toasts;
+  private readonly _toastService = inject(ToastService);
+  toasts = this._toastService.toasts;
 
   remove(id: number): void {
-    this.toastService.remove(id);
+    this._toastService.remove(id);
   }
 }

@@ -14,8 +14,8 @@ import { environment } from '../../../environments/environment';
 })
 export class HomeComponent {
   // Inject dependencies
-  private readonly blogService = inject(BlogService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly _blogService = inject(BlogService);
+  private readonly _destroyRef = inject(DestroyRef);
 
   // Signal-based state
   readonly blogs = signal<Blog[]>([]);
@@ -31,8 +31,8 @@ export class HomeComponent {
 
   loadBlogs(): void {
     this.isLoading.set(true);
-    this.blogService.getBlogs(this.page(), this.limit())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this._blogService.getBlogs(this.page(), this.limit())
+      .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe({
         next: (response) => {
           this.blogs.set(response.blogs);

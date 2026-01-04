@@ -8,35 +8,35 @@ import { Blog, PaginatedBlogsResponse } from '../models/blog.model';
   providedIn: 'root'
 })
 export class BlogService {
-  private apiUrl = `${environment.apiUrl}/blogs`;
+  private readonly _apiUrl = `${environment.apiUrl}/blogs`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly _http: HttpClient) {}
 
   getBlogs(page: number = 1, limit: number = 10): Observable<PaginatedBlogsResponse> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString());
     
-    return this.http.get<PaginatedBlogsResponse>(this.apiUrl, { params });
+    return this._http.get<PaginatedBlogsResponse>(this._apiUrl, { params });
   }
 
   getBlogById(id: string): Observable<{ success: boolean; blog: Blog }> {
-    return this.http.get<{ success: boolean; blog: Blog }>(`${this.apiUrl}/${id}`);
+    return this._http.get<{ success: boolean; blog: Blog }>(`${this._apiUrl}/${id}`);
   }
 
   getMyBlogs(): Observable<{ success: boolean; count: number; blogs: Blog[] }> {
-    return this.http.get<{ success: boolean; count: number; blogs: Blog[] }>(`${this.apiUrl}/user/me`);
+    return this._http.get<{ success: boolean; count: number; blogs: Blog[] }>(`${this._apiUrl}/user/me`);
   }
 
   createBlog(formData: FormData): Observable<{ success: boolean; message: string; blog: Blog }> {
-    return this.http.post<{ success: boolean; message: string; blog: Blog }>(this.apiUrl, formData);
+    return this._http.post<{ success: boolean; message: string; blog: Blog }>(this._apiUrl, formData);
   }
 
   updateBlog(id: string, formData: FormData): Observable<{ success: boolean; message: string; blog: Blog }> {
-    return this.http.put<{ success: boolean; message: string; blog: Blog }>(`${this.apiUrl}/${id}`, formData);
+    return this._http.put<{ success: boolean; message: string; blog: Blog }>(`${this._apiUrl}/${id}`, formData);
   }
 
   deleteBlog(id: string): Observable<{ success: boolean; message: string }> {
-    return this.http.delete<{ success: boolean; message: string }>(`${this.apiUrl}/${id}`);
+    return this._http.delete<{ success: boolean; message: string }>(`${this._apiUrl}/${id}`);
   }
 }

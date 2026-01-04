@@ -16,10 +16,10 @@ import { environment } from '../../../../environments/environment';
 })
 export class MyBlogsComponent {
   // Inject dependencies
-  private readonly blogService = inject(BlogService);
-  private readonly toastService = inject(ToastService);
-  private readonly confirmService = inject(ConfirmService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly _blogService = inject(BlogService);
+  private readonly _toastService = inject(ToastService);
+  private readonly _confirmService = inject(ConfirmService);
+  private readonly _destroyRef = inject(DestroyRef);
 
   // Signal-based state
   readonly blogs = signal<Blog[]>([]);
@@ -33,8 +33,8 @@ export class MyBlogsComponent {
 
   loadMyBlogs(): void {
     this.isLoading.set(true);
-    this.blogService.getMyBlogs()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this._blogService.getMyBlogs()
+      .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -50,7 +50,7 @@ export class MyBlogsComponent {
   }
 
   async deleteBlog(id: string): Promise<void> {
-    const confirmed = await this.confirmService.confirm({
+    const confirmed = await this._confirmService.confirm({
       title: 'Delete Article',
       message: 'Are you sure you want to permanently delete this story? This action cannot be undone.',
       confirmText: 'Delete Now',
@@ -60,18 +60,18 @@ export class MyBlogsComponent {
     if (!confirmed) return;
 
     this.deleteLoading.set(id);
-    this.blogService.deleteBlog(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this._blogService.deleteBlog(id)
+      .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
             this.blogs.update(blogs => blogs.filter(b => b._id !== id));
-            this.toastService.success('Blog deleted successfully');
+            this._toastService.success('Blog deleted successfully');
           }
           this.deleteLoading.set(null);
         },
         error: (err) => {
-          this.toastService.error(err.error?.message || 'Failed to delete blog');
+          this._toastService.error(err.error?.message || 'Failed to delete blog');
           this.deleteLoading.set(null);
         }
       });
