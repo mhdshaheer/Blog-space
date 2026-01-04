@@ -27,5 +27,13 @@ export interface IAuthController {
      * Handle resending OTP
      */
     resendOtp(req: Request, res: Response, next: NextFunction): Promise<void>;
+    /**
+     * Handle forgot password request
+     */
+    forgotPassword(req: Request, res: Response, next: NextFunction): Promise<void>;
+    /**
+     * Handle reset password request
+     */
+    resetPassword(req: Request, res: Response, next: NextFunction): Promise<void>;
 }
 //# sourceMappingURL=IAuthController.d.ts.map

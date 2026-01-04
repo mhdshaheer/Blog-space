@@ -176,5 +176,51 @@ export class AuthService implements IAuthService {
     delete userObj.password;
     return userObj;
   }
+
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this._userRepository.findUserByEmail(email);
+    if (!user) {
+      throw new Error(AUTH_MESSAGES.USER_NOT_FOUND);
+    }
+
+    const otp = this.generateOTP();
+
+    // Store in Redis (10 minutes)
+    await redisClient.setEx(
+      `password-reset:${email}`,
+      600,
+      otp
+    );
+
+    await sendEmail({
+      email,
+      subject: 'Password Reset Request',
+      message: `Your password reset code is ${otp}. It will expire in 10 minutes.`
+    });
+  }
+
+  async resetPassword(email: string, otp: string, newPassword: string): Promise<void> {
+    const storedOtp = await redisClient.get(`password-reset:${email}`);
+    
+    if (!storedOtp) {
+      throw new Error(AUTH_MESSAGES.RESET_SESSION_EXPIRED);
+    }
+
+    if (storedOtp !== otp) {
+      throw new Error(AUTH_MESSAGES.INVALID_OTP);
+    }
+
+    const user = await this._userRepository.findUserByEmail(email);
+    if (!user) {
+      throw new Error(AUTH_MESSAGES.USER_NOT_FOUND);
+    }
+
+    // Update password using the model directly to ensure 'pre-save' hook runs
+    user.password = newPassword;
+    await user.save();
+
+    // Delete reset code from Redis
+    await redisClient.del(`password-reset:${email}`);
+  }
 }
 

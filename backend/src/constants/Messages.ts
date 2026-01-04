@@ -11,7 +11,11 @@ export const AUTH_MESSAGES = {
   SESSION_EXPIRED: 'Registration session expired or not found. Please register again.',
   INVALID_OTP: 'Invalid OTP',
   ALREADY_VERIFIED: 'User is already verified',
-  INVALID_TOKEN: 'Invalid or expired token'
+  INVALID_TOKEN: 'Invalid or expired token',
+  RESET_OTP_SENT: 'Password reset code sent to your email',
+  PASSWORD_RESET_SUCCESS: 'Password has been reset successfully',
+  USER_NOT_FOUND: 'No user found with this email',
+  RESET_SESSION_EXPIRED: 'Reset session expired. Please request a new code.'
 };
 
 export const BLOG_MESSAGES = {

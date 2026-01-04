@@ -141,6 +141,38 @@ class AuthService {
         delete userObj.password;
         return userObj;
     }
+    async forgotPassword(email) {
+        const user = await this._userRepository.findUserByEmail(email);
+        if (!user) {
+            throw new Error(Messages_1.AUTH_MESSAGES.USER_NOT_FOUND);
+        }
+        const otp = this.generateOTP();
+        // Store in Redis (10 minutes)
+        await redis_1.redisClient.setEx(`password-reset:${email}`, 600, otp);
+        await (0, email_1.sendEmail)({
+            email,
+            subject: 'Password Reset Request',
+            message: `Your password reset code is ${otp}. It will expire in 10 minutes.`
+        });
+    }
+    async resetPassword(email, otp, newPassword) {
+        const storedOtp = await redis_1.redisClient.get(`password-reset:${email}`);
+        if (!storedOtp) {
+            throw new Error(Messages_1.AUTH_MESSAGES.RESET_SESSION_EXPIRED);
+        }
+        if (storedOtp !== otp) {
+            throw new Error(Messages_1.AUTH_MESSAGES.INVALID_OTP);
+        }
+        const user = await this._userRepository.findUserByEmail(email);
+        if (!user) {
+            throw new Error(Messages_1.AUTH_MESSAGES.USER_NOT_FOUND);
+        }
+        // Update password using the model directly to ensure 'pre-save' hook runs
+        user.password = newPassword;
+        await user.save();
+        // Delete reset code from Redis
+        await redis_1.redisClient.del(`password-reset:${email}`);
+    }
 }
 exports.AuthService = AuthService;
 //# sourceMappingURL=AuthService.js.map

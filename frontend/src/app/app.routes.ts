@@ -19,6 +19,11 @@ export const routes: Routes = [
     title: 'Sign Up'
   },
   {
+    path: 'forgot-password',
+    loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+    title: 'Recover Access'
+  },
+  {
     path: 'create-blog',
     loadComponent: () => import('./features/blogs/blog-form/blog-form.component').then(m => m.BlogFormComponent),
     canActivate: [authGuard],

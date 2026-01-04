@@ -112,4 +112,50 @@ export class AuthController implements IAuthController {
       next(error);
     }
   };
+
+  /**
+   * Handle forgot password request
+   * POST /api/auth/forgot-password
+   */
+  forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        res.status(HttpStatus.BAD_REQUEST).json({ message: 'Email is required' });
+        return;
+      }
+
+      await this._authService.forgotPassword(email);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: AUTH_MESSAGES.RESET_OTP_SENT
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Handle reset password request
+   * POST /api/auth/reset-password
+   */
+  resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { email, otp, newPassword } = req.body;
+      if (!email || !otp || !newPassword) {
+        res.status(HttpStatus.BAD_REQUEST).json({ message: 'Email, OTP, and new password are required' });
+        return;
+      }
+
+      await this._authService.resetPassword(email, otp, newPassword);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: AUTH_MESSAGES.PASSWORD_RESET_SUCCESS
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

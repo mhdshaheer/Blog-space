@@ -30,5 +30,15 @@ export declare class AuthController implements IAuthController {
      * POST /api/auth/resend-otp
      */
     resendOtp: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    /**
+     * Handle forgot password request
+     * POST /api/auth/forgot-password
+     */
+    forgotPassword: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    /**
+     * Handle reset password request
+     * POST /api/auth/reset-password
+     */
+    resetPassword: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 }
 //# sourceMappingURL=AuthController.d.ts.map

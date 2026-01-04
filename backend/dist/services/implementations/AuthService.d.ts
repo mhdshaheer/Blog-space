@@ -14,5 +14,7 @@ export declare class AuthService implements IAuthService {
     resendOtp(email: string): Promise<void>;
     validateToken(token: string): Promise<TokenPayload>;
     getUserById(userId: string): Promise<Partial<IUser> | null>;
+    forgotPassword(email: string): Promise<void>;
+    resetPassword(email: string, otp: string, newPassword: string): Promise<void>;
 }
 //# sourceMappingURL=AuthService.d.ts.map

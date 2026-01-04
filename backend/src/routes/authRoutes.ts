@@ -37,4 +37,18 @@ router.post('/verify-otp', authController.verifyOtp);
  */
 router.post('/resend-otp', authController.resendOtp);
 
+/**
+ * @route   POST /api/auth/forgot-password
+ * @desc    Request password reset OTP
+ * @access  Public
+ */
+router.post('/forgot-password', authController.forgotPassword);
+
+/**
+ * @route   POST /api/auth/reset-password
+ * @desc    Reset password with OTP
+ * @access  Public
+ */
+router.post('/reset-password', authController.resetPassword);
+
 export default router;

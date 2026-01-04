@@ -51,5 +51,17 @@ export interface IAuthService {
      * @param email - User email
      */
     resendOtp(email: string): Promise<void>;
+    /**
+     * Request password reset OTP
+     * @param email - User email
+     */
+    forgotPassword(email: string): Promise<void>;
+    /**
+     * Reset password with OTP
+     * @param email - User email
+     * @param otp - Password reset OTP
+     * @param newPassword - New password
+     */
+    resetPassword(email: string, otp: string, newPassword: string): Promise<void>;
 }
 //# sourceMappingURL=IAuthService.d.ts.map
