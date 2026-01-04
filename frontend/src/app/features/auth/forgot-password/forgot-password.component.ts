@@ -19,6 +19,8 @@ export class ForgotPasswordComponent {
   isLoading = signal(false);
   isSubmitted = signal(false);
   currentStep = signal(1); // 1: Email, 2: OTP, 3: Password
+  showNewPassword = signal(false);
+  showConfirmPassword = signal(false);
 
   constructor(
     private _fb: FormBuilder,
