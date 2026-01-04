@@ -9,7 +9,6 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
 let cachedTestAccount = null;
 const sendEmail = async (options) => {
     let transporter;
-    let isTestAccount = false;
     // 1. Use SMTP credentials if BOTH User and Pass are provided
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
         transporter = nodemailer_1.default.createTransport({
@@ -25,7 +24,6 @@ const sendEmail = async (options) => {
     }
     // 2. FALLBACK: Use Ethereal (Real Test Email Service)
     else {
-        isTestAccount = true;
         if (!cachedTestAccount) {
             cachedTestAccount = await nodemailer_1.default.createTestAccount();
         }
@@ -86,7 +84,7 @@ const sendEmail = async (options) => {
         }
     };
     try {
-        const info = await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
     }
     catch (error) {
         throw error;

@@ -1,4 +1,5 @@
 import { IAuthService, LoginResponse, TokenPayload } from '../interfaces/IAuthService';
+import { AUTH_MESSAGES } from '../../constants/Messages';
 import { IUserRepository } from '../../repositories/interfaces/IUserRepository';
 import { IUser } from '../../models/User';
 import jwt from 'jsonwebtoken';
@@ -23,13 +24,13 @@ export class AuthService implements IAuthService {
     const { username, email, password } = userData;
 
     if (!username || !email || !password) {
-      throw new Error('Username, email, and password are required');
+      throw new Error(AUTH_MESSAGES.REQUIRED_FIELDS);
     }
 
     // Check if user already exists in permanent DB
     const existingUser = await this._userRepository.findUserByEmail(email);
     if (existingUser) {
-      throw new Error('Email already exists');
+      throw new Error(AUTH_MESSAGES.EMAIL_EXISTS);
     }
 
     const otp = this.generateOTP();
@@ -43,7 +44,7 @@ export class AuthService implements IAuthService {
         JSON.stringify(pendingUserData)
       );
     } catch (error) {
-      throw new Error('Internal server error during registration');
+      throw new Error(AUTH_MESSAGES.INTERNAL_ERROR);
     }
 
     // Send Verification Email
@@ -62,17 +63,17 @@ export class AuthService implements IAuthService {
 
   async loginUser(email: string, password: string): Promise<LoginResponse> {
     if (!email || !password) {
-      throw new Error('Email and password are required');
+      throw new Error(AUTH_MESSAGES.CREDENTIALS_REQUIRED);
     }
 
     const user = await this._userRepository.findUserByEmail(email);
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);
     }
 
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      throw new Error('Invalid credentials');
+      throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);
     }
 
     const payload: TokenPayload = {
@@ -96,13 +97,13 @@ export class AuthService implements IAuthService {
     const pendingData = await redisClient.get(`registration:${email}`);
     
     if (!pendingData) {
-      throw new Error('Registration session expired or not found. Please register again.');
+      throw new Error(AUTH_MESSAGES.SESSION_EXPIRED);
     }
 
     const pending = JSON.parse(pendingData);
 
     if (pending.otp !== otp) {
-      throw new Error('Invalid OTP');
+      throw new Error(AUTH_MESSAGES.INVALID_OTP);
     }
 
     // Create permanent user
@@ -137,8 +138,8 @@ export class AuthService implements IAuthService {
     
     if (!pendingData) {
       const user = await this._userRepository.findUserByEmail(email);
-      if (user) throw new Error('User is already verified');
-      throw new Error('Registration session expired. Please register again.');
+      if (user) throw new Error(AUTH_MESSAGES.ALREADY_VERIFIED);
+      throw new Error(AUTH_MESSAGES.SESSION_EXPIRED);
     }
 
     const pending = JSON.parse(pendingData);
@@ -163,7 +164,7 @@ export class AuthService implements IAuthService {
     try {
       return jwt.verify(token, process.env.JWT_SECRET as string) as TokenPayload;
     } catch (error) {
-      throw new Error('Invalid or expired token');
+      throw new Error(AUTH_MESSAGES.INVALID_TOKEN);
     }
   }
 

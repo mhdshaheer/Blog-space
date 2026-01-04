@@ -1,6 +1,5 @@
 import mongoose, { Document } from 'mongoose';
 export interface IBlog extends Document {
-    _id: string;
     title: string;
     content: string;
     image: string;
@@ -9,7 +8,7 @@ export interface IBlog extends Document {
     updatedAt: Date;
 }
 declare const _default: mongoose.Model<IBlog, {}, {}, {}, mongoose.Document<unknown, {}, IBlog, {}, mongoose.DefaultSchemaOptions> & IBlog & Required<{
-    _id: string;
+    _id: mongoose.Types.ObjectId;
 }> & {
     __v: number;
 }, any, IBlog>;

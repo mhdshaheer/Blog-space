@@ -4,10 +4,10 @@ import crypto from 'crypto';
 
 // Configure storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (_req, _file, cb) => {
     cb(null, 'uploads/');
   },
-  filename: (req, file, cb) => {
+  filename: (_req, file, cb) => {
     // Generate unique filename
     const uniqueSuffix = crypto.randomBytes(16).toString('hex');
     const ext = path.extname(file.originalname);
@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
 });
 
 // File filter to allow only images
-const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (_req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedTypes = process.env.ALLOWED_FILE_TYPES?.split(',') || [
     'image/jpeg',
     'image/jpg',

@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
+const Messages_1 = require("../../constants/Messages");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const email_1 = require("../../utils/email");
 const redis_1 = require("../../utils/redis");
@@ -20,12 +21,12 @@ class AuthService {
     async registerUser(userData) {
         const { username, email, password } = userData;
         if (!username || !email || !password) {
-            throw new Error('Username, email, and password are required');
+            throw new Error(Messages_1.AUTH_MESSAGES.REQUIRED_FIELDS);
         }
         // Check if user already exists in permanent DB
         const existingUser = await this._userRepository.findUserByEmail(email);
         if (existingUser) {
-            throw new Error('Email already exists');
+            throw new Error(Messages_1.AUTH_MESSAGES.EMAIL_EXISTS);
         }
         const otp = this.generateOTP();
         const pendingUserData = { username, email, password, otp };
@@ -35,7 +36,7 @@ class AuthService {
             JSON.stringify(pendingUserData));
         }
         catch (error) {
-            throw new Error('Internal server error during registration');
+            throw new Error(Messages_1.AUTH_MESSAGES.INTERNAL_ERROR);
         }
         // Send Verification Email
         try {
@@ -52,15 +53,15 @@ class AuthService {
     }
     async loginUser(email, password) {
         if (!email || !password) {
-            throw new Error('Email and password are required');
+            throw new Error(Messages_1.AUTH_MESSAGES.CREDENTIALS_REQUIRED);
         }
         const user = await this._userRepository.findUserByEmail(email);
         if (!user) {
-            throw new Error('Invalid credentials');
+            throw new Error(Messages_1.AUTH_MESSAGES.INVALID_CREDENTIALS);
         }
         const isPasswordValid = await user.comparePassword(password);
         if (!isPasswordValid) {
-            throw new Error('Invalid credentials');
+            throw new Error(Messages_1.AUTH_MESSAGES.INVALID_CREDENTIALS);
         }
         const payload = {
             userId: user._id.toString(),
@@ -78,11 +79,11 @@ class AuthService {
         // Find pending registration from Redis
         const pendingData = await redis_1.redisClient.get(`registration:${email}`);
         if (!pendingData) {
-            throw new Error('Registration session expired or not found. Please register again.');
+            throw new Error(Messages_1.AUTH_MESSAGES.SESSION_EXPIRED);
         }
         const pending = JSON.parse(pendingData);
         if (pending.otp !== otp) {
-            throw new Error('Invalid OTP');
+            throw new Error(Messages_1.AUTH_MESSAGES.INVALID_OTP);
         }
         // Create permanent user
         const user = await this._userRepository.createUser({
@@ -110,8 +111,8 @@ class AuthService {
         if (!pendingData) {
             const user = await this._userRepository.findUserByEmail(email);
             if (user)
-                throw new Error('User is already verified');
-            throw new Error('Registration session expired. Please register again.');
+                throw new Error(Messages_1.AUTH_MESSAGES.ALREADY_VERIFIED);
+            throw new Error(Messages_1.AUTH_MESSAGES.SESSION_EXPIRED);
         }
         const pending = JSON.parse(pendingData);
         const otp = this.generateOTP();
@@ -129,7 +130,7 @@ class AuthService {
             return jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
         }
         catch (error) {
-            throw new Error('Invalid or expired token');
+            throw new Error(Messages_1.AUTH_MESSAGES.INVALID_TOKEN);
         }
     }
     async getUserById(userId) {

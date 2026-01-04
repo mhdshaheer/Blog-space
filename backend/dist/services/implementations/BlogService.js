@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogService = void 0;
+const Messages_1 = require("../../constants/Messages");
 const path_1 = __importDefault(require("path"));
 const promises_1 = __importDefault(require("fs/promises"));
 /**
@@ -27,18 +28,18 @@ class BlogService {
     async createBlog(blogData, authorId, imageFile) {
         // Validate blog data
         if (!blogData.title || blogData.title.length < 5) {
-            throw new Error('Title must be at least 5 characters');
+            throw new Error(Messages_1.BLOG_MESSAGES.TITLE_REQUIRED);
         }
         if (!blogData.content || blogData.content.length < 10) {
-            throw new Error('Content must be at least 10 characters');
+            throw new Error(Messages_1.BLOG_MESSAGES.CONTENT_REQUIRED);
         }
         if (!imageFile) {
-            throw new Error('Image is required');
+            throw new Error(Messages_1.BLOG_MESSAGES.IMAGE_REQUIRED);
         }
         // Verify author exists
         const author = await this._userRepository.findUserById(authorId);
         if (!author) {
-            throw new Error('Author not found');
+            throw new Error(Messages_1.BLOG_MESSAGES.AUTHOR_NOT_FOUND);
         }
         // Process image upload (file path relative to uploads folder)
         const imagePath = `/uploads/${imageFile.filename}`;
@@ -82,11 +83,11 @@ class BlogService {
     async getBlogById(id) {
         // Validate ID format
         if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-            throw new Error('Invalid blog ID format');
+            throw new Error(Messages_1.BLOG_MESSAGES.INVALID_ID);
         }
         const blog = await this._blogRepository.findBlogById(id);
         if (!blog) {
-            throw new Error('Blog not found');
+            throw new Error(Messages_1.BLOG_MESSAGES.NOT_FOUND);
         }
         return blog;
     }
@@ -111,19 +112,19 @@ class BlogService {
         // Fetch existing blog
         const existingBlog = await this._blogRepository.findBlogById(id);
         if (!existingBlog) {
-            throw new Error('Blog not found');
+            throw new Error(Messages_1.BLOG_MESSAGES.NOT_FOUND);
         }
         // Verify ownership
         const authorId = existingBlog.author?._id?.toString?.() ?? existingBlog.author.toString();
         if (authorId !== userId) {
-            throw new Error('Unauthorized: You can only update your own blogs');
+            throw new Error(Messages_1.BLOG_MESSAGES.UNAUTHORIZED_UPDATE);
         }
         // Validate update data
         if (updateData.title && updateData.title.length < 5) {
-            throw new Error('Title must be at least 5 characters');
+            throw new Error(Messages_1.BLOG_MESSAGES.TITLE_REQUIRED);
         }
         if (updateData.content && updateData.content.length < 10) {
-            throw new Error('Content must be at least 10 characters');
+            throw new Error(Messages_1.BLOG_MESSAGES.CONTENT_REQUIRED);
         }
         // Process new image if provided
         if (imageFile) {
@@ -152,12 +153,12 @@ class BlogService {
         // Fetch existing blog
         const existingBlog = await this._blogRepository.findBlogById(id);
         if (!existingBlog) {
-            throw new Error('Blog not found');
+            throw new Error(Messages_1.BLOG_MESSAGES.NOT_FOUND);
         }
         // Verify ownership
         const authorId = existingBlog.author?._id?.toString?.() ?? existingBlog.author.toString();
         if (authorId !== userId) {
-            throw new Error('Unauthorized: You can only delete your own blogs');
+            throw new Error(Messages_1.BLOG_MESSAGES.UNAUTHORIZED_DELETE);
         }
         // Delete associated image file
         try {
@@ -169,7 +170,7 @@ class BlogService {
         }
         // Delete blog from database
         await this._blogRepository.deleteBlog(id);
-        return { message: 'Blog deleted successfully' };
+        return { message: Messages_1.BLOG_MESSAGES.DELETE_SUCCESS };
     }
 }
 exports.BlogService = BlogService;

@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { IBlogController } from '../interfaces/IBlogController';
 import { IBlogService } from '../../services/interfaces/IBlogService';
 import { validationResult } from 'express-validator';
+import { HttpStatus } from '../../enums/HttpStatus';
+import { BLOG_MESSAGES } from '../../constants/Messages';
 
 // Extend Express Request to include user
 declare global {
@@ -39,12 +41,12 @@ export class BlogController implements IBlogController {
       // Validate request
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.status(400).json({ errors: errors.array() });
+        res.status(HttpStatus.BAD_REQUEST).json({ errors: errors.array() });
         return;
       }
 
       if (!req.file) {
-        res.status(400).json({ message: 'Image is required' });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: BLOG_MESSAGES.IMAGE_REQUIRED });
         return;
       }
 
@@ -59,9 +61,9 @@ export class BlogController implements IBlogController {
       );
 
       // Send response
-      res.status(201).json({
+      res.status(HttpStatus.CREATED).json({
         success: true,
-        message: 'Blog created successfully',
+        message: BLOG_MESSAGES.CREATE_SUCCESS,
         blog
       });
     } catch (error) {
@@ -83,7 +85,7 @@ export class BlogController implements IBlogController {
       const result = await this._blogService.getAllBlogs(page, limit);
 
       // Send response
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         ...result
       });
@@ -105,7 +107,7 @@ export class BlogController implements IBlogController {
       const blog = await this._blogService.getBlogById(id);
 
       // Send response
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         blog
       });
@@ -127,7 +129,7 @@ export class BlogController implements IBlogController {
       const blogs = await this._blogService.getBlogsByUser(userId);
 
       // Send response
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         count: blogs.length,
         blogs
@@ -147,7 +149,7 @@ export class BlogController implements IBlogController {
       // Validate request
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.status(400).json({ errors: errors.array() });
+        res.status(HttpStatus.BAD_REQUEST).json({ errors: errors.array() });
         return;
       }
 
@@ -164,9 +166,9 @@ export class BlogController implements IBlogController {
       );
 
       // Send response
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Blog updated successfully',
+        message: BLOG_MESSAGES.UPDATE_SUCCESS,
         blog
       });
     } catch (error) {
@@ -188,7 +190,7 @@ export class BlogController implements IBlogController {
       const result = await this._blogService.deleteBlog(id, userId);
 
       // Send response
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         ...result
       });

@@ -9,10 +9,10 @@ const path_1 = __importDefault(require("path"));
 const crypto_1 = __importDefault(require("crypto"));
 // Configure storage
 const storage = multer_1.default.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (_req, _file, cb) => {
         cb(null, 'uploads/');
     },
-    filename: (req, file, cb) => {
+    filename: (_req, file, cb) => {
         // Generate unique filename
         const uniqueSuffix = crypto_1.default.randomBytes(16).toString('hex');
         const ext = path_1.default.extname(file.originalname);
@@ -20,7 +20,7 @@ const storage = multer_1.default.diskStorage({
     }
 });
 // File filter to allow only images
-const fileFilter = (req, file, cb) => {
+const fileFilter = (_req, file, cb) => {
     const allowedTypes = process.env.ALLOWED_FILE_TYPES?.split(',') || [
         'image/jpeg',
         'image/jpg',

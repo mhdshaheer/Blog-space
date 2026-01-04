@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogController = void 0;
 const express_validator_1 = require("express-validator");
+const HttpStatus_1 = require("../../enums/HttpStatus");
+const Messages_1 = require("../../constants/Messages");
 /**
  * Blog Controller Implementation
  * Implements IBlogController interface
@@ -20,11 +22,11 @@ class BlogController {
                 // Validate request
                 const errors = (0, express_validator_1.validationResult)(req);
                 if (!errors.isEmpty()) {
-                    res.status(400).json({ errors: errors.array() });
+                    res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ errors: errors.array() });
                     return;
                 }
                 if (!req.file) {
-                    res.status(400).json({ message: 'Image is required' });
+                    res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ message: Messages_1.BLOG_MESSAGES.IMAGE_REQUIRED });
                     return;
                 }
                 const { title, content } = req.body;
@@ -32,9 +34,9 @@ class BlogController {
                 // Call service
                 const blog = await this._blogService.createBlog({ title, content }, authorId, req.file);
                 // Send response
-                res.status(201).json({
+                res.status(HttpStatus_1.HttpStatus.CREATED).json({
                     success: true,
-                    message: 'Blog created successfully',
+                    message: Messages_1.BLOG_MESSAGES.CREATE_SUCCESS,
                     blog
                 });
             }
@@ -54,7 +56,7 @@ class BlogController {
                 // Call service
                 const result = await this._blogService.getAllBlogs(page, limit);
                 // Send response
-                res.status(200).json({
+                res.status(HttpStatus_1.HttpStatus.OK).json({
                     success: true,
                     ...result
                 });
@@ -74,7 +76,7 @@ class BlogController {
                 // Call service
                 const blog = await this._blogService.getBlogById(id);
                 // Send response
-                res.status(200).json({
+                res.status(HttpStatus_1.HttpStatus.OK).json({
                     success: true,
                     blog
                 });
@@ -94,7 +96,7 @@ class BlogController {
                 // Call service
                 const blogs = await this._blogService.getBlogsByUser(userId);
                 // Send response
-                res.status(200).json({
+                res.status(HttpStatus_1.HttpStatus.OK).json({
                     success: true,
                     count: blogs.length,
                     blogs
@@ -114,7 +116,7 @@ class BlogController {
                 // Validate request
                 const errors = (0, express_validator_1.validationResult)(req);
                 if (!errors.isEmpty()) {
-                    res.status(400).json({ errors: errors.array() });
+                    res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ errors: errors.array() });
                     return;
                 }
                 const { id } = req.params;
@@ -123,9 +125,9 @@ class BlogController {
                 // Call service
                 const blog = await this._blogService.updateBlog(id, { title, content }, userId, req.file);
                 // Send response
-                res.status(200).json({
+                res.status(HttpStatus_1.HttpStatus.OK).json({
                     success: true,
-                    message: 'Blog updated successfully',
+                    message: Messages_1.BLOG_MESSAGES.UPDATE_SUCCESS,
                     blog
                 });
             }
@@ -145,7 +147,7 @@ class BlogController {
                 // Call service
                 const result = await this._blogService.deleteBlog(id, userId);
                 // Send response
-                res.status(200).json({
+                res.status(HttpStatus_1.HttpStatus.OK).json({
                     success: true,
                     ...result
                 });

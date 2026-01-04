@@ -5,7 +5,6 @@ let cachedTestAccount: nodemailer.TestAccount | null = null;
 
 export const sendEmail = async (options: { email: string; subject: string; message: string }) => {
   let transporter: nodemailer.Transporter;
-  let isTestAccount = false;
 
   // 1. Use SMTP credentials if BOTH User and Pass are provided
   if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
@@ -22,7 +21,6 @@ export const sendEmail = async (options: { email: string; subject: string; messa
   } 
   // 2. FALLBACK: Use Ethereal (Real Test Email Service)
   else {
-    isTestAccount = true;
     
     if (!cachedTestAccount) {
       cachedTestAccount = await nodemailer.createTestAccount();
@@ -88,7 +86,7 @@ export const sendEmail = async (options: { email: string; subject: string; messa
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
   } catch (error) {
     throw error;
   }

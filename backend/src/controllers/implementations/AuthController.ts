@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { IAuthController } from '../interfaces/IAuthController';
 import { IAuthService } from '../../services/interfaces/IAuthService';
 import { validationResult } from 'express-validator';
+import { HttpStatus } from '../../enums/HttpStatus';
+import { AUTH_MESSAGES } from '../../constants/Messages';
 
 /**
  * Auth Controller Implementation
@@ -25,7 +27,7 @@ export class AuthController implements IAuthController {
       // Validate request
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.status(400).json({ errors: errors.array() });
+        res.status(HttpStatus.BAD_REQUEST).json({ errors: errors.array() });
         return;
       }
 
@@ -35,9 +37,9 @@ export class AuthController implements IAuthController {
       const user = await this._authService.registerUser({ username, email, password });
 
       // Send response
-      res.status(201).json({
+      res.status(HttpStatus.CREATED).json({
         success: true,
-        message: 'Registration initiated. Please check your email for verification code.',
+        message: AUTH_MESSAGES.REGISTRATION_SUCCESS,
         user
       });
     } catch (error) {
@@ -54,7 +56,7 @@ export class AuthController implements IAuthController {
       // Validate request
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.status(400).json({ errors: errors.array() });
+        res.status(HttpStatus.BAD_REQUEST).json({ errors: errors.array() });
         return;
       }
 
@@ -64,9 +66,9 @@ export class AuthController implements IAuthController {
       const result = await this._authService.loginUser(email, password);
 
       // Send response
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Login successful',
+        message: AUTH_MESSAGES.LOGIN_SUCCESS,
         ...result
       });
     } catch (error) {
@@ -83,9 +85,9 @@ export class AuthController implements IAuthController {
       const { email, otp } = req.body;
       const result = await this._authService.verifyOtp(email, otp);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Email verified successfully',
+        message: AUTH_MESSAGES.EMAIL_VERIFIED,
         ...result
       });
     } catch (error) {
@@ -102,9 +104,9 @@ export class AuthController implements IAuthController {
       const { email } = req.body;
       await this._authService.resendOtp(email);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: 'New verification code sent to your email'
+        message: AUTH_MESSAGES.OTP_RESENT
       });
     } catch (error) {
       next(error);

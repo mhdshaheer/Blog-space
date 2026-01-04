@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const express_validator_1 = require("express-validator");
+const HttpStatus_1 = require("../../enums/HttpStatus");
+const Messages_1 = require("../../constants/Messages");
 /**
  * Auth Controller Implementation
  * Implements IAuthController interface
@@ -19,16 +21,16 @@ class AuthController {
                 // Validate request
                 const errors = (0, express_validator_1.validationResult)(req);
                 if (!errors.isEmpty()) {
-                    res.status(400).json({ errors: errors.array() });
+                    res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ errors: errors.array() });
                     return;
                 }
                 const { username, email, password } = req.body;
                 // Call service
                 const user = await this._authService.registerUser({ username, email, password });
                 // Send response
-                res.status(201).json({
+                res.status(HttpStatus_1.HttpStatus.CREATED).json({
                     success: true,
-                    message: 'Registration initiated. Please check your email for verification code.',
+                    message: Messages_1.AUTH_MESSAGES.REGISTRATION_SUCCESS,
                     user
                 });
             }
@@ -45,16 +47,16 @@ class AuthController {
                 // Validate request
                 const errors = (0, express_validator_1.validationResult)(req);
                 if (!errors.isEmpty()) {
-                    res.status(400).json({ errors: errors.array() });
+                    res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ errors: errors.array() });
                     return;
                 }
                 const { email, password } = req.body;
                 // Call service
                 const result = await this._authService.loginUser(email, password);
                 // Send response
-                res.status(200).json({
+                res.status(HttpStatus_1.HttpStatus.OK).json({
                     success: true,
-                    message: 'Login successful',
+                    message: Messages_1.AUTH_MESSAGES.LOGIN_SUCCESS,
                     ...result
                 });
             }
@@ -70,9 +72,9 @@ class AuthController {
             try {
                 const { email, otp } = req.body;
                 const result = await this._authService.verifyOtp(email, otp);
-                res.status(200).json({
+                res.status(HttpStatus_1.HttpStatus.OK).json({
                     success: true,
-                    message: 'Email verified successfully',
+                    message: Messages_1.AUTH_MESSAGES.EMAIL_VERIFIED,
                     ...result
                 });
             }
@@ -88,9 +90,9 @@ class AuthController {
             try {
                 const { email } = req.body;
                 await this._authService.resendOtp(email);
-                res.status(200).json({
+                res.status(HttpStatus_1.HttpStatus.OK).json({
                     success: true,
-                    message: 'New verification code sent to your email'
+                    message: Messages_1.AUTH_MESSAGES.OTP_RESENT
                 });
             }
             catch (error) {

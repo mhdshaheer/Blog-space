@@ -1,4 +1,5 @@
 import { IBlogService, PaginatedBlogsResponse } from '../interfaces/IBlogService';
+import { BLOG_MESSAGES } from '../../constants/Messages';
 import { IBlogRepository } from '../../repositories/interfaces/IBlogRepository';
 import { IUserRepository } from '../../repositories/interfaces/IUserRepository';
 import { IBlog } from '../../models/Blog';
@@ -30,21 +31,21 @@ export class BlogService implements IBlogService {
   async createBlog(blogData: Partial<IBlog>, authorId: string, imageFile: Express.Multer.File): Promise<IBlog> {
     // Validate blog data
     if (!blogData.title || blogData.title.length < 5) {
-      throw new Error('Title must be at least 5 characters');
+      throw new Error(BLOG_MESSAGES.TITLE_REQUIRED);
     }
 
     if (!blogData.content || blogData.content.length < 10) {
-      throw new Error('Content must be at least 10 characters');
+      throw new Error(BLOG_MESSAGES.CONTENT_REQUIRED);
     }
 
     if (!imageFile) {
-      throw new Error('Image is required');
+      throw new Error(BLOG_MESSAGES.IMAGE_REQUIRED);
     }
 
     // Verify author exists
     const author = await this._userRepository.findUserById(authorId);
     if (!author) {
-      throw new Error('Author not found');
+      throw new Error(BLOG_MESSAGES.AUTHOR_NOT_FOUND);
     }
 
     // Process image upload (file path relative to uploads folder)
@@ -96,13 +97,13 @@ export class BlogService implements IBlogService {
   async getBlogById(id: string): Promise<IBlog | null> {
     // Validate ID format
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-      throw new Error('Invalid blog ID format');
+      throw new Error(BLOG_MESSAGES.INVALID_ID);
     }
 
     const blog = await this._blogRepository.findBlogById(id);
     
     if (!blog) {
-      throw new Error('Blog not found');
+      throw new Error(BLOG_MESSAGES.NOT_FOUND);
     }
 
     return blog;
@@ -131,22 +132,22 @@ export class BlogService implements IBlogService {
     const existingBlog = await this._blogRepository.findBlogById(id);
     
     if (!existingBlog) {
-      throw new Error('Blog not found');
+      throw new Error(BLOG_MESSAGES.NOT_FOUND);
     }
 
     // Verify ownership
     const authorId = (existingBlog.author as any)?._id?.toString?.() ?? existingBlog.author.toString();
     if (authorId !== userId) {
-      throw new Error('Unauthorized: You can only update your own blogs');
+      throw new Error(BLOG_MESSAGES.UNAUTHORIZED_UPDATE);
     }
 
     // Validate update data
     if (updateData.title && updateData.title.length < 5) {
-      throw new Error('Title must be at least 5 characters');
+      throw new Error(BLOG_MESSAGES.TITLE_REQUIRED);
     }
 
     if (updateData.content && updateData.content.length < 10) {
-      throw new Error('Content must be at least 10 characters');
+      throw new Error(BLOG_MESSAGES.CONTENT_REQUIRED);
     }
 
     // Process new image if provided
@@ -180,13 +181,13 @@ export class BlogService implements IBlogService {
     const existingBlog = await this._blogRepository.findBlogById(id);
     
     if (!existingBlog) {
-      throw new Error('Blog not found');
+      throw new Error(BLOG_MESSAGES.NOT_FOUND);
     }
 
     // Verify ownership
     const authorId = (existingBlog.author as any)?._id?.toString?.() ?? existingBlog.author.toString();
     if (authorId !== userId) {
-      throw new Error('Unauthorized: You can only delete your own blogs');
+      throw new Error(BLOG_MESSAGES.UNAUTHORIZED_DELETE);
     }
 
     // Delete associated image file
@@ -200,6 +201,6 @@ export class BlogService implements IBlogService {
     // Delete blog from database
     await this._blogRepository.deleteBlog(id);
 
-    return { message: 'Blog deleted successfully' };
+    return { message: BLOG_MESSAGES.DELETE_SUCCESS };
   }
 }
