@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -12,19 +12,16 @@ import { ToastService } from '../../../core/services/toast.service';
   styles: []
 })
 export class NavbarComponent {
-  currentUser$;
+  private authService = inject(AuthService);
+  private toast = inject(ToastService);
+
+  readonly currentUser = this.authService.currentUser;
+  
   isMenuOpen = false;
   isProfileOpen = false;
 
   @ViewChild('profileMenu', { static: false })
   profileMenu?: ElementRef<HTMLElement>;
-
-  constructor(
-    private authService: AuthService,
-    private toast: ToastService
-  ) {
-    this.currentUser$ = this.authService.currentUser$;
-  }
 
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common'; // Required for DatePipe
 import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BlogService } from '../../../core/services/blog.service';
 import { Blog } from '../../../core/models/blog.model';
 import { ToastService } from '../../../core/services/toast.service';
@@ -13,36 +14,39 @@ import { environment } from '../../../../environments/environment';
   imports: [CommonModule, RouterLink],
   templateUrl: './my-blogs.component.html'
 })
-export class MyBlogsComponent implements OnInit {
-  blogs: Blog[] = [];
-  isLoading = true;
-  error = '';
-  deleteLoading: string | null = null; // ID of blog being deleted
+export class MyBlogsComponent {
+  // Inject dependencies
+  private readonly blogService = inject(BlogService);
+  private readonly toastService = inject(ToastService);
+  private readonly confirmService = inject(ConfirmService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  constructor(
-    private blogService: BlogService,
-    private toastService: ToastService,
-    private confirmService: ConfirmService
-  ) {}
+  // Signal-based state
+  readonly blogs = signal<Blog[]>([]);
+  readonly isLoading = signal(true);
+  readonly error = signal('');
+  readonly deleteLoading = signal<string | null>(null); // ID of blog being deleted
 
-  ngOnInit(): void {
+  constructor() {
     this.loadMyBlogs();
   }
 
   loadMyBlogs(): void {
-    this.isLoading = true;
-    this.blogService.getMyBlogs().subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.blogs = response.blogs;
+    this.isLoading.set(true);
+    this.blogService.getMyBlogs()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.blogs.set(response.blogs);
+          }
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.error.set('Failed to load your blogs');
+          this.isLoading.set(false);
         }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.error = 'Failed to load your blogs';
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
   async deleteBlog(id: string): Promise<void> {
@@ -55,20 +59,22 @@ export class MyBlogsComponent implements OnInit {
 
     if (!confirmed) return;
 
-    this.deleteLoading = id;
-    this.blogService.deleteBlog(id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.blogs = this.blogs.filter(b => b._id !== id);
-          this.toastService.success('Blog deleted successfully');
+    this.deleteLoading.set(id);
+    this.blogService.deleteBlog(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.blogs.update(blogs => blogs.filter(b => b._id !== id));
+            this.toastService.success('Blog deleted successfully');
+          }
+          this.deleteLoading.set(null);
+        },
+        error: (err) => {
+          this.toastService.error(err.error?.message || 'Failed to delete blog');
+          this.deleteLoading.set(null);
         }
-        this.deleteLoading = null;
-      },
-      error: (err) => {
-        this.toastService.error(err.error?.message || 'Failed to delete blog');
-        this.deleteLoading = null;
-      }
-    });
+      });
   }
 
   getImageUrl(imagePath: string): string {
@@ -77,7 +83,8 @@ export class MyBlogsComponent implements OnInit {
     return `${environment.baseUrl}${imagePath}`;
   }
 
-  handleImageError(event: any): void {
-    event.target.src = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80';
+  handleImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80';
   }
 }

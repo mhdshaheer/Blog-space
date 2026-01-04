@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, RegisterRequest, AuthResponse } from '../models/auth.model';
 import { User } from '../models/user.model';
@@ -10,9 +10,14 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = `${environment.apiUrl}/auth`;
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
-  public currentUser$ = this.currentUserSubject.asObservable();
+  private readonly apiUrl = `${environment.apiUrl}/auth`;
+  
+  // Modern signal-based state management
+  private readonly _currentUser = signal<User | null>(null);
+  
+  // Public readonly signals using computed for compatibility
+  readonly currentUser = computed(() => this._currentUser());
+  readonly isAuthenticated = computed(() => !!this.getToken() && !!this.currentUser());
 
   constructor(private http: HttpClient, private router: Router) {
     this.loadUserFromStorage();
@@ -22,7 +27,12 @@ export class AuthService {
     const userJson = localStorage.getItem('user');
     const token = localStorage.getItem('token');
     if (userJson && token) {
-      this.currentUserSubject.next(JSON.parse(userJson));
+      try {
+        this._currentUser.set(JSON.parse(userJson));
+      } catch {
+        // Clear invalid data
+        this.clearAuthData();
+      }
     }
   }
 
@@ -47,7 +57,13 @@ export class AuthService {
   private setAuthData(token: string, user: User): void {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));
-    this.currentUserSubject.next(user);
+    this._currentUser.set(user);
+  }
+
+  private clearAuthData(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    this._currentUser.set(null);
   }
 
   login(data: LoginRequest): Observable<AuthResponse> {
@@ -61,9 +77,7 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    this.currentUserSubject.next(null);
+    this.clearAuthData();
     this.router.navigate(['/login']);
   }
 
@@ -71,11 +85,7 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
-  isAuthenticated(): boolean {
-    return !!this.getToken();
-  }
-
   getCurrentUser(): User | null {
-    return this.currentUserSubject.value;
+    return this.currentUser();
   }
 }

@@ -17,55 +17,57 @@
         <nav class="flex items-center gap-1 bg-white/5 rounded-2xl p-1 border border-white/5 mr-6">
           <a routerLink="/" routerLinkActive="bg-white/10 text-white shadow-inner" [routerLinkActiveOptions]="{exact: true}" 
              class="px-5 py-2.5 rounded-xl text-sm font-extrabold text-slate-400 hover:text-white transition-all">Feed</a>
-          <ng-container *ngIf="currentUser$ | async">
+          @if (currentUser()) {
             <a routerLink="/my-blogs" routerLinkActive="bg-white/10 text-white shadow-inner" 
                class="px-5 py-2.5 rounded-xl text-sm font-extrabold text-slate-400 hover:text-white transition-all">Workspace</a>
-          </ng-container>
+          }
         </nav>
         
-        <ng-container *ngIf="currentUser$ | async as user; else guestActions">
-          <a routerLink="/create-blog" 
-             class="btn btn-primary py-2.5 px-8 text-sm font-black rounded-2xl shadow-indigo-500/25 mr-4">
-            <i class="fa-solid fa-plus text-xs mr-2"></i> New Story
-          </a>
+        @if (currentUser(); as user) {
+          <div>
+            <a routerLink="/create-blog" 
+               class="btn btn-primary py-2.5 px-8 text-sm font-black rounded-2xl shadow-indigo-500/25 mr-4">
+              <i class="fa-solid fa-plus text-xs mr-2"></i> New Story
+            </a>
 
-          <!-- Premium Profile Menu -->
-          <div class="relative" #profileMenu>
-            <button (click)="toggleProfileMenu($event)" class="flex items-center gap-1 p-0.5 rounded-2xl hover:bg-white/5 transition-all outline-none">
-              <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex-center text-white font-black text-lg border-2 border-slate-900 shadow-xl">
-                 {{ user.username.charAt(0).toUpperCase() }}
-              </div>
-            </button>
+            <!-- Premium Profile Menu -->
+            <div class="relative inline-block" #profileMenu>
+              <button (click)="toggleProfileMenu($event)" class="flex items-center gap-1 p-0.5 rounded-2xl hover:bg-white/5 transition-all outline-none">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex-center text-white font-black text-lg border-2 border-slate-900 shadow-xl">
+                   {{ user.username.charAt(0).toUpperCase() }}
+                </div>
+              </button>
 
-            <!-- Dropdown -->
-            <div *ngIf="isProfileOpen" (click)="$event.stopPropagation()" class="absolute top-[calc(100%+1.5rem)] right-0 w-72 glass-card p-4 transition-all duration-500 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] border-white/10 overflow-hidden" style="max-width: calc(100vw - 2rem);">
-               <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-primary"></div>
-               
-               <div class="flex items-center gap-4 mb-6 pt-2">
-                  <div class="w-14 h-14 rounded-2xl bg-white/5 flex-center border border-white/10">
-                    <span class="text-2xl font-black text-white">{{ user.username.charAt(0).toUpperCase() }}</span>
-                  </div>
-                  <div class="flex-grow min-w-0 overflow-hidden">
-                    <h4 class="text-sm font-black text-white truncate">{{ user.username }}</h4>
-                    <p class="text-[9px] font-semibold text-slate-500 uppercase tracking-[0.2em] truncate">{{ user.email }}</p>
-                  </div>
-               </div>
+              <!-- Dropdown -->
+              @if (isProfileOpen) {
+                <div (click)="$event.stopPropagation()" class="absolute top-[calc(100%+1.5rem)] right-0 w-72 glass-card p-4 transition-all duration-500 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] border-white/10 overflow-hidden" style="max-width: calc(100vw - 2rem);">
+                   <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-primary"></div>
+                   
+                   <div class="flex items-center gap-4 mb-6 pt-2">
+                      <div class="w-14 h-14 rounded-2xl bg-white/5 flex-center border border-white/10">
+                        <span class="text-2xl font-black text-white">{{ user.username.charAt(0).toUpperCase() }}</span>
+                      </div>
+                      <div class="flex-grow min-w-0 overflow-hidden">
+                        <h4 class="text-sm font-black text-white truncate">{{ user.username }}</h4>
+                        <p class="text-[9px] font-semibold text-slate-500 uppercase tracking-[0.2em] truncate">{{ user.email }}</p>
+                      </div>
+                   </div>
 
-               <button (click)="logout()" 
-                       class="w-full flex items-center gap-4 px-6 py-4 text-sm font-black text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-2xl transition-all group/logout">
-                 <i class="fa-solid fa-right-from-bracket group-hover/logout:-translate-x-1 transition-transform"></i>
-                 Sign Out
-               </button>
+                   <button (click)="logout()" 
+                           class="w-full flex items-center gap-4 px-6 py-4 text-sm font-black text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-2xl transition-all group/logout">
+                     <i class="fa-solid fa-right-from-bracket group-hover/logout:-translate-x-1 transition-transform"></i>
+                     Sign Out
+                   </button>
+                </div>
+              }
             </div>
           </div>
-        </ng-container>
-
-        <ng-template #guestActions>
+        } @else {
           <div class="flex items-center gap-2">
             <a routerLink="/login" class="px-6 py-3 text-sm font-black text-slate-400 hover:text-white transition-all">Sign In</a>
             <a routerLink="/register" class="btn btn-primary py-2.5 px-8 text-sm font-black rounded-2xl shadow-indigo-500/25">Join Now</a>
           </div>
-        </ng-template>
+        }
       </div>
 
       <!-- Mobile Handler -->
@@ -81,7 +83,7 @@
        [ngClass]="isMenuOpen ? 'scale-y-100 opacity-100 translate-y-0' : 'scale-y-0 opacity-0 -translate-y-4 pointer-events-none'">
     <div class="flex flex-col gap-3">
       <a routerLink="/" (click)="toggleMenu()" class="p-4 rounded-2xl bg-white/5 text-white font-black text-lg">Discovery Feed</a>
-      <ng-container *ngIf="currentUser$ | async as user; else mobileGuest">
+      @if (currentUser(); as user) {
         <a routerLink="/my-blogs" (click)="toggleMenu()" class="p-4 rounded-2xl bg-white/5 text-white font-black text-lg">My Collections</a>
         <a routerLink="/create-blog" (click)="toggleMenu()" class="btn btn-primary !py-5 !rounded-2xl !text-lg !font-black !w-full shadow-xl">New Story</a>
         
@@ -92,11 +94,10 @@
            </div>
            <button (click)="logout()" class="text-red-500 font-black text-sm uppercase tracking-widest">Sign Out</button>
         </div>
-      </ng-container>
-      <ng-template #mobileGuest>
+      } @else {
         <a routerLink="/login" (click)="toggleMenu()" class="p-4 rounded-2xl bg-white/5 text-white font-black text-lg">Sign In</a>
         <a routerLink="/register" (click)="toggleMenu()" class="btn btn-primary !py-5 !rounded-2xl !text-lg !font-black !w-full">Join Now</a>
-      </ng-template>
+      }
     </div>
   </div>
 </nav>

@@ -19,14 +19,20 @@
             </div>
             <input type="email" formControlName="email"
                    class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/40 !rounded-2xl !py-4.5 !text-sm !font-bold"
-                   [ngClass]="{'!border-red-500/30': (loginForm.get('email')?.touched || isSubmitted) && loginForm.get('email')?.invalid}"
+                   [ngClass]="{'!border-red-500/30': (loginForm.get('email')?.touched || isSubmitted()) && loginForm.get('email')?.invalid}"
                    placeholder="name@studio.com">
           </div>
-          <div *ngIf="(loginForm.get('email')?.touched || isSubmitted) && loginForm.get('email')?.invalid" class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</span>
-            <span *ngIf="loginForm.get('email')?.errors?.['email']">Enter a valid email</span>
-          </div>
+          @if ((loginForm.get('email')?.touched || isSubmitted()) && loginForm.get('email')?.invalid) {
+            <div class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              @if (loginForm.get('email')?.errors?.['required']) {
+                <span>Email is required</span>
+              }
+              @if (loginForm.get('email')?.errors?.['email']) {
+                <span>Enter a valid email</span>
+              }
+            </div>
+          }
         </div>
 
         <!-- Password -->
@@ -39,27 +45,33 @@
             <div class="input-icon">
               <i class="fa-solid fa-lock text-slate-800 group-focus-within:text-indigo-400"></i>
             </div>
-            <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+            <input [type]="showPassword() ? 'text' : 'password'" formControlName="password"
                    class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/40 !rounded-2xl !py-4.5 !text-sm !font-bold"
-                   [ngClass]="{'!border-red-500/30': (loginForm.get('password')?.touched || isSubmitted) && loginForm.get('password')?.invalid}"
+                   [ngClass]="{'!border-red-500/30': (loginForm.get('password')?.touched || isSubmitted()) && loginForm.get('password')?.invalid}"
                    placeholder="••••••••">
-            <button type="button" (click)="showPassword = !showPassword" 
+            <button type="button" (click)="showPassword.set(!showPassword())" 
                     class="absolute right-4 flex items-center text-slate-700 hover:text-white transition-colors">
-              <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              <i class="fa-solid" [ngClass]="showPassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
             </button>
           </div>
-          <div *ngIf="(loginForm.get('password')?.touched || isSubmitted) && loginForm.get('password')?.invalid" class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</span>
-          </div>
+          @if ((loginForm.get('password')?.touched || isSubmitted()) && loginForm.get('password')?.invalid) {
+            <div class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              @if (loginForm.get('password')?.errors?.['required']) {
+                <span>Password is required</span>
+              }
+            </div>
+          }
         </div>
 
         <!-- Submit Button -->
         <div class="pt-6">
-          <button type="submit" [disabled]="loginForm.invalid || isLoading"
+          <button type="submit" [disabled]="loginForm.invalid || isLoading()"
                   class="w-full btn btn-primary !py-5 !rounded-2xl !text-base !font-black shadow-indigo-500/25 flex-center gap-4 active:scale-[0.98] transition-all">
-            <i *ngIf="isLoading" class="fa-solid fa-circle-notch fa-spin"></i>
-            {{ isLoading ? 'Synchronizing...' : 'Enter Workspace' }}
+            @if (isLoading()) {
+              <i class="fa-solid fa-circle-notch fa-spin"></i>
+            }
+            {{ isLoading() ? 'Synchronizing...' : 'Enter Workspace' }}
           </button>
         </div>
 

@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -13,23 +14,23 @@ import { ToastService } from '../../../core/services/toast.service';
   templateUrl: './login.component.html'
 })
 export class LoginComponent {
-  loginForm: FormGroup;
-  isLoading = false;
-  isSubmitted = false;
+  // Inject dependencies
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  showPassword = false;
+  // Form
+  readonly loginForm: FormGroup = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]]
+  });
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private toast: ToastService
-  ) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
-    });
-  }
+  // Signal-based state
+  readonly isLoading = signal(false);
+  readonly isSubmitted = signal(false);
+  readonly showPassword = signal(false);
 
   private getApiErrorMessage(err: any): string {
     const apiErrors: Array<{ msg?: string }> | undefined = err?.error?.errors;
@@ -45,28 +46,30 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
-    this.isSubmitted = true;
+    this.isSubmitted.set(true);
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true);
 
-    this.authService.login(this.loginForm.value).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.toast.success(`Welcome back, ${response.user?.username}!`);
-          this.router.navigate(['/']);
-        } else {
-          this.toast.error(response.message || 'Login failed');
+    this.authService.login(this.loginForm.value)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toast.success(`Welcome back, ${response.user?.username}!`);
+            this.router.navigate(['/']);
+          } else {
+            this.toast.error(response.message || 'Login failed');
+          }
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          this.toast.error(this.getApiErrorMessage(err));
+          this.isLoading.set(false);
         }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.toast.error(this.getApiErrorMessage(err));
-        this.isLoading = false;
-      }
-    });
+      });
   }
 }

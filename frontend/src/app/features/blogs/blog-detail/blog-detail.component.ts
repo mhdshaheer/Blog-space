@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common'; // Required for DatePipe and NgClass
+import { RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BlogService } from '../../../core/services/blog.service';
 import { Blog } from '../../../core/models/blog.model';
 import { environment } from '../../../../environments/environment';
@@ -12,40 +14,46 @@ import { ToastService } from '../../../core/services/toast.service';
   imports: [CommonModule, RouterLink],
   templateUrl: './blog-detail.component.html'
 })
-export class BlogDetailComponent implements OnInit {
-  blog: Blog | null = null;
-  isLoading = true;
-  error = '';
+export class BlogDetailComponent {
+  // Inject dependencies using modern inject() function
+  private readonly route = inject(ActivatedRoute);
+  private readonly blogService = inject(BlogService);
+  private readonly toast = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  constructor(
-    private route: ActivatedRoute,
-    private blogService: BlogService,
-    private toast: ToastService
-  ) {}
+  // Signal-based state
+  readonly blog = signal<Blog | null>(null);
+  readonly isLoading = signal(true);
+  readonly error = signal('');
 
-  ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.loadBlog(id);
-      }
-    });
+  constructor() {
+    // Subscribe to route params with automatic cleanup
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const id = params.get('id');
+        if (id) {
+          this.loadBlog(id);
+        }
+      });
   }
 
-  loadBlog(id: string): void {
-    this.isLoading = true;
-    this.blogService.getBlogById(id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.blog = response.blog;
+  private loadBlog(id: string): void {
+    this.isLoading.set(true);
+    this.blogService.getBlogById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.blog.set(response.blog);
+          }
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.error.set('Failed to load blog post');
+          this.isLoading.set(false);
         }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.error = 'Failed to load blog post';
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
   getImageUrl(imagePath: string): string {
@@ -54,8 +62,9 @@ export class BlogDetailComponent implements OnInit {
     return `${environment.baseUrl}${imagePath}`;
   }
 
-  handleImageError(event: any): void {
-    event.target.src = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80';
+  handleImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80';
   }
 
   getAuthorName(blog: Blog): string {

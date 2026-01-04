@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BlogService } from '../../core/services/blog.service';
 import { Blog } from '../../core/models/blog.model';
 import { environment } from '../../../environments/environment';
@@ -11,33 +12,38 @@ import { environment } from '../../../environments/environment';
   imports: [CommonModule, RouterLink],
   templateUrl: './home.component.html'
 })
-export class HomeComponent implements OnInit {
-  blogs: Blog[] = [];
-  isLoading = true;
-  error = '';
-  page = 1;
-  limit = 9;
-  total = 0;
+export class HomeComponent {
+  // Inject dependencies
+  private readonly blogService = inject(BlogService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  constructor(private blogService: BlogService) {}
+  // Signal-based state
+  readonly blogs = signal<Blog[]>([]);
+  readonly isLoading = signal(true);
+  readonly error = signal('');
+  readonly page = signal(1);
+  readonly limit = signal(9);
+  readonly total = signal(0);
 
-  ngOnInit(): void {
+  constructor() {
     this.loadBlogs();
   }
 
   loadBlogs(): void {
-    this.isLoading = true;
-    this.blogService.getBlogs(this.page, this.limit).subscribe({
-      next: (response) => {
-        this.blogs = response.blogs;
-        this.total = response.total;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.error = 'Failed to load blogs';
-        this.isLoading = false;
-      }
-    });
+    this.isLoading.set(true);
+    this.blogService.getBlogs(this.page(), this.limit())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.blogs.set(response.blogs);
+          this.total.set(response.total);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.error.set('Failed to load blogs');
+          this.isLoading.set(false);
+        }
+      });
   }
 
   getImageUrl(imagePath: string): string {
@@ -46,8 +52,9 @@ export class HomeComponent implements OnInit {
     return `${environment.baseUrl}${imagePath}`;
   }
 
-  handleImageError(event: any): void {
-    event.target.src = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80';
+  handleImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80';
   }
 
   getAuthorName(blog: Blog): string {

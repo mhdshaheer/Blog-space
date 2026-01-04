@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BlogService } from '../../../core/services/blog.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -13,77 +14,83 @@ import { environment } from '../../../../environments/environment';
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './blog-form.component.html'
 })
-export class BlogFormComponent implements OnInit {
-  blogForm: FormGroup;
-  isEditMode = false;
-  isLoading = false;
-  blogId: string | null = null;
-  imagePreview: string | ArrayBuffer | null = null;
-  selectedFile: File | null = null;
-  error = '';
+export class BlogFormComponent {
+  // Inject dependencies
+  private readonly fb = inject(FormBuilder);
+  private readonly blogService = inject(BlogService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  constructor(
-    private fb: FormBuilder,
-    private blogService: BlogService,
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private toastService: ToastService
-  ) {
-    this.blogForm = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(5)]],
-      content: ['', [Validators.required, Validators.minLength(10)]]
-    });
-  }
+  // Form
+  readonly blogForm: FormGroup = this.fb.group({
+    title: ['', [Validators.required, Validators.minLength(5)]],
+    content: ['', [Validators.required, Validators.minLength(10)]]
+  });
 
-  ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.isEditMode = true;
-        this.blogId = id;
-        this.loadBlog(id);
-      }
-    });
-  }
+  // Signal-based state
+  readonly isEditMode = signal(false);
+  readonly isLoading = signal(false);
+  readonly blogId = signal<string | null>(null);
+  readonly imagePreview = signal<string | ArrayBuffer | null>(null);
+  readonly selectedFile = signal<File | null>(null);
+  readonly error = signal('');
 
-  loadBlog(id: string): void {
-    this.isLoading = true;
-    this.blogService.getBlogById(id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          const { title, content, image, author } = response.blog;
-          const currentUserId = this.authService.getCurrentUser()?._id;
-
-          const authorId = typeof author === 'string' ? author : author?._id;
-          if (this.isEditMode && currentUserId && authorId && authorId !== currentUserId) {
-            this.toastService.error('You can only edit your own blogs');
-            this.router.navigate(['/my-blogs']);
-            this.isLoading = false;
-            return;
-          }
-
-          this.blogForm.patchValue({ title, content });
-          this.imagePreview = this.getImageUrl(image);
+  constructor() {
+    // Subscribe to route params with automatic cleanup
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const id = params.get('id');
+        if (id) {
+          this.isEditMode.set(true);
+          this.blogId.set(id);
+          this.loadBlog(id);
         }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.error = 'Failed to load blog details';
-        this.isLoading = false;
-      }
-    });
+      });
+  }
+
+  private loadBlog(id: string): void {
+    this.isLoading.set(true);
+    this.blogService.getBlogById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            const { title, content, image, author } = response.blog;
+            const currentUserId = this.authService.getCurrentUser()?._id;
+
+            const authorId = typeof author === 'string' ? author : author?._id;
+            if (this.isEditMode() && currentUserId && authorId && authorId !== currentUserId) {
+              this.toastService.error('You can only edit your own blogs');
+              this.router.navigate(['/my-blogs']);
+              this.isLoading.set(false);
+              return;
+            }
+
+            this.blogForm.patchValue({ title, content });
+            this.imagePreview.set(this.getImageUrl(image));
+          }
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.error.set('Failed to load blog details');
+          this.isLoading.set(false);
+        }
+      });
   }
 
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
-      this.selectedFile = file;
+      this.selectedFile.set(file);
       
       // Preview
       const reader = new FileReader();
       reader.onload = () => {
-        this.imagePreview = reader.result;
+        this.imagePreview.set(reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -92,51 +99,60 @@ export class BlogFormComponent implements OnInit {
   onSubmit(): void {
     if (this.blogForm.invalid) return;
     
-    if (!this.isEditMode && !this.selectedFile) {
-      this.error = 'Please select an image';
+    if (!this.isEditMode() && !this.selectedFile()) {
+      this.error.set('Please select an image');
       return;
     }
 
-    this.isLoading = true;
-    this.error = '';
+    this.isLoading.set(true);
+    this.error.set('');
 
     const formData = new FormData();
     formData.append('title', this.blogForm.get('title')?.value);
     formData.append('content', this.blogForm.get('content')?.value);
     
-    if (this.selectedFile) {
-      formData.append('image', this.selectedFile);
+    const file = this.selectedFile();
+    if (file) {
+      formData.append('image', file);
     }
 
-    const request = this.isEditMode && this.blogId
-      ? this.blogService.updateBlog(this.blogId, formData)
+    const currentBlogId = this.blogId();
+    const request = this.isEditMode() && currentBlogId
+      ? this.blogService.updateBlog(currentBlogId, formData)
       : this.blogService.createBlog(formData);
 
-    request.subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.toastService.success(this.isEditMode ? 'Article updated!' : 'Article published!');
-          this.router.navigate(['/my-blogs']);
-        } else {
-          this.error = response.message || 'Operation failed';
-          this.toastService.error(this.error);
+    request
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastService.success(this.isEditMode() ? 'Article updated!' : 'Article published!');
+            this.router.navigate(['/my-blogs']);
+          } else {
+            const errorMsg = response.message || 'Operation failed';
+            this.error.set(errorMsg);
+            this.toastService.error(errorMsg);
+          }
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          const apiErrors: Array<{ msg?: string }> | undefined = err?.error?.errors;
+          let errorMsg: string;
+          
+          if (Array.isArray(apiErrors) && apiErrors.length > 0) {
+            errorMsg = apiErrors
+              .map(e => e?.msg)
+              .filter(Boolean)
+              .join(', ');
+          } else {
+            errorMsg = err?.error?.message || 'Something went wrong';
+          }
+          
+          this.error.set(errorMsg);
+          this.toastService.error(errorMsg);
+          this.isLoading.set(false);
         }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        const apiErrors: Array<{ msg?: string }> | undefined = err?.error?.errors;
-        if (Array.isArray(apiErrors) && apiErrors.length > 0) {
-          this.error = apiErrors
-            .map(e => e?.msg)
-            .filter(Boolean)
-            .join(', ');
-        } else {
-          this.error = err?.error?.message || 'Something went wrong';
-        }
-        this.toastService.error(this.error);
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
   getImageUrl(imagePath: string): string {
@@ -145,7 +161,8 @@ export class BlogFormComponent implements OnInit {
     return `${environment.baseUrl}${imagePath}`;
   }
 
-  handleImageError(event: any): void {
-    event.target.src = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80';
+  handleImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80';
   }
 }
