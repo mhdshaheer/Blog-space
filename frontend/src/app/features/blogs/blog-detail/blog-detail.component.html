@@ -79,17 +79,28 @@
               <div class="space-y-6 pt-10 border-t border-white/5">
                 <p class="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] mb-4">Pulse Analysis</p>
                 <div class="flex items-center gap-4">
+                  <!-- Like Button -->
                   <button (click)="toggleLike()" 
-                          [ngClass]="{'!bg-red-500/10 !border-red-500/20 !text-red-500': isLiked()}"
-                          class="flex-1 w-12 h-14 bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-slate-500 hover:text-red-500 rounded-2xl flex-center transition-all group/action shadow-inner gap-3">
-                    <i class="fa-heart transition-transform group-hover/action:scale-125"
+                          [ngClass]="{'!bg-green-500/10 !border-green-500/20 !text-green-500': isLiked()}"
+                          class="flex-1 w-12 h-14 bg-white/5 hover:bg-green-500/10 border border-white/5 hover:border-green-500/20 text-slate-500 hover:text-green-500 rounded-2xl flex-center transition-all group/action shadow-inner gap-3"
+                          title="Inspiring">
+                    <i class="fa-thumbs-up transition-transform group-hover/action:scale-125"
                        [ngClass]="isLiked() ? 'fa-solid' : 'fa-regular'"></i>
                     @if (blogData.likes && blogData.likes.length > 0) {
                       <span class="text-xs font-black">{{ blogData.likes.length }}</span>
                     }
                   </button>
-                  <button class="flex-1 w-12 h-14 bg-white/5 hover:bg-indigo-500/10 border border-white/5 hover:border-indigo-500/20 text-slate-500 hover:text-indigo-400 rounded-2xl flex-center transition-all group/action shadow-inner">
-                    <i class="fa-solid fa-share-nodes transition-transform group-hover/action:translate-y-[-2px]"></i>
+
+                  <!-- Dislike Button -->
+                  <button (click)="toggleDislike()" 
+                          [ngClass]="{'!bg-red-500/10 !border-red-500/20 !text-red-500': isDisliked()}"
+                          class="flex-1 w-12 h-14 bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 text-slate-500 hover:text-red-500 rounded-2xl flex-center transition-all group/action shadow-inner gap-3"
+                          title="Not for me">
+                    <i class="fa-thumbs-down transition-transform group-hover/action:scale-125"
+                       [ngClass]="isDisliked() ? 'fa-solid' : 'fa-regular'"></i>
+                    @if (blogData.dislikes && blogData.dislikes.length > 0) {
+                      <span class="text-xs font-black">{{ blogData.dislikes.length }}</span>
+                    }
                   </button>
                 </div>
                 <button class="w-full py-5 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-black uppercase text-slate-500 hover:text-white transition-all tracking-[0.2em] border border-white/5 shadow-sm">

@@ -225,6 +225,23 @@ class BlogService {
         }
         return blog;
     }
+    /**
+     * Toggle dislike on a blog
+     * @param blogId - Blog ID
+     * @param userId - User ID
+     * @returns Updated blog
+     */
+    async toggleDislike(blogId, userId) {
+        // Validate ID format
+        if (!blogId.match(/^[0-9a-fA-F]{24}$/)) {
+            throw new Error(Messages_1.BLOG_MESSAGES.INVALID_ID);
+        }
+        const blog = await this._blogRepository.toggleDislike(blogId, userId);
+        if (!blog) {
+            throw new Error(Messages_1.BLOG_MESSAGES.NOT_FOUND);
+        }
+        return blog;
+    }
 }
 exports.BlogService = BlogService;
 //# sourceMappingURL=BlogService.js.map

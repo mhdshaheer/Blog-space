@@ -37,5 +37,9 @@ export interface IBlogController {
      * Toggle like on a blog
      */
     toggleLike(req: Request, res: Response, next: NextFunction): Promise<void>;
+    /**
+     * Toggle dislike on a blog
+     */
+    toggleDislike(req: Request, res: Response, next: NextFunction): Promise<void>;
 }
 //# sourceMappingURL=IBlogController.d.ts.map

@@ -8,6 +8,7 @@ export interface Blog {
   author: User | string; 
   authorDetails?: User;
   likes: string[];
+  dislikes: string[];
   createdAt: string;
   updatedAt: string;
 }

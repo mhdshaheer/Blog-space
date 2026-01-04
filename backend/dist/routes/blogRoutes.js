@@ -59,5 +59,11 @@ router.delete('/:id', auth_1.authMiddleware, blogController.deleteBlog);
  * @access  Private
  */
 router.post('/:id/like', auth_1.authMiddleware, blogController.toggleLike);
+/**
+ * @route   POST /api/blogs/:id/dislike
+ * @desc    Toggle dislike on a blog
+ * @access  Private
+ */
+router.post('/:id/dislike', auth_1.authMiddleware, blogController.toggleDislike);
 exports.default = router;
 //# sourceMappingURL=blogRoutes.js.map

@@ -201,6 +201,30 @@ class BlogController {
                 next(error);
             }
         };
+        /**
+         * Toggle dislike on a blog
+         * POST /api/blogs/:id/dislike
+         * Protected route
+         */
+        this.toggleDislike = async (req, res, next) => {
+            try {
+                const { id } = req.params;
+                const userId = req.user.userId;
+                // Call service
+                const blog = await this._blogService.toggleDislike(id, userId);
+                // Send response
+                res.status(HttpStatus_1.HttpStatus.OK).json({
+                    success: true,
+                    message: blog.dislikes.some(likeId => likeId.toString() === userId)
+                        ? 'Blog disliked'
+                        : 'Dislike removed',
+                    blog
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        };
         this._blogService = blogService;
     }
 }

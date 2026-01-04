@@ -162,12 +162,43 @@ class BlogRepository {
                 return await Blog_1.default.findByIdAndUpdate(blogId, { $pull: { likes: userId } }, { new: true }).populate('author', '-password');
             }
             else {
-                // Like
-                return await Blog_1.default.findByIdAndUpdate(blogId, { $addToSet: { likes: userId } }, { new: true }).populate('author', '-password');
+                // Like and remove dislike if exists
+                return await Blog_1.default.findByIdAndUpdate(blogId, {
+                    $addToSet: { likes: userId },
+                    $pull: { dislikes: userId }
+                }, { new: true }).populate('author', '-password');
             }
         }
         catch (error) {
             throw new Error(`Error toggling like: ${error.message}`);
+        }
+    }
+    /**
+     * Toggle dislike on a blog
+     * @param blogId - Blog ID
+     * @param userId - User ID
+     * @returns Updated blog
+     */
+    async toggleDislike(blogId, userId) {
+        try {
+            const blog = await Blog_1.default.findById(blogId);
+            if (!blog)
+                return null;
+            const isDisliked = blog.dislikes.some(id => id.toString() === userId);
+            if (isDisliked) {
+                // Remove dislike
+                return await Blog_1.default.findByIdAndUpdate(blogId, { $pull: { dislikes: userId } }, { new: true }).populate('author', '-password');
+            }
+            else {
+                // Dislike and remove like if exists
+                return await Blog_1.default.findByIdAndUpdate(blogId, {
+                    $addToSet: { dislikes: userId },
+                    $pull: { likes: userId }
+                }, { new: true }).populate('author', '-password');
+            }
+        }
+        catch (error) {
+            throw new Error(`Error toggling dislike: ${error.message}`);
         }
     }
 }

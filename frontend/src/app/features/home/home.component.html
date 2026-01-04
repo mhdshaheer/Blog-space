@@ -106,12 +106,26 @@
               <a [routerLink]="['/blogs', blog._id]" class="text-[10px] font-black text-white uppercase tracking-[0.25em] flex items-center gap-3 group/link transition-all hover:text-indigo-400">
                 Read Publication <i class="fa-solid fa-chevron-right text-[10px] transition-transform group-hover/link:translate-x-2"></i>
               </a>
-              <div class="flex items-center gap-5 text-slate-700">
-                 <button (click)="toggleLike($event, blog)" class="flex items-center gap-1.5 group/like border-none bg-transparent p-0">
-                   <i class="fa-heart transition-all hover:scale-110"
-                      [ngClass]="isLiked(blog) ? 'fa-solid text-red-500' : 'fa-regular hover:text-red-500'"></i>
+              <div class="flex items-center gap-4 text-slate-700">
+                 <!-- Like Button -->
+                 <button (click)="toggleLike($event, blog)" 
+                         class="flex items-center gap-1 group/like border-none bg-transparent p-0 transition-all hover:scale-110"
+                         title="Inspired">
+                   <i class="fa-thumbs-up"
+                      [ngClass]="isLiked(blog) ? 'fa-solid text-green-500' : 'fa-regular hover:text-green-500'"></i>
                    @if (blog.likes && blog.likes.length > 0) {
-                     <span class="text-[10px] font-black text-slate-500" [ngClass]="{'text-red-500/80': isLiked(blog)}">{{ blog.likes.length }}</span>
+                     <span class="text-[10px] font-black" [ngClass]="isLiked(blog) ? 'text-green-500/80' : 'text-slate-500'">{{ blog.likes.length }}</span>
+                   }
+                 </button>
+
+                 <!-- Dislike Button -->
+                 <button (click)="toggleDislike($event, blog)" 
+                         class="flex items-center gap-1 group/like border-none bg-transparent p-0 transition-all hover:scale-110"
+                         title="Unmoved">
+                   <i class="fa-thumbs-down"
+                      [ngClass]="isDisliked(blog) ? 'fa-solid text-red-500' : 'fa-regular hover:text-red-500'"></i>
+                   @if (blog.dislikes && blog.dislikes.length > 0) {
+                     <span class="text-[10px] font-black" [ngClass]="isDisliked(blog) ? 'text-red-500/80' : 'text-slate-500'">{{ blog.dislikes.length }}</span>
                    }
                  </button>
               </div>

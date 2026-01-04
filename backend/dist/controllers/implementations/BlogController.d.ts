@@ -69,5 +69,11 @@ export declare class BlogController implements IBlogController {
      * Protected route
      */
     toggleLike: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    /**
+     * Toggle dislike on a blog
+     * POST /api/blogs/:id/dislike
+     * Protected route
+     */
+    toggleDislike: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 }
 //# sourceMappingURL=BlogController.d.ts.map

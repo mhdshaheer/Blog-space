@@ -5,6 +5,7 @@ export interface IBlog extends Document {
     image: string;
     author: mongoose.Types.ObjectId | string;
     likes: mongoose.Types.ObjectId[];
+    dislikes: mongoose.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
 }

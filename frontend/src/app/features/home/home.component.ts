@@ -74,12 +74,18 @@ export class HomeComponent {
     return blog.likes.includes(currentUser._id);
   }
 
+  isDisliked(blog: Blog): boolean {
+    const currentUser = this._authService.currentUser();
+    if (!blog || !currentUser || !blog.dislikes) return false;
+    return blog.dislikes.includes(currentUser._id);
+  }
+
   toggleLike(event: Event, blog: Blog): void {
     event.preventDefault();
     event.stopPropagation();
 
     if (!this._authService.isAuthenticated()) {
-      this._toast.show('Please login to favorite this blog', 'error');
+      this._toast.show('Please login to like this blog', 'error');
       return;
     }
 
@@ -96,7 +102,34 @@ export class HomeComponent {
           }
         },
         error: (err) => {
-          this._toast.show(err.error?.message || 'Failed to toggle favorite', 'error');
+          this._toast.show(err.error?.message || 'Failed to toggle like', 'error');
+        }
+      });
+  }
+
+  toggleDislike(event: Event, blog: Blog): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!this._authService.isAuthenticated()) {
+      this._toast.show('Please login to dislike this blog', 'error');
+      return;
+    }
+
+    this._blogService.toggleDislike(blog._id)
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            // Update the local list
+            this.blogs.update(blogs => 
+              blogs.map(b => b._id === response.blog._id ? response.blog : b)
+            );
+            this._toast.show(response.message, 'success');
+          }
+        },
+        error: (err) => {
+          this._toast.show(err.error?.message || 'Failed to toggle dislike', 'error');
         }
       });
   }

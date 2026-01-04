@@ -172,15 +172,54 @@ export class BlogRepository implements IBlogRepository {
           { new: true }
         ).populate('author', '-password');
       } else {
-        // Like
+        // Like and remove dislike if exists
         return await Blog.findByIdAndUpdate(
           blogId,
-          { $addToSet: { likes: userId } },
+          { 
+            $addToSet: { likes: userId },
+            $pull: { dislikes: userId } 
+          },
           { new: true }
         ).populate('author', '-password');
       }
     } catch (error) {
       throw new Error(`Error toggling like: ${(error as Error).message}`);
+    }
+  }
+
+  /**
+   * Toggle dislike on a blog
+   * @param blogId - Blog ID
+   * @param userId - User ID
+   * @returns Updated blog
+   */
+  async toggleDislike(blogId: string, userId: string): Promise<IBlog | null> {
+    try {
+      const blog = await Blog.findById(blogId);
+      if (!blog) return null;
+
+      const isDisliked = blog.dislikes.some(id => id.toString() === userId);
+
+      if (isDisliked) {
+        // Remove dislike
+        return await Blog.findByIdAndUpdate(
+          blogId,
+          { $pull: { dislikes: userId } },
+          { new: true }
+        ).populate('author', '-password');
+      } else {
+        // Dislike and remove like if exists
+        return await Blog.findByIdAndUpdate(
+          blogId,
+          { 
+            $addToSet: { dislikes: userId },
+            $pull: { likes: userId } 
+          },
+          { new: true }
+        ).populate('author', '-password');
+      }
+    } catch (error) {
+      throw new Error(`Error toggling dislike: ${(error as Error).message}`);
     }
   }
 }

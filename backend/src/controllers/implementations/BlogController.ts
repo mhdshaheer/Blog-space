@@ -247,4 +247,30 @@ export class BlogController implements IBlogController {
       next(error);
     }
   };
+
+  /**
+   * Toggle dislike on a blog
+   * POST /api/blogs/:id/dislike
+   * Protected route
+   */
+  toggleDislike = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.userId;
+
+      // Call service
+      const blog = await this._blogService.toggleDislike(id, userId);
+
+      // Send response
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: blog.dislikes.some(likeId => likeId.toString() === userId) 
+          ? 'Blog disliked' 
+          : 'Dislike removed',
+        blog
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
