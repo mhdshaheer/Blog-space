@@ -137,6 +137,29 @@ export class AuthController implements IAuthController {
   };
 
   /**
+   * Handle verify reset OTP request
+   * POST /api/auth/verify-reset-otp
+   */
+  verifyResetOtp = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { email, otp } = req.body;
+      if (!email || !otp) {
+        res.status(HttpStatus.BAD_REQUEST).json({ message: 'Email and OTP are required' });
+        return;
+      }
+
+      await this._authService.verifyResetOtp(email, otp);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: 'OTP verified successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
    * Handle reset password request
    * POST /api/auth/reset-password
    */

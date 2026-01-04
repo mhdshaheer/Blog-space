@@ -32,6 +32,10 @@ export interface IAuthController {
      */
     forgotPassword(req: Request, res: Response, next: NextFunction): Promise<void>;
     /**
+     * Handle reset password OTP verification
+     */
+    verifyResetOtp(req: Request, res: Response, next: NextFunction): Promise<void>;
+    /**
      * Handle reset password request
      */
     resetPassword(req: Request, res: Response, next: NextFunction): Promise<void>;

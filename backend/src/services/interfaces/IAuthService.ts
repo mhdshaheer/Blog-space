@@ -62,15 +62,24 @@ export interface IAuthService {
 
   /**
    * Request password reset OTP
+  /**
+   * Request password reset OTP
    * @param email - User email
    */
   forgotPassword(email: string): Promise<void>;
 
   /**
-   * Reset password with OTP
+   * Verify password reset OTP
    * @param email - User email
-   * @param otp - Password reset OTP
-   * @param newPassword - New password
+   * @param otp - Verification code
+   */
+  verifyResetOtp(email: string, otp: string): Promise<void>;
+
+  /**
+   * Reset password with OTP session
+   * @param email - User email
+   * @param otp - Verified OTP
+   * @param newPassword - New password string
    */
   resetPassword(email: string, otp: string, newPassword: string): Promise<void>;
 }

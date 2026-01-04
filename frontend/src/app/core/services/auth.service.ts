@@ -85,6 +85,10 @@ export class AuthService {
     return this._http.post<{ success: boolean; message: string }>(`${this._apiUrl}/forgot-password`, { email });
   }
 
+  verifyResetOtp(email: string, otp: string): Observable<{ success: boolean; message: string }> {
+    return this._http.post<{ success: boolean; message: string }>(`${this._apiUrl}/verify-reset-otp`, { email, otp });
+  }
+
   resetPassword(data: any): Observable<{ success: boolean; message: string }> {
     return this._http.post<{ success: boolean; message: string }>(`${this._apiUrl}/reset-password`, data);
   }

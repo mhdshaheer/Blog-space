@@ -121,6 +121,27 @@ class AuthController {
             }
         };
         /**
+         * Handle verify reset OTP request
+         * POST /api/auth/verify-reset-otp
+         */
+        this.verifyResetOtp = async (req, res, next) => {
+            try {
+                const { email, otp } = req.body;
+                if (!email || !otp) {
+                    res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ message: 'Email and OTP are required' });
+                    return;
+                }
+                await this._authService.verifyResetOtp(email, otp);
+                res.status(HttpStatus_1.HttpStatus.OK).json({
+                    success: true,
+                    message: 'OTP verified successfully'
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        };
+        /**
          * Handle reset password request
          * POST /api/auth/reset-password
          */

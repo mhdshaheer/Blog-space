@@ -199,6 +199,20 @@ export class AuthService implements IAuthService {
     });
   }
 
+  async verifyResetOtp(email: string, otp: string): Promise<void> {
+    const storedOtp = await redisClient.get(`password-reset:${email}`);
+    
+    if (!storedOtp) {
+      throw new Error(AUTH_MESSAGES.RESET_SESSION_EXPIRED);
+    }
+
+    if (storedOtp !== otp) {
+      throw new Error(AUTH_MESSAGES.INVALID_OTP);
+    }
+    // OTP is valid, but we don't delete it yet. 
+    // It's needed for the final password reset step for verification.
+  }
+
   async resetPassword(email: string, otp: string, newPassword: string): Promise<void> {
     const storedOtp = await redisClient.get(`password-reset:${email}`);
     

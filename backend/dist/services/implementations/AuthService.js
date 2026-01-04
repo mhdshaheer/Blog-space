@@ -155,6 +155,17 @@ class AuthService {
             message: `Your password reset code is ${otp}. It will expire in 10 minutes.`
         });
     }
+    async verifyResetOtp(email, otp) {
+        const storedOtp = await redis_1.redisClient.get(`password-reset:${email}`);
+        if (!storedOtp) {
+            throw new Error(Messages_1.AUTH_MESSAGES.RESET_SESSION_EXPIRED);
+        }
+        if (storedOtp !== otp) {
+            throw new Error(Messages_1.AUTH_MESSAGES.INVALID_OTP);
+        }
+        // OTP is valid, but we don't delete it yet. 
+        // It's needed for the final password reset step for verification.
+    }
     async resetPassword(email, otp, newPassword) {
         const storedOtp = await redis_1.redisClient.get(`password-reset:${email}`);
         if (!storedOtp) {

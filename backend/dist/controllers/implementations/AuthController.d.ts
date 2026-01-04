@@ -36,6 +36,11 @@ export declare class AuthController implements IAuthController {
      */
     forgotPassword: (req: Request, res: Response, next: NextFunction) => Promise<void>;
     /**
+     * Handle verify reset OTP request
+     * POST /api/auth/verify-reset-otp
+     */
+    verifyResetOtp: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    /**
      * Handle reset password request
      * POST /api/auth/reset-password
      */
