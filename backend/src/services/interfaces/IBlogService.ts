@@ -62,4 +62,12 @@ export interface IBlogService {
    * @returns Success message
    */
   deleteBlog(id: string, userId: string): Promise<{ message: string }>;
+
+  /**
+   * Toggle like on a blog
+   * @param blogId - Blog ID
+   * @param userId - User ID
+   * @returns Updated blog
+   */
+  toggleLike(blogId: string, userId: string): Promise<IBlog>;
 }

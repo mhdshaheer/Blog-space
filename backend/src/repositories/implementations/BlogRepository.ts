@@ -133,4 +133,37 @@ export class BlogRepository implements IBlogRepository {
       throw new Error(`Error counting blogs: ${(error as Error).message}`);
     }
   }
+
+  /**
+   * Toggle like on a blog
+   * @param blogId - Blog ID
+   * @param userId - User ID
+   * @returns Updated blog
+   */
+  async toggleLike(blogId: string, userId: string): Promise<IBlog | null> {
+    try {
+      const blog = await Blog.findById(blogId);
+      if (!blog) return null;
+
+      const isLiked = blog.likes.some(id => id.toString() === userId);
+
+      if (isLiked) {
+        // Unlike
+        return await Blog.findByIdAndUpdate(
+          blogId,
+          { $pull: { likes: userId } },
+          { new: true }
+        ).populate('author', '-password');
+      } else {
+        // Like
+        return await Blog.findByIdAndUpdate(
+          blogId,
+          { $addToSet: { likes: userId } },
+          { new: true }
+        ).populate('author', '-password');
+      }
+    } catch (error) {
+      throw new Error(`Error toggling like: ${(error as Error).message}`);
+    }
+  }
 }

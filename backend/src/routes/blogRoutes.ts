@@ -65,4 +65,11 @@ router.put(
  */
 router.delete('/:id', authMiddleware, blogController.deleteBlog);
 
+/**
+ * @route   POST /api/blogs/:id/like
+ * @desc    Toggle like on a blog
+ * @access  Private
+ */
+router.post('/:id/like', authMiddleware, blogController.toggleLike);
+
 export default router;

@@ -7,6 +7,7 @@ export interface Blog {
   image: string;
   author: User | string; 
   authorDetails?: User;
+  likes: string[];
   createdAt: string;
   updatedAt: string;
 }

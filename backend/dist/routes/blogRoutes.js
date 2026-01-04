@@ -47,5 +47,11 @@ router.put('/:id', auth_1.authMiddleware, upload_1.upload.single('image'), blogV
  * @access  Private (owner only)
  */
 router.delete('/:id', auth_1.authMiddleware, blogController.deleteBlog);
+/**
+ * @route   POST /api/blogs/:id/like
+ * @desc    Toggle like on a blog
+ * @access  Private
+ */
+router.post('/:id/like', auth_1.authMiddleware, blogController.toggleLike);
 exports.default = router;
 //# sourceMappingURL=blogRoutes.js.map

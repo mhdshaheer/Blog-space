@@ -57,5 +57,11 @@ export declare class BlogController implements IBlogController {
      * Protected route - ownership verified in service
      */
     deleteBlog: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    /**
+     * Toggle like on a blog
+     * POST /api/blogs/:id/like
+     * Protected route
+     */
+    toggleLike: (req: Request, res: Response, next: NextFunction) => Promise<void>;
 }
 //# sourceMappingURL=BlogController.d.ts.map

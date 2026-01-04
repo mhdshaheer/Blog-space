@@ -5,6 +5,7 @@ export interface IBlog extends Document {
   content: string;
   image: string;
   author: mongoose.Types.ObjectId | string;
+  likes: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,6 +32,11 @@ const blogSchema = new Schema<IBlog>({
     ref: 'User',
     required: [true, 'Author is required']
   },
+  likes: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    default: []
+  }],
   createdAt: {
     type: Date,
     default: Date.now

@@ -29,5 +29,9 @@ export interface IBlogController {
      * Delete blog
      */
     deleteBlog(req: Request, res: Response, next: NextFunction): Promise<void>;
+    /**
+     * Toggle like on a blog
+     */
+    toggleLike(req: Request, res: Response, next: NextFunction): Promise<void>;
 }
 //# sourceMappingURL=IBlogController.d.ts.map

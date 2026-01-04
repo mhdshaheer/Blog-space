@@ -128,6 +128,31 @@ class BlogRepository {
             throw new Error(`Error counting blogs: ${error.message}`);
         }
     }
+    /**
+     * Toggle like on a blog
+     * @param blogId - Blog ID
+     * @param userId - User ID
+     * @returns Updated blog
+     */
+    async toggleLike(blogId, userId) {
+        try {
+            const blog = await Blog_1.default.findById(blogId);
+            if (!blog)
+                return null;
+            const isLiked = blog.likes.some(id => id.toString() === userId);
+            if (isLiked) {
+                // Unlike
+                return await Blog_1.default.findByIdAndUpdate(blogId, { $pull: { likes: userId } }, { new: true }).populate('author', '-password');
+            }
+            else {
+                // Like
+                return await Blog_1.default.findByIdAndUpdate(blogId, { $addToSet: { likes: userId } }, { new: true }).populate('author', '-password');
+            }
+        }
+        catch (error) {
+            throw new Error(`Error toggling like: ${error.message}`);
+        }
+    }
 }
 exports.BlogRepository = BlogRepository;
 //# sourceMappingURL=BlogRepository.js.map

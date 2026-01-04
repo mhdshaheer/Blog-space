@@ -198,4 +198,30 @@ export class BlogController implements IBlogController {
       next(error);
     }
   };
+
+  /**
+   * Toggle like on a blog
+   * POST /api/blogs/:id/like
+   * Protected route
+   */
+  toggleLike = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.userId;
+
+      // Call service
+      const blog = await this._blogService.toggleLike(id, userId);
+
+      // Send response
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: blog.likes.some(likeId => likeId.toString() === userId) 
+          ? 'Blog liked' 
+          : 'Blog unliked',
+        blog
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

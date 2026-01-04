@@ -54,5 +54,12 @@ export interface IBlogRepository {
      * @returns Total count
      */
     countBlogs(filters?: Record<string, any>): Promise<number>;
+    /**
+     * Toggle like on a blog
+     * @param blogId - Blog ID
+     * @param userId - User ID
+     * @returns Updated blog
+     */
+    toggleLike(blogId: string, userId: string): Promise<IBlog | null>;
 }
 //# sourceMappingURL=IBlogRepository.d.ts.map

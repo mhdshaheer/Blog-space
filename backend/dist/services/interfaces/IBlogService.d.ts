@@ -57,5 +57,12 @@ export interface IBlogService {
     deleteBlog(id: string, userId: string): Promise<{
         message: string;
     }>;
+    /**
+     * Toggle like on a blog
+     * @param blogId - Blog ID
+     * @param userId - User ID
+     * @returns Updated blog
+     */
+    toggleLike(blogId: string, userId: string): Promise<IBlog>;
 }
 //# sourceMappingURL=IBlogService.d.ts.map

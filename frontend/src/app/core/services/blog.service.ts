@@ -39,4 +39,8 @@ export class BlogService {
   deleteBlog(id: string): Observable<{ success: boolean; message: string }> {
     return this._http.delete<{ success: boolean; message: string }>(`${this._apiUrl}/${id}`);
   }
+
+  toggleLike(id: string): Observable<{ success: boolean; message: string; blog: Blog }> {
+    return this._http.post<{ success: boolean; message: string; blog: Blog }>(`${this._apiUrl}/${id}/like`, {});
+  }
 }

@@ -63,5 +63,12 @@ export declare class BlogService implements IBlogService {
      * @param imageUrl - Full Cloudinary URL
      */
     private _deleteCloudinaryImage;
+    /**
+     * Toggle like on a blog
+     * @param blogId - Blog ID
+     * @param userId - User ID
+     * @returns Updated blog
+     */
+    toggleLike(blogId: string, userId: string): Promise<IBlog>;
 }
 //# sourceMappingURL=BlogService.d.ts.map
