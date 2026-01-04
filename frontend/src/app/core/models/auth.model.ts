@@ -17,5 +17,11 @@ export interface AuthResponse {
   message: string;
   token?: string;
   user?: User;
-  errors?: any[];
+  errors?: string[];
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  otp: string;
+  newPassword: string;
 }

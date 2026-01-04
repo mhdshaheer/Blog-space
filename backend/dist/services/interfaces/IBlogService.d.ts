@@ -26,7 +26,7 @@ export interface IBlogService {
      * @param filters - Optional filters
      * @returns Paginated blogs response
      */
-    getAllBlogs(page: number, limit: number, filters?: Record<string, any>): Promise<PaginatedBlogsResponse>;
+    getAllBlogs(page: number, limit: number, filters?: Record<string, unknown>): Promise<PaginatedBlogsResponse>;
     /**
      * Get blog by ID
      * @param id - Blog ID

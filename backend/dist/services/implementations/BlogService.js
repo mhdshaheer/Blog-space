@@ -119,9 +119,10 @@ class BlogService {
             throw new Error(Messages_1.BLOG_MESSAGES.NOT_FOUND);
         }
         // Verify ownership - accurately extract ID whether populated or not
-        const existingAuthorId = existingBlog.author._id
-            ? existingBlog.author._id.toString()
-            : existingBlog.author.toString();
+        const author = existingBlog.author;
+        const existingAuthorId = (typeof author === 'object' && author !== null && '_id' in author)
+            ? String(author._id)
+            : String(author);
         const currentUserId = userId.toString();
         if (existingAuthorId !== currentUserId) {
             throw new Error(Messages_1.BLOG_MESSAGES.UNAUTHORIZED_UPDATE);
@@ -159,7 +160,10 @@ class BlogService {
             throw new Error(Messages_1.BLOG_MESSAGES.NOT_FOUND);
         }
         // Verify ownership
-        const authorId = existingBlog.author?._id?.toString?.() ?? existingBlog.author.toString();
+        const author = existingBlog.author;
+        const authorId = (typeof author === 'object' && author !== null && '_id' in author)
+            ? String(author._id)
+            : String(author);
         if (authorId !== userId) {
             throw new Error(Messages_1.BLOG_MESSAGES.UNAUTHORIZED_DELETE);
         }

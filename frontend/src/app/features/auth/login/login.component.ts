@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -32,7 +33,7 @@ export class LoginComponent {
   readonly isSubmitted = signal(false);
   readonly showPassword = signal(false);
 
-  private getApiErrorMessage(err: any): string {
+  private getApiErrorMessage(err: HttpErrorResponse): string {
     const apiErrors: Array<{ msg?: string }> | undefined = err?.error?.errors;
     if (Array.isArray(apiErrors) && apiErrors.length > 0) {
       const msg = apiErrors

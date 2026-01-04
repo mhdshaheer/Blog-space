@@ -3,7 +3,7 @@ import { IBlog } from '../../models/Blog';
 export interface BlogQueryOptions {
   skip?: number;
   limit?: number;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   sort?: Record<string, 1 | -1>;
 }
 
@@ -61,7 +61,7 @@ export interface IBlogRepository {
    * @param filters - Query filters
    * @returns Total count
    */
-  countBlogs(filters?: Record<string, any>): Promise<number>;
+  countBlogs(filters?: Record<string, unknown>): Promise<number>;
 
   /**
    * Get blogs favorited by a user

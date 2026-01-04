@@ -8,15 +8,15 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'blog-space/blogs',
     allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
-    public_id: (_req: any, _file: any) => {
+    public_id: (_req: unknown, _file: Express.Multer.File) => {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
       return `blog-${uniqueSuffix}`;
     }
-  } as any,
+  } as Record<string, unknown>,
 });
 
 // File filter to allow only images (optional but good for extra safety)
-const fileFilter = (_req: any, file: any, cb: any) => {
+const fileFilter = (_req: unknown, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedTypes = process.env.ALLOWED_FILE_TYPES?.split(',') || [
     'image/jpeg',
     'image/jpg',
@@ -27,7 +27,7 @@ const fileFilter = (_req: any, file: any, cb: any) => {
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only JPEG, PNG and GIF images are allowed'), false);
+    cb(new Error('Invalid file type. Only JPEG, PNG and GIF images are allowed') as unknown as null, false);
   }
 };
 

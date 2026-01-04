@@ -49,7 +49,7 @@ export declare class BlogRepository implements IBlogRepository {
      * @param filters - Query filters
      * @returns Total count
      */
-    countBlogs(filters?: Record<string, any>): Promise<number>;
+    countBlogs(filters?: Record<string, unknown>): Promise<number>;
     /**
      * Get blogs favorited by a user
      * @param userId - User ID

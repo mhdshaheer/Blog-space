@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, RegisterRequest, AuthResponse } from '../models/auth.model';
+import { LoginRequest, RegisterRequest, AuthResponse, ResetPasswordRequest } from '../models/auth.model';
 import { User } from '../models/user.model';
 import { Router } from '@angular/router';
 
@@ -89,7 +89,7 @@ export class AuthService {
     return this._http.post<{ success: boolean; message: string }>(`${this._apiUrl}/verify-reset-otp`, { email, otp });
   }
 
-  resetPassword(data: any): Observable<{ success: boolean; message: string }> {
+  resetPassword(data: ResetPasswordRequest): Observable<{ success: boolean; message: string }> {
     return this._http.post<{ success: boolean; message: string }>(`${this._apiUrl}/reset-password`, data);
   }
 

@@ -78,8 +78,8 @@ redisClient.on('ready', () => {
       await redisClient.connect();
       console.log('\x1b[36m[REDIS] Connected successfully\x1b[0m');
     }
-  } catch (err: any) {
-    console.error('\x1b[31m[REDIS] Connection failed:', err.message, '\x1b[0m');
+  } catch (err: unknown) {
+    console.error('\x1b[31m[REDIS] Connection failed:', (err as Error).message, '\x1b[0m');
   }
 })();
 

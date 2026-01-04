@@ -125,7 +125,7 @@ export class BlogRepository implements IBlogRepository {
    * @param filters - Query filters
    * @returns Total count
    */
-  async countBlogs(filters: Record<string, any> = {}): Promise<number> {
+  async countBlogs(filters: Record<string, unknown> = {}): Promise<number> {
     try {
       const count = await Blog.countDocuments(filters);
       return count;

@@ -14,13 +14,16 @@ const errorHandler = (err, _req, res, _next) => {
     // Mongoose validation error
     if (err.name === 'ValidationError') {
         statusCode = 400;
-        // @ts-ignore
-        message = Object.values(err.errors).map((val) => val.message).join(', ');
+        const validationErrors = err.errors; // Mongoose errors are complex
+        if (validationErrors) {
+            message = Object.values(validationErrors).map((val) => val.message).join(', ');
+        }
     }
     // Mongoose duplicate key
     else if (err.code === 11000) {
         statusCode = 400;
-        const field = Object.keys(err.keyPattern)[0];
+        const mongoError = err;
+        const field = Object.keys(mongoError.keyPattern)[0];
         message = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
     }
     // Custom errors or other known errors

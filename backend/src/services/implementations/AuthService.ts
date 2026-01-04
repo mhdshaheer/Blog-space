@@ -2,7 +2,7 @@ import { IAuthService, LoginResponse, TokenPayload } from '../interfaces/IAuthSe
 import { AUTH_MESSAGES } from '../../constants/Messages';
 import { IUserRepository } from '../../repositories/interfaces/IUserRepository';
 import { IUser } from '../../models/User';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { sendEmail } from '../../utils/email';
 import { redisClient } from '../../utils/redis';
 
@@ -77,14 +77,14 @@ export class AuthService implements IAuthService {
     }
 
     const payload: TokenPayload = {
-      userId: (user._id as any).toString(),
+      userId: String(user._id),
       username: user.username,
       email: user.email
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
-      expiresIn: (process.env.JWT_EXPIRE || '24h') as any
-    });
+      expiresIn: (process.env.JWT_EXPIRE || '24h')
+    } as jwt.SignOptions);
 
     const userObj = user.toObject();
     delete userObj.password;
@@ -118,14 +118,14 @@ export class AuthService implements IAuthService {
     await redisClient.del(`registration:${email}`);
 
     const payload: TokenPayload = {
-      userId: (user._id as any).toString(),
+      userId: String(user._id),
       username: user.username,
       email: user.email
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
-      expiresIn: (process.env.JWT_EXPIRE || '24h') as any
-    });
+      expiresIn: (process.env.JWT_EXPIRE || '24h')
+    } as jwt.SignOptions);
 
     const userObj = user.toObject();
     delete userObj.password;

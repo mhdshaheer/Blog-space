@@ -20,13 +20,16 @@ export const errorHandler = (
   // Mongoose validation error
   if (err.name === 'ValidationError') {
     statusCode = 400;
-    // @ts-ignore
-    message = Object.values(err.errors).map((val: any) => val.message).join(', ');
+    const validationErrors = (err as unknown as { errors?: Record<string, { message: string }> }).errors;
+    if (validationErrors) {
+      message = Object.values(validationErrors).map(val => val.message).join(', ');
+    }
   } 
   // Mongoose duplicate key
-  else if ((err as any).code === 11000) {
+  else if ((err as { code?: number }).code === 11000) {
     statusCode = 400;
-    const field = Object.keys((err as any).keyPattern)[0];
+    const mongoError = err as unknown as { keyPattern: Record<string, number> };
+    const field = Object.keys(mongoError.keyPattern)[0];
     message = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
   }
   // Custom errors or other known errors

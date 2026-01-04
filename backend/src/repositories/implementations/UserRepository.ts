@@ -18,10 +18,11 @@ export class UserRepository implements IUserRepository {
       const user = new User(userData);
       await user.save();
       return user;
-    } catch (error: any) {
-      if (error.code === 11000) {
+    } catch (error: unknown) {
+      const mongoError = error as { code?: number; keyPattern?: Record<string, number> };
+      if (mongoError.code === 11000 && mongoError.keyPattern) {
         // Duplicate key error
-        const field = Object.keys(error.keyPattern)[0];
+        const field = Object.keys(mongoError.keyPattern)[0];
         throw new Error(`${field} already exists`);
       }
       throw error;

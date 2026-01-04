@@ -2,8 +2,10 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { ResetPasswordRequest } from '../../../core/models/auth.model';
 
 @Component({
   selector: 'app-forgot-password',
@@ -61,7 +63,7 @@ export class ForgotPasswordComponent {
         this._toast.show(res.message, 'success');
         this.currentStep.set(2);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         this.isLoading.set(false);
         this._toast.show(err.error?.message || 'Failed to request reset code', 'error');
       }
@@ -83,7 +85,7 @@ export class ForgotPasswordComponent {
         this._toast.show(res.message, 'success');
         this.currentStep.set(3);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         this.isLoading.set(false);
         this._toast.show(err.error?.message || 'Invalid verification code', 'error');
       }
@@ -95,7 +97,7 @@ export class ForgotPasswordComponent {
     if (this.passwordForm.invalid) return;
 
     this.isLoading.set(true);
-    const payload = {
+    const payload: ResetPasswordRequest = {
       email: this.forgotForm.get('email')?.value,
       otp: this.otpForm.get('otp')?.value,
       newPassword: this.passwordForm.get('newPassword')?.value
@@ -107,7 +109,7 @@ export class ForgotPasswordComponent {
         this._toast.show(res.message, 'success');
         this._router.navigate(['/login']);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         this.isLoading.set(false);
         this._toast.show(err.error?.message || 'Failed to reset password', 'error');
       }

@@ -64,7 +64,7 @@ class AuthService {
             throw new Error(Messages_1.AUTH_MESSAGES.INVALID_CREDENTIALS);
         }
         const payload = {
-            userId: user._id.toString(),
+            userId: String(user._id),
             username: user.username,
             email: user.email
         };
@@ -95,7 +95,7 @@ class AuthService {
         // Delete pending record from Redis
         await redis_1.redisClient.del(`registration:${email}`);
         const payload = {
-            userId: user._id.toString(),
+            userId: String(user._id),
             username: user.username,
             email: user.email
         };

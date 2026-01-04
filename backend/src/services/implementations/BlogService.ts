@@ -68,7 +68,7 @@ export class BlogService implements IBlogService {
    * @param filters - Optional filters
    * @returns Paginated blogs response
    */
-  async getAllBlogs(page: number = 1, limit: number = 10, filters: Record<string, any> = {}): Promise<PaginatedBlogsResponse> {
+  async getAllBlogs(page: number = 1, limit: number = 10, filters: Record<string, unknown> = {}): Promise<PaginatedBlogsResponse> {
     // Calculate skip
     const skip = (page - 1) * limit;
 
@@ -141,9 +141,10 @@ export class BlogService implements IBlogService {
     }
 
     // Verify ownership - accurately extract ID whether populated or not
-    const existingAuthorId = (existingBlog.author as any)._id 
-      ? (existingBlog.author as any)._id.toString() 
-      : existingBlog.author.toString();
+    const author = existingBlog.author;
+    const existingAuthorId = (typeof author === 'object' && author !== null && '_id' in author)
+      ? String((author as { _id: unknown })._id)
+      : String(author);
     const currentUserId = userId.toString();
 
     if (existingAuthorId !== currentUserId) {
@@ -191,7 +192,10 @@ export class BlogService implements IBlogService {
     }
 
     // Verify ownership
-    const authorId = (existingBlog.author as any)?._id?.toString?.() ?? existingBlog.author.toString();
+    const author = existingBlog.author;
+    const authorId = (typeof author === 'object' && author !== null && '_id' in author)
+      ? String((author as { _id: unknown })._id)
+      : String(author);
     if (authorId !== userId) {
       throw new Error(BLOG_MESSAGES.UNAUTHORIZED_DELETE);
     }

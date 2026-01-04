@@ -13,7 +13,7 @@ import { BlogController } from '../controllers/implementations/BlogController';
  */
 class DIContainer {
   private static _instance: DIContainer;
-  private _instances: Map<string, any>;
+  private _instances: Map<string, object>;
 
   private constructor() {
     this._instances = new Map();
@@ -36,7 +36,7 @@ class DIContainer {
     if (!this._instances.has('userRepository')) {
       this._instances.set('userRepository', new UserRepository());
     }
-    return this._instances.get('userRepository');
+    return this._instances.get('userRepository') as UserRepository;
   }
 
   /**
@@ -46,7 +46,7 @@ class DIContainer {
     if (!this._instances.has('blogRepository')) {
       this._instances.set('blogRepository', new BlogRepository());
     }
-    return this._instances.get('blogRepository');
+    return this._instances.get('blogRepository') as BlogRepository;
   }
 
   /**
@@ -59,7 +59,7 @@ class DIContainer {
         new AuthService(this.getUserRepository())
       );
     }
-    return this._instances.get('authService');
+    return this._instances.get('authService') as AuthService;
   }
 
   /**
@@ -75,7 +75,7 @@ class DIContainer {
         )
       );
     }
-    return this._instances.get('blogService');
+    return this._instances.get('blogService') as BlogService;
   }
 
   /**
@@ -88,7 +88,7 @@ class DIContainer {
         new AuthController(this.getAuthService())
       );
     }
-    return this._instances.get('authController');
+    return this._instances.get('authController') as AuthController;
   }
 
   /**
@@ -101,7 +101,7 @@ class DIContainer {
         new BlogController(this.getBlogService())
       );
     }
-    return this._instances.get('blogController');
+    return this._instances.get('blogController') as BlogController;
   }
 }
 

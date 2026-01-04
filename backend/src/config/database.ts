@@ -20,8 +20,8 @@ const connectDatabase = async (): Promise<void> => {
       process.exit(0);
     });
 
-  } catch (error: any) {
-    console.error('\x1b[31m[MONGODB] Initial connection failed:', error.message, '\x1b[0m');
+  } catch (error: unknown) {
+    console.error('\x1b[31m[MONGODB] Initial connection failed:', (error as Error).message, '\x1b[0m');
     process.exit(1);
   }
 };

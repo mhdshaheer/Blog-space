@@ -24,9 +24,10 @@ class UserRepository {
             return user;
         }
         catch (error) {
-            if (error.code === 11000) {
+            const mongoError = error;
+            if (mongoError.code === 11000 && mongoError.keyPattern) {
                 // Duplicate key error
-                const field = Object.keys(error.keyPattern)[0];
+                const field = Object.keys(mongoError.keyPattern)[0];
                 throw new Error(`${field} already exists`);
             }
             throw error;
