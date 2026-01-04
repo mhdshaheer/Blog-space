@@ -58,5 +58,10 @@ export declare class BlogService implements IBlogService {
     deleteBlog(id: string, userId: string): Promise<{
         message: string;
     }>;
+    /**
+     * Helper to delete image from Cloudinary
+     * @param imageUrl - Full Cloudinary URL
+     */
+    private _deleteCloudinaryImage;
 }
 //# sourceMappingURL=BlogService.d.ts.map

@@ -3,6 +3,7 @@ import { BLOG_MESSAGES } from '../../constants/Messages';
 import { IBlogRepository } from '../../repositories/interfaces/IBlogRepository';
 import { IUserRepository } from '../../repositories/interfaces/IUserRepository';
 import { IBlog } from '../../models/Blog';
+import cloudinary from '../../config/cloudinary';
 // Removed path and fs/promises for Cloudinary migration
 
 /**
@@ -127,6 +128,11 @@ export class BlogService implements IBlogService {
    * @returns Updated blog
    */
   async updateBlog(id: string, updateData: Partial<IBlog>, userId: string, imageFile?: Express.Multer.File): Promise<IBlog> {
+    // Validate ID format
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      throw new Error(BLOG_MESSAGES.INVALID_ID);
+    }
+
     // Fetch existing blog
     const existingBlog = await this._blogRepository.findBlogById(id);
     
@@ -134,9 +140,13 @@ export class BlogService implements IBlogService {
       throw new Error(BLOG_MESSAGES.NOT_FOUND);
     }
 
-    // Verify ownership
-    const authorId = (existingBlog.author as any)?._id?.toString?.() ?? existingBlog.author.toString();
-    if (authorId !== userId) {
+    // Verify ownership - accurately extract ID whether populated or not
+    const existingAuthorId = (existingBlog.author as any)._id 
+      ? (existingBlog.author as any)._id.toString() 
+      : existingBlog.author.toString();
+    const currentUserId = userId.toString();
+
+    if (existingAuthorId !== currentUserId) {
       throw new Error(BLOG_MESSAGES.UNAUTHORIZED_UPDATE);
     }
 
@@ -151,6 +161,11 @@ export class BlogService implements IBlogService {
 
     // Process new image if provided
     if (imageFile) {
+      // Delete old image from Cloudinary if it exists
+      if (existingBlog.image && existingBlog.image.includes('cloudinary')) {
+        await this._deleteCloudinaryImage(existingBlog.image);
+      }
+      
       // Set new image path (Cloudinary URL)
       updateData.image = imageFile.path;
     }
@@ -181,12 +196,43 @@ export class BlogService implements IBlogService {
       throw new Error(BLOG_MESSAGES.UNAUTHORIZED_DELETE);
     }
 
-    // Note: Cloudinary image deletion can be implemented using cloudinary.v2.uploader.destroy
-    // For now, we focus on the transition to Cloudinary for storage.
+    // Delete associated image from Cloudinary
+    if (existingBlog.image && existingBlog.image.includes('cloudinary')) {
+      await this._deleteCloudinaryImage(existingBlog.image);
+    }
 
     // Delete blog from database
     await this._blogRepository.deleteBlog(id);
 
     return { message: BLOG_MESSAGES.DELETE_SUCCESS };
+  }
+
+  /**
+   * Helper to delete image from Cloudinary
+   * @param imageUrl - Full Cloudinary URL
+   */
+  private async _deleteCloudinaryImage(imageUrl: string): Promise<void> {
+    try {
+      // Extract public_id from URL
+      // Example: https://res.cloudinary.com/demo/image/upload/v1234/folder/public_id.jpg
+      const parts = imageUrl.split('/');
+      const lastPart = parts.pop() || '';
+      const publicIdWithExtension = lastPart.split('.')[0];
+      
+      // We need to include the folder path if it's there
+      // For this project, it's 'blog-space/blogs/'
+      const folderIndex = parts.indexOf('blog-space');
+      if (folderIndex !== -1) {
+        const folderPath = parts.slice(folderIndex).join('/');
+        const fullPublicId = `${folderPath}/${publicIdWithExtension}`;
+        await cloudinary.uploader.destroy(fullPublicId);
+      } else {
+        // Fallback for root folder images
+        await cloudinary.uploader.destroy(publicIdWithExtension);
+      }
+    } catch (error) {
+       console.error('[CLOUDINARY] Deletion error:', error);
+       // We don't throw here to ensure the record is still updated/deleted even if image deletion fails
+    }
   }
 }

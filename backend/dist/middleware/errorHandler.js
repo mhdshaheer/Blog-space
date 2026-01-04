@@ -6,7 +6,8 @@ exports.errorHandler = void 0;
  * Handles all errors and sends appropriate responses
  */
 const errorHandler = (err, _req, res, _next) => {
-    // Silent error handling
+    // Log error for debugging
+    console.error('\x1b[31m[ERROR HANDLER] ', err.message, '\x1b[0m');
     // Default error
     let statusCode = 500;
     let message = err.message || 'Internal server error';

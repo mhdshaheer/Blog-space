@@ -10,7 +10,8 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ): void => {
-  // Silent error handling
+  // Log error for debugging
+  console.error('\x1b[31m[ERROR HANDLER] ', err.message, '\x1b[0m');
 
   // Default error
   let statusCode = 500;
