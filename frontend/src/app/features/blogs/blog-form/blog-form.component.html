@@ -1,4 +1,4 @@
-<div class="container py-24 md:py-32">
+<div class="container pt-10 pb-24 md:pt-16 md:pb-32">
   <div class="max-w-5xl mx-auto px-6">
     <!-- Premium Workspace Header -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-16">
@@ -59,9 +59,9 @@
       <div class="glass-card p-12 md:p-24 space-y-8 shadow-none border-white/5 bg-white/[0.01] rounded-[48px]">
         <!-- Title Project -->
         <div class="form-group">
-          <label class="text-[10px] font-black uppercase tracking-[0.5em] text-slate-700 mb-3 block">Publication Title</label>
+          <label class="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 mb-3 block">Publication Title</label>
           <input type="text" formControlName="title"
-                 class="form-input !bg-transparent !border-x-0 !border-t-0 !border-b-4 border-slate-950 !rounded-none !px-0 !pb-10 font-black text-white placeholder:text-slate-900 transition-all focus:border-indigo-500 selection:bg-indigo-500 selection:text-white text-2xl md:text-4xl lg:text-5xl"
+                 class="form-input !bg-transparent !border-x-0 !border-t-0 !border-b-4 border-white/10 !rounded-none !px-0 !pb-10 font-black text-white placeholder:text-slate-600 transition-all focus:border-indigo-500 selection:bg-indigo-500 selection:text-white text-2xl md:text-4xl lg:text-5xl"
                  placeholder="The title of your narrative...">
           @if (blogForm.get('title')?.touched && blogForm.get('title')?.invalid) {
             <div class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
@@ -72,9 +72,9 @@
 
         <!-- Composition Feed -->
         <div class="form-group">
-          <label class="text-[10px] font-black uppercase tracking-[0.5em] text-slate-700 mb-3 block">Narrative Content</label>
+          <label class="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 mb-3 block">Narrative Content</label>
           <textarea formControlName="content" rows="20"
-                    class="form-input !bg-transparent !border-none !p-0 text-xl md:text-3xl font-bold text-slate-400 placeholder:text-slate-900 resize-none leading-[1.7] transition-all selection:bg-indigo-500 selection:text-white" 
+                    class="form-input !bg-transparent !border-none !p-0 text-xl md:text-3xl font-bold text-white placeholder:text-slate-600 resize-none leading-[1.7] transition-all selection:bg-indigo-500 selection:text-white" 
                     placeholder="Initiate the creative flow... Ideas find their space here."></textarea>
           @if (blogForm.get('content')?.touched && blogForm.get('content')?.invalid) {
             <div class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
