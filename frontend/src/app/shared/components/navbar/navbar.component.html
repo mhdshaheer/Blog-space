@@ -20,6 +20,8 @@
           @if (currentUser()) {
             <a routerLink="/my-blogs" routerLinkActive="bg-white/10 text-white shadow-inner" 
                class="px-5 py-2.5 rounded-xl text-sm font-extrabold text-slate-400 hover:text-white transition-all">Workspace</a>
+            <a routerLink="/favorites" routerLinkActive="bg-white/10 text-white shadow-inner" 
+               class="px-5 py-2.5 rounded-xl text-sm font-extrabold text-slate-400 hover:text-white transition-all">Favorites</a>
           }
         </nav>
         
@@ -85,6 +87,7 @@
       <a routerLink="/" (click)="toggleMenu()" class="p-4 rounded-2xl bg-white/5 text-white font-black text-lg">Discovery Feed</a>
       @if (currentUser(); as user) {
         <a routerLink="/my-blogs" (click)="toggleMenu()" class="p-4 rounded-2xl bg-white/5 text-white font-black text-lg">My Collections</a>
+        <a routerLink="/favorites" (click)="toggleMenu()" class="p-4 rounded-2xl bg-white/5 text-white font-black text-lg">Personal Favorites</a>
         <a routerLink="/create-blog" (click)="toggleMenu()" class="btn btn-primary !py-5 !rounded-2xl !text-lg !font-black !w-full shadow-xl">New Story</a>
         
         <div class="mt-4 p-4 rounded-2xl border border-white/5 bg-white/[0.02] flex items-center justify-between">

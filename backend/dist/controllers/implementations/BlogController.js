@@ -157,6 +157,27 @@ class BlogController {
             }
         };
         /**
+         * Get favorite blogs for current user
+         * GET /api/blogs/user/favorites
+         * Protected route
+         */
+        this.getFavoriteBlogs = async (req, res, next) => {
+            try {
+                const userId = req.user.userId;
+                // Call service
+                const blogs = await this._blogService.getFavoriteBlogs(userId);
+                // Send response
+                res.status(HttpStatus_1.HttpStatus.OK).json({
+                    success: true,
+                    count: blogs.length,
+                    blogs
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        };
+        /**
          * Toggle like on a blog
          * POST /api/blogs/:id/like
          * Protected route

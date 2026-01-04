@@ -37,6 +37,12 @@ export const routes: Routes = [
     title: 'My Dashboard'
   },
   {
+    path: 'favorites',
+    loadComponent: () => import('./features/blogs/favorite-blogs/favorite-blogs.component').then(m => m.FavoriteBlogsComponent),
+    canActivate: [authGuard],
+    title: 'My Favorites'
+  },
+  {
     path: 'blogs/:id',
     loadComponent: () => import('./features/blogs/blog-detail/blog-detail.component').then(m => m.BlogDetailComponent),
     title: 'Read Article'

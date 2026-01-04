@@ -135,6 +135,23 @@ export class BlogRepository implements IBlogRepository {
   }
 
   /**
+   * Get blogs favorited by a user
+   * @param userId - User ID
+   * @returns Array of blogs
+   */
+  async getFavoriteBlogs(userId: string): Promise<IBlog[]> {
+    try {
+      const blogs = await Blog.find({ likes: userId })
+        .sort({ createdAt: -1 })
+        .populate('author', '-password')
+        .exec();
+      return blogs;
+    } catch (error) {
+      throw new Error(`Error finding favorite blogs: ${(error as Error).message}`);
+    }
+  }
+
+  /**
    * Toggle like on a blog
    * @param blogId - Blog ID
    * @param userId - User ID

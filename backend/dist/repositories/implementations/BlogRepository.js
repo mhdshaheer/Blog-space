@@ -129,6 +129,23 @@ class BlogRepository {
         }
     }
     /**
+     * Get blogs favorited by a user
+     * @param userId - User ID
+     * @returns Array of blogs
+     */
+    async getFavoriteBlogs(userId) {
+        try {
+            const blogs = await Blog_1.default.find({ likes: userId })
+                .sort({ createdAt: -1 })
+                .populate('author', '-password')
+                .exec();
+            return blogs;
+        }
+        catch (error) {
+            throw new Error(`Error finding favorite blogs: ${error.message}`);
+        }
+    }
+    /**
      * Toggle like on a blog
      * @param blogId - Blog ID
      * @param userId - User ID

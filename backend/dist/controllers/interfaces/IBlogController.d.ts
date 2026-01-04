@@ -30,6 +30,10 @@ export interface IBlogController {
      */
     deleteBlog(req: Request, res: Response, next: NextFunction): Promise<void>;
     /**
+     * Get favorite blogs for current user
+     */
+    getFavoriteBlogs(req: Request, res: Response, next: NextFunction): Promise<void>;
+    /**
      * Toggle like on a blog
      */
     toggleLike(req: Request, res: Response, next: NextFunction): Promise<void>;

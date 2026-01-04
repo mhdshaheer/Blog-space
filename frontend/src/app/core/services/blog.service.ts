@@ -28,6 +28,10 @@ export class BlogService {
     return this._http.get<{ success: boolean; count: number; blogs: Blog[] }>(`${this._apiUrl}/user/me`);
   }
 
+  getFavoriteBlogs(): Observable<{ success: boolean; count: number; blogs: Blog[] }> {
+    return this._http.get<{ success: boolean; count: number; blogs: Blog[] }>(`${this._apiUrl}/user/favorites`);
+  }
+
   createBlog(formData: FormData): Observable<{ success: boolean; message: string; blog: Blog }> {
     return this._http.post<{ success: boolean; message: string; blog: Blog }>(this._apiUrl, formData);
   }

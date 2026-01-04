@@ -30,6 +30,12 @@ router.get('/', blogController.getAllBlogs);
  */
 router.get('/user/me', auth_1.authMiddleware, blogController.getBlogsByUser);
 /**
+ * @route   GET /api/blogs/user/favorites
+ * @desc    Get blogs favorited by authenticated user
+ * @access  Private
+ */
+router.get('/user/favorites', auth_1.authMiddleware, blogController.getFavoriteBlogs);
+/**
  * @route   GET /api/blogs/:id
  * @desc    Get blog by ID
  * @access  Public

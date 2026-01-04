@@ -58,6 +58,12 @@ export declare class BlogController implements IBlogController {
      */
     deleteBlog: (req: Request, res: Response, next: NextFunction) => Promise<void>;
     /**
+     * Get favorite blogs for current user
+     * GET /api/blogs/user/favorites
+     * Protected route
+     */
+    getFavoriteBlogs: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+    /**
      * Toggle like on a blog
      * POST /api/blogs/:id/like
      * Protected route

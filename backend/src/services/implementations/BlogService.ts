@@ -237,6 +237,15 @@ export class BlogService implements IBlogService {
   }
 
   /**
+   * Get blogs favorited by a user
+   * @param userId - User ID
+   * @returns Array of blogs
+   */
+  async getFavoriteBlogs(userId: string): Promise<IBlog[]> {
+    return await this._blogRepository.getFavoriteBlogs(userId);
+  }
+
+  /**
    * Toggle like on a blog
    * @param blogId - Blog ID
    * @param userId - User ID

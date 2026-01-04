@@ -1,0 +1,101 @@
+<div class="container py-24 md:py-32">
+  <div class="max-w-6xl mx-auto">
+    <!-- Premium Favorites Header -->
+    <header class="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-24 border-b border-white/5 pb-20">
+      <div>
+        <div class="flex items-center gap-3 mb-6 animate-fade-in px-1">
+          <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)] animate-pulse"></span>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">Personal Collection</span>
+        </div>
+        <h1 class="text-5xl md:text-8xl font-black text-white tracking-tighter mb-4 leading-none animate-fade-in">My <span class="text-red-500">Favorites</span></h1>
+        <p class="text-slate-500 text-lg md:text-xl font-bold max-w-2xl animate-fade-in">Your curated selection of the most inspiring stories and perspectives.</p>
+      </div>
+    </header>
+
+    <!-- Loading Matrix -->
+    @if (isLoading()) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+        @for (i of [1,2,3]; track i) {
+          <div class="glass-card overflow-hidden animate-pulse border-white/5">
+            <div class="aspect-[16/10] bg-white/5 mb-8"></div>
+            <div class="p-10 pt-0 space-y-6">
+              <div class="h-8 bg-white/5 rounded-xl w-3/4"></div>
+              <div class="h-5 bg-white/5 rounded-lg w-full"></div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Error Matrix -->
+    @if (error()) {
+      <div class="max-w-xl mx-auto py-32 text-center glass-card p-20 border-white/10 shadow-3xl">
+        <div class="w-24 h-24 rounded-[32px] bg-red-400/10 flex-center text-red-500 mx-auto mb-10 shadow-inner">
+          <i class="fa-solid fa-heart-crack text-5xl"></i>
+        </div>
+        <h3 class="text-3xl font-black text-white mb-4 tracking-tighter">Sync Interrupted</h3>
+        <p class="text-slate-500 mb-12 text-lg font-bold">{{ error() }}</p>
+        <button (click)="loadFavoriteBlogs()" class="btn btn-ghost px-12 py-4 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-white/10 transition-all">Reconnect Instance</button>
+      </div>
+    }
+
+    <!-- Empty Matrix -->
+    @if (!isLoading() && !error() && blogs().length === 0) {
+      <div class="py-32 text-center border-2 border-dashed border-white/10 rounded-[48px] bg-white/[0.01] animate-fade-in">
+        <div class="w-20 h-20 rounded-3xl bg-white/5 flex-center text-slate-800 mx-auto mb-10 rotate-12 shadow-inner">
+          <i class="fa-regular fa-heart text-4xl opacity-30"></i>
+        </div>
+        <h3 class="text-4xl font-black text-white mb-4 tracking-tighter">Collection Empty</h3>
+        <p class="text-slate-500 mb-12 text-lg font-bold max-w-sm mx-auto">Explore the feed and favorite the stories that resonate with you most.</p>
+        <a routerLink="/" class="btn btn-primary py-6 px-16 text-lg font-black rounded-3xl shadow-indigo-500/30">Explore Publication</a>
+      </div>
+    }
+
+    <!-- Favorites Grid -->
+    @if (!isLoading() && !error() && blogs().length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 animate-fade-in">
+        @for (blog of blogs(); track blog._id) {
+          <article class="glass-card group flex flex-col hover-scale overflow-hidden bg-white/[0.01] border-white/5 hover:bg-white/[0.03] hover:border-white/10 shadow-2xl transition-all duration-500">
+            
+            <!-- Premium Thumbnail -->
+            <div class="relative aspect-[16/10] overflow-hidden m-4 rounded-3xl">
+              <img [src]="getImageUrl(blog.image)" 
+                   (error)="handleImageError($event)"
+                   [alt]="blog.title" 
+                   class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90"></div>
+              
+              <button (click)="toggleLike($event, blog)" class="absolute top-5 right-5 p-3 rounded-2xl bg-slate-950/80 backdrop-blur-xl border border-white/10 text-red-500 shadow-xl hover:scale-110 transition-transform">
+                 <i class="fa-solid fa-heart"></i>
+              </button>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-10 flex-1 flex flex-col pt-4">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex-center text-indigo-400 text-xs font-black shadow-inner">
+                  {{ getAuthorName(blog).charAt(0) }}
+                </div>
+                <span class="text-xs text-indigo-400 font-extrabold uppercase tracking-widest opacity-80">{{ getAuthorName(blog) }}</span>
+              </div>
+
+              <h3 class="text-2xl font-black mb-6 text-white group-hover:text-red-400 transition-colors leading-[1.15] tracking-tight">
+                <a [routerLink]="['/blogs', blog._id]">{{ blog.title }}</a>
+              </h3>
+              
+              <p class="text-slate-500 text-base mb-10 line-clamp-3 font-semibold leading-relaxed">
+                {{ blog.content }}
+              </p>
+
+              <div class="mt-auto pt-8 border-t border-white/5">
+                <a [routerLink]="['/blogs', blog._id]" class="text-[10px] font-black text-white uppercase tracking-[0.25em] flex items-center gap-3 group/link transition-all hover:text-red-400">
+                  Access Narrative <i class="fa-solid fa-chevron-right text-[10px] transition-transform group-hover/link:translate-x-2"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</div>

@@ -64,6 +64,12 @@ export declare class BlogService implements IBlogService {
      */
     private _deleteCloudinaryImage;
     /**
+     * Get blogs favorited by a user
+     * @param userId - User ID
+     * @returns Array of blogs
+     */
+    getFavoriteBlogs(userId: string): Promise<IBlog[]>;
+    /**
      * Toggle like on a blog
      * @param blogId - Blog ID
      * @param userId - User ID

@@ -64,6 +64,13 @@ export interface IBlogService {
   deleteBlog(id: string, userId: string): Promise<{ message: string }>;
 
   /**
+   * Get blogs favorited by a user
+   * @param userId - User ID
+   * @returns Array of blogs
+   */
+  getFavoriteBlogs(userId: string): Promise<IBlog[]>;
+
+  /**
    * Toggle like on a blog
    * @param blogId - Blog ID
    * @param userId - User ID
