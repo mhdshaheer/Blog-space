@@ -24,8 +24,9 @@ app.use((0, helmet_1.default)({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 // CORS configuration
+const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:4200').replace(/\/$/, '');
 app.use((0, cors_1.default)({
-    origin: process.env.FRONTEND_URL || 'http://localhost:4200',
+    origin: frontendUrl,
     credentials: true
 }));
 // Rate limiting

@@ -24,8 +24,9 @@ app.use(helmet({
 }));
 
 // CORS configuration
+const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:4200').replace(/\/$/, '');
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:4200',
+  origin: frontendUrl,
   credentials: true
 }));
 
