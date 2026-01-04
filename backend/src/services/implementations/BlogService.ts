@@ -286,4 +286,25 @@ export class BlogService implements IBlogService {
 
     return blog;
   }
+
+  /**
+   * Toggle favorite on a blog
+   * @param blogId - Blog ID
+   * @param userId - User ID
+   * @returns Updated blog
+   */
+  async toggleFavorite(blogId: string, userId: string): Promise<IBlog> {
+    // Validate ID format
+    if (!blogId.match(/^[0-9a-fA-F]{24}$/)) {
+      throw new Error(BLOG_MESSAGES.INVALID_ID);
+    }
+
+    const blog = await this._blogRepository.toggleFavorite(blogId, userId);
+    
+    if (!blog) {
+      throw new Error(BLOG_MESSAGES.NOT_FOUND);
+    }
+
+    return blog;
+  }
 }

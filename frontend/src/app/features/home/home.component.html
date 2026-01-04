@@ -128,6 +128,14 @@
                      <span class="text-[10px] font-black" [ngClass]="isDisliked(blog) ? 'text-red-500/80' : 'text-slate-500'">{{ blog.dislikes.length }}</span>
                    }
                  </button>
+
+                 <!-- Favorite Button -->
+                 <button (click)="toggleFavorite($event, blog)" 
+                         class="flex items-center gap-1 group/fav border-none bg-transparent p-0 transition-all hover:scale-110 ml-1"
+                         title="Save for Later">
+                   <i class="fa-bookmark transition-all"
+                      [ngClass]="isFavorited(blog) ? 'fa-solid text-orange-500' : 'fa-regular hover:text-orange-500'"></i>
+                 </button>
               </div>
             </div>
           </div>

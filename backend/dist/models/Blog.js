@@ -66,6 +66,11 @@ const blogSchema = new mongoose_1.Schema({
             ref: 'User',
             default: []
         }],
+    favorites: [{
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: 'User',
+            default: []
+        }],
     createdAt: {
         type: Date,
         default: Date.now

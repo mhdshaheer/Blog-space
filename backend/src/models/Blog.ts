@@ -7,6 +7,7 @@ export interface IBlog extends Document {
   author: mongoose.Types.ObjectId | string;
   likes: mongoose.Types.ObjectId[];
   dislikes: mongoose.Types.ObjectId[];
+  favorites: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +40,11 @@ const blogSchema = new Schema<IBlog>({
     default: []
   }],
   dislikes: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    default: []
+  }],
+  favorites: [{
     type: Schema.Types.ObjectId,
     ref: 'User',
     default: []

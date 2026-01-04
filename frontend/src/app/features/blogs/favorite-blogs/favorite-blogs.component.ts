@@ -52,16 +52,22 @@ export class FavoriteBlogsComponent {
     return blog.likes.includes(currentUser._id);
   }
 
+  isFavorited(blog: Blog): boolean {
+    const currentUser = this._authService.currentUser();
+    if (!blog || !currentUser || !blog.favorites) return false;
+    return blog.favorites.includes(currentUser._id);
+  }
+
   toggleLike(event: Event, blog: Blog): void {
     event.preventDefault();
     event.stopPropagation();
 
-    this._blogService.toggleLike(blog._id)
+    this._blogService.toggleFavorite(blog._id)
       .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
-            // Remove from list if unliked
+            // Remove from list if unfavorited
             this.blogs.update(blogs => blogs.filter(b => b._id !== blog._id));
             this._toastService.show(response.message, 'success');
           }

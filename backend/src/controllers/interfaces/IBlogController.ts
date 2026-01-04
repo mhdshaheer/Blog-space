@@ -50,4 +50,9 @@ export interface IBlogController {
    * Toggle dislike on a blog
    */
   toggleDislike(req: Request, res: Response, next: NextFunction): Promise<void>;
+
+  /**
+   * Toggle favorite on a blog
+   */
+  toggleFavorite(req: Request, res: Response, next: NextFunction): Promise<void>;
 }

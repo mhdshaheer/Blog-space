@@ -135,7 +135,7 @@ class BlogRepository {
      */
     async getFavoriteBlogs(userId) {
         try {
-            const blogs = await Blog_1.default.find({ likes: userId })
+            const blogs = await Blog_1.default.find({ favorites: userId })
                 .sort({ createdAt: -1 })
                 .populate('author', '-password')
                 .exec();
@@ -199,6 +199,31 @@ class BlogRepository {
         }
         catch (error) {
             throw new Error(`Error toggling dislike: ${error.message}`);
+        }
+    }
+    /**
+     * Toggle favorite on a blog
+     * @param blogId - Blog ID
+     * @param userId - User ID
+     * @returns Updated blog
+     */
+    async toggleFavorite(blogId, userId) {
+        try {
+            const blog = await Blog_1.default.findById(blogId);
+            if (!blog)
+                return null;
+            const isFavorited = blog.favorites?.some(id => id.toString() === userId);
+            if (isFavorited) {
+                // Unfavorite
+                return await Blog_1.default.findByIdAndUpdate(blogId, { $pull: { favorites: userId } }, { new: true }).populate('author', '-password');
+            }
+            else {
+                // Favorite
+                return await Blog_1.default.findByIdAndUpdate(blogId, { $addToSet: { favorites: userId } }, { new: true }).populate('author', '-password');
+            }
+        }
+        catch (error) {
+            throw new Error(`Error toggling favorite: ${error.message}`);
         }
     }
 }

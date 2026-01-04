@@ -90,6 +90,13 @@ export class BlogDetailComponent {
     return currentBlog.dislikes.includes(currentUser._id);
   }
 
+  isFavorited(): boolean {
+    const currentBlog = this.blog();
+    const currentUser = this._authService.currentUser();
+    if (!currentBlog || !currentUser || !currentBlog.favorites) return false;
+    return currentBlog.favorites.includes(currentUser._id);
+  }
+
   toggleLike(): void {
     const currentBlog = this.blog();
     if (!currentBlog) return;
@@ -134,6 +141,30 @@ export class BlogDetailComponent {
         },
         error: (err) => {
           this._toast.show(err.error?.message || 'Failed to toggle dislike', 'error');
+        }
+      });
+  }
+
+  toggleFavorite(): void {
+    const currentBlog = this.blog();
+    if (!currentBlog) return;
+
+    if (!this._authService.isAuthenticated()) {
+      this._toast.show('Please login to favorite this blog', 'error');
+      return;
+    }
+
+    this._blogService.toggleFavorite(currentBlog._id)
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.blog.set(response.blog);
+            this._toast.show(response.message, 'success');
+          }
+        },
+        error: (err) => {
+          this._toast.show(err.error?.message || 'Failed to toggle favorite', 'error');
         }
       });
   }

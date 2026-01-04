@@ -51,4 +51,8 @@ export class BlogService {
   toggleDislike(id: string): Observable<{ success: boolean; message: string; blog: Blog }> {
     return this._http.post<{ success: boolean; message: string; blog: Blog }>(`${this._apiUrl}/${id}/dislike`, {});
   }
+
+  toggleFavorite(id: string): Observable<{ success: boolean; message: string; blog: Blog }> {
+    return this._http.post<{ success: boolean; message: string; blog: Blog }>(`${this._apiUrl}/${id}/favorite`, {});
+  }
 }

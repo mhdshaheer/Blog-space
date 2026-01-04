@@ -85,4 +85,12 @@ export interface IBlogService {
    * @returns Updated blog
    */
   toggleDislike(blogId: string, userId: string): Promise<IBlog>;
+
+  /**
+   * Toggle favorite on a blog
+   * @param blogId - Blog ID
+   * @param userId - User ID
+   * @returns Updated blog
+   */
+  toggleFavorite(blogId: string, userId: string): Promise<IBlog>;
 }

@@ -273,4 +273,30 @@ export class BlogController implements IBlogController {
       next(error);
     }
   };
+
+  /**
+   * Toggle favorite on a blog
+   * POST /api/blogs/:id/favorite
+   * Protected route
+   */
+  toggleFavorite = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.userId;
+
+      // Call service
+      const blog = await this._blogService.toggleFavorite(id, userId);
+
+      // Send response
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: blog.favorites.some(favId => favId.toString() === userId) 
+          ? 'Added to favorites' 
+          : 'Removed from favorites',
+        blog
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

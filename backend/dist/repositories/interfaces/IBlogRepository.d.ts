@@ -74,5 +74,12 @@ export interface IBlogRepository {
      * @returns Updated blog
      */
     toggleDislike(blogId: string, userId: string): Promise<IBlog | null>;
+    /**
+     * Toggle favorite on a blog
+     * @param blogId - Blog ID
+     * @param userId - User ID
+     * @returns Updated blog
+     */
+    toggleFavorite(blogId: string, userId: string): Promise<IBlog | null>;
 }
 //# sourceMappingURL=IBlogRepository.d.ts.map

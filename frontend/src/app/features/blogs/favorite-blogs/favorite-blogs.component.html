@@ -7,8 +7,8 @@
           <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)] animate-pulse"></span>
           <span class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">Personal Collection</span>
         </div>
-        <h1 class="text-5xl md:text-8xl font-black text-white tracking-tighter mb-4 leading-none animate-fade-in">Liked <span class="text-green-500">Stories</span></h1>
-        <p class="text-slate-500 text-lg md:text-xl font-bold max-w-2xl animate-fade-in">Your curated selection of the most inspiring and impactful narratives.</p>
+        <h1 class="text-5xl md:text-8xl font-black text-white tracking-tighter mb-4 leading-none animate-fade-in">Bookmarked <span class="text-orange-500">Stories</span></h1>
+        <p class="text-slate-500 text-lg md:text-xl font-bold max-w-2xl animate-fade-in">Your curated selection of the most inspiring and impactful narratives saved for later.</p>
       </div>
     </header>
 
@@ -43,10 +43,10 @@
     @if (!isLoading() && !error() && blogs().length === 0) {
       <div class="py-32 text-center border-2 border-dashed border-white/10 rounded-[48px] bg-white/[0.01] animate-fade-in">
         <div class="w-20 h-20 rounded-3xl bg-white/5 flex-center text-slate-800 mx-auto mb-10 rotate-12 shadow-inner">
-          <i class="fa-regular fa-thumbs-up text-4xl opacity-30"></i>
+          <i class="fa-regular fa-bookmark text-4xl opacity-30"></i>
         </div>
         <h3 class="text-4xl font-black text-white mb-4 tracking-tighter">Collection Empty</h3>
-        <p class="text-slate-500 mb-12 text-lg font-bold max-w-sm mx-auto">Explore the feed and like the stories that resonate with you most.</p>
+        <p class="text-slate-500 mb-12 text-lg font-bold max-w-sm mx-auto">Explore the feed and bookmark the stories that resonate with you most.</p>
         <a routerLink="/" class="btn btn-primary py-6 px-16 text-lg font-black rounded-3xl shadow-indigo-500/30">Explore Publication</a>
       </div>
     }
@@ -65,8 +65,8 @@
                    class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
               <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90"></div>
               
-              <button (click)="toggleLike($event, blog)" class="absolute top-5 right-5 p-3 rounded-2xl bg-slate-950/80 backdrop-blur-xl border border-white/10 text-green-500 shadow-xl hover:scale-110 transition-transform">
-                 <i class="fa-solid fa-thumbs-up"></i>
+              <button (click)="toggleLike($event, blog)" class="absolute top-5 right-5 p-3 rounded-2xl bg-slate-950/80 backdrop-blur-xl border border-white/10 text-orange-500 shadow-xl hover:scale-110 transition-transform">
+                 <i class="fa-solid fa-bookmark"></i>
               </button>
             </div>
 

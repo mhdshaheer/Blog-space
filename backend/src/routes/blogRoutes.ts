@@ -86,4 +86,11 @@ router.post('/:id/like', authMiddleware, blogController.toggleLike);
  */
 router.post('/:id/dislike', authMiddleware, blogController.toggleDislike);
 
+/**
+ * @route   POST /api/blogs/:id/favorite
+ * @desc    Toggle favorite on a blog
+ * @access  Private
+ */
+router.post('/:id/favorite', authMiddleware, blogController.toggleFavorite);
+
 export default router;

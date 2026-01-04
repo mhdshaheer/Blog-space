@@ -225,6 +225,30 @@ class BlogController {
                 next(error);
             }
         };
+        /**
+         * Toggle favorite on a blog
+         * POST /api/blogs/:id/favorite
+         * Protected route
+         */
+        this.toggleFavorite = async (req, res, next) => {
+            try {
+                const { id } = req.params;
+                const userId = req.user.userId;
+                // Call service
+                const blog = await this._blogService.toggleFavorite(id, userId);
+                // Send response
+                res.status(HttpStatus_1.HttpStatus.OK).json({
+                    success: true,
+                    message: blog.favorites.some(favId => favId.toString() === userId)
+                        ? 'Added to favorites'
+                        : 'Removed from favorites',
+                    blog
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        };
         this._blogService = blogService;
     }
 }
