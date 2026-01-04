@@ -1,12 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogService = void 0;
 const Messages_1 = require("../../constants/Messages");
-const path_1 = __importDefault(require("path"));
-const promises_1 = __importDefault(require("fs/promises"));
+// Removed path and fs/promises for Cloudinary migration
 /**
  * Blog Service Implementation
  * Implements IBlogService interface
@@ -41,8 +37,8 @@ class BlogService {
         if (!author) {
             throw new Error(Messages_1.BLOG_MESSAGES.AUTHOR_NOT_FOUND);
         }
-        // Process image upload (file path relative to uploads folder)
-        const imagePath = `/uploads/${imageFile.filename}`;
+        // Process image upload (Cloudinary URL provided by multer-storage-cloudinary)
+        const imagePath = imageFile.path;
         // Create blog with author and image
         const blog = await this._blogRepository.createBlog({
             ...blogData,
@@ -128,16 +124,8 @@ class BlogService {
         }
         // Process new image if provided
         if (imageFile) {
-            // Delete old image
-            try {
-                const oldImagePath = path_1.default.join(process.cwd(), existingBlog.image);
-                await promises_1.default.unlink(oldImagePath);
-            }
-            catch (error) {
-                // Silently ignore if old image cannot be deleted
-            }
-            // Set new image path
-            updateData.image = `/uploads/${imageFile.filename}`;
+            // Set new image path (Cloudinary URL)
+            updateData.image = imageFile.path;
         }
         // Update blog
         const updatedBlog = await this._blogRepository.updateBlog(id, updateData);
@@ -160,14 +148,8 @@ class BlogService {
         if (authorId !== userId) {
             throw new Error(Messages_1.BLOG_MESSAGES.UNAUTHORIZED_DELETE);
         }
-        // Delete associated image file
-        try {
-            const imagePath = path_1.default.join(process.cwd(), existingBlog.image);
-            await promises_1.default.unlink(imagePath);
-        }
-        catch (error) {
-            // Silently ignore if image file cannot be deleted
-        }
+        // Note: Cloudinary image deletion can be implemented using cloudinary.v2.uploader.destroy
+        // For now, we focus on the transition to Cloudinary for storage.
         // Delete blog from database
         await this._blogRepository.deleteBlog(id);
         return { message: Messages_1.BLOG_MESSAGES.DELETE_SUCCESS };

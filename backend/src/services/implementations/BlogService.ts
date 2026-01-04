@@ -3,8 +3,7 @@ import { BLOG_MESSAGES } from '../../constants/Messages';
 import { IBlogRepository } from '../../repositories/interfaces/IBlogRepository';
 import { IUserRepository } from '../../repositories/interfaces/IUserRepository';
 import { IBlog } from '../../models/Blog';
-import path from 'path';
-import fs from 'fs/promises';
+// Removed path and fs/promises for Cloudinary migration
 
 /**
  * Blog Service Implementation
@@ -48,8 +47,8 @@ export class BlogService implements IBlogService {
       throw new Error(BLOG_MESSAGES.AUTHOR_NOT_FOUND);
     }
 
-    // Process image upload (file path relative to uploads folder)
-    const imagePath = `/uploads/${imageFile.filename}`;
+    // Process image upload (Cloudinary URL provided by multer-storage-cloudinary)
+    const imagePath = imageFile.path;
 
     // Create blog with author and image
     const blog = await this._blogRepository.createBlog({
@@ -152,16 +151,8 @@ export class BlogService implements IBlogService {
 
     // Process new image if provided
     if (imageFile) {
-      // Delete old image
-      try {
-        const oldImagePath = path.join(process.cwd(), existingBlog.image);
-        await fs.unlink(oldImagePath);
-      } catch (error) {
-        // Silently ignore if old image cannot be deleted
-      }
-
-      // Set new image path
-      updateData.image = `/uploads/${imageFile.filename}`;
+      // Set new image path (Cloudinary URL)
+      updateData.image = imageFile.path;
     }
 
     // Update blog
@@ -190,13 +181,8 @@ export class BlogService implements IBlogService {
       throw new Error(BLOG_MESSAGES.UNAUTHORIZED_DELETE);
     }
 
-    // Delete associated image file
-    try {
-      const imagePath = path.join(process.cwd(), existingBlog.image);
-      await fs.unlink(imagePath);
-    } catch (error) {
-      // Silently ignore if image file cannot be deleted
-    }
+    // Note: Cloudinary image deletion can be implemented using cloudinary.v2.uploader.destroy
+    // For now, we focus on the transition to Cloudinary for storage.
 
     // Delete blog from database
     await this._blogRepository.deleteBlog(id);

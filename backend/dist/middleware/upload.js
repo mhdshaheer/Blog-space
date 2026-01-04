@@ -5,21 +5,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.upload = void 0;
 const multer_1 = __importDefault(require("multer"));
-const path_1 = __importDefault(require("path"));
-const crypto_1 = __importDefault(require("crypto"));
-// Configure storage
-const storage = multer_1.default.diskStorage({
-    destination: (_req, _file, cb) => {
-        cb(null, 'uploads/');
+const multer_storage_cloudinary_1 = require("multer-storage-cloudinary");
+const cloudinary_1 = __importDefault(require("../config/cloudinary"));
+// Configure Cloudinary storage
+const storage = new multer_storage_cloudinary_1.CloudinaryStorage({
+    cloudinary: cloudinary_1.default,
+    params: {
+        folder: 'blog-space/blogs',
+        allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
+        public_id: (_req, _file) => {
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+            return `blog-${uniqueSuffix}`;
+        }
     },
-    filename: (_req, file, cb) => {
-        // Generate unique filename
-        const uniqueSuffix = crypto_1.default.randomBytes(16).toString('hex');
-        const ext = path_1.default.extname(file.originalname);
-        cb(null, `blog-${Date.now()}-${uniqueSuffix}${ext}`);
-    }
 });
-// File filter to allow only images
+// File filter to allow only images (optional but good for extra safety)
 const fileFilter = (_req, file, cb) => {
     const allowedTypes = process.env.ALLOWED_FILE_TYPES?.split(',') || [
         'image/jpeg',
@@ -31,7 +31,7 @@ const fileFilter = (_req, file, cb) => {
         cb(null, true);
     }
     else {
-        cb(new Error('Invalid file type. Only JPEG, PNG and GIF images are allowed'));
+        cb(new Error('Invalid file type. Only JPEG, PNG and GIF images are allowed'), false);
     }
 };
 // Configure multer
