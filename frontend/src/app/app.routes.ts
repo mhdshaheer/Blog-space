@@ -52,5 +52,15 @@ export const routes: Routes = [
     loadComponent: () => import('./features/blogs/blog-detail/blog-detail.component').then(m => m.BlogDetailComponent),
     title: 'Read Article'
   },
-  { path: '**', redirectTo: '' }
+  {
+    path: '500',
+    loadComponent: () => import('./features/error/server-error/server-error.component').then(m => m.ServerErrorComponent),
+    title: 'Server Error'
+  },
+  { 
+    path: '404', 
+    loadComponent: () => import('./features/error/not-found/not-found.component').then(m => m.NotFoundComponent),
+    title: 'Page Not Found'
+  },
+  { path: '**', redirectTo: '404' }
 ];
