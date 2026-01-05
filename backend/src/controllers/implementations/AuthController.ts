@@ -121,7 +121,7 @@ export class AuthController implements IAuthController {
     try {
       const { email } = req.body;
       if (!email) {
-        res.status(HttpStatus.BAD_REQUEST).json({ message: 'Email is required' });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: AUTH_MESSAGES.EMAIL_REQUIRED });
         return;
       }
 
@@ -144,7 +144,7 @@ export class AuthController implements IAuthController {
     try {
       const { email, otp } = req.body;
       if (!email || !otp) {
-        res.status(HttpStatus.BAD_REQUEST).json({ message: 'Email and OTP are required' });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: AUTH_MESSAGES.EMAIL_OTP_REQUIRED });
         return;
       }
 
@@ -152,7 +152,7 @@ export class AuthController implements IAuthController {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'OTP verified successfully'
+        message: AUTH_MESSAGES.OTP_VERIFIED_SUCCESS
       });
     } catch (error) {
       next(error);
@@ -167,7 +167,7 @@ export class AuthController implements IAuthController {
     try {
       const { email, otp, newPassword } = req.body;
       if (!email || !otp || !newPassword) {
-        res.status(HttpStatus.BAD_REQUEST).json({ message: 'Email, OTP, and new password are required' });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: AUTH_MESSAGES.EMAIL_OTP_PWD_REQUIRED });
         return;
       }
 

@@ -1,6 +1,7 @@
 import multer from 'multer';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import cloudinary from '../config/cloudinary';
+import { BLOG_MESSAGES } from '../constants/Messages';
 
 // Configure Cloudinary storage
 const storage = new CloudinaryStorage({
@@ -27,7 +28,7 @@ const fileFilter = (_req: unknown, file: Express.Multer.File, cb: multer.FileFil
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only JPEG, PNG and GIF images are allowed') as unknown as null, false);
+    cb(new Error(BLOG_MESSAGES.INVALID_FILE_TYPE) as unknown as null, false);
   }
 };
 

@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { HttpStatus } from '../enums/HttpStatus';
+import { AUTH_MESSAGES } from '../constants/Messages';
 
 interface TokenPayload {
   userId: string;
@@ -21,7 +23,7 @@ export const authMiddleware = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      res.status(401).json({ message: 'No token provided' });
+      res.status(HttpStatus.UNAUTHORIZED).json({ message: AUTH_MESSAGES.NO_TOKEN });
       return;
     }
 
@@ -41,10 +43,10 @@ export const authMiddleware = async (
 
       next();
     } catch (error) {
-      res.status(401).json({ message: 'Invalid or expired token' });
+      res.status(HttpStatus.UNAUTHORIZED).json({ message: AUTH_MESSAGES.INVALID_TOKEN });
       return;
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error in authentication' });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: AUTH_MESSAGES.AUTH_SERVER_ERROR });
   }
 };

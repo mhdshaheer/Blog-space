@@ -8,6 +8,8 @@ import connectDatabase from './config/database';
 import authRoutes from './routes/authRoutes';
 import blogRoutes from './routes/blogRoutes';
 import { errorHandler } from './middleware/errorHandler';
+import { HttpStatus } from './enums/HttpStatus';
+import { SYSTEM_MESSAGES } from './constants/Messages';
 
 // Load environment variables
 dotenv.config();
@@ -34,7 +36,7 @@ app.use(cors({
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later'
+  message: SYSTEM_MESSAGES.RATE_LIMIT_EXCEEDED
 });
 
 // Apply rate limiting to auth routes
@@ -53,18 +55,18 @@ app.use('/api/blogs', blogRoutes);
 
 // Health check route
 app.get('/health', (_req, res) => {
-  res.status(200).json({
+  res.status(HttpStatus.OK).json({
     success: true,
-    message: 'Server is running',
+    message: SYSTEM_MESSAGES.SERVER_RUNNING,
     timestamp: new Date().toISOString()
   });
 });
 
 // 404 handler
 app.use((_req, res) => {
-  res.status(404).json({
+  res.status(HttpStatus.NOT_FOUND).json({
     success: false,
-    message: 'Route not found'
+    message: SYSTEM_MESSAGES.ROUTE_NOT_FOUND
   });
 });
 

@@ -1,3 +1,10 @@
+export const SYSTEM_MESSAGES = {
+  SERVER_RUNNING: 'Server is running',
+  ROUTE_NOT_FOUND: 'Route not found',
+  RATE_LIMIT_EXCEEDED: 'Too many requests from this IP, please try again later',
+  INTERNAL_SERVER_ERROR: 'Internal server error',
+};
+
 export const AUTH_MESSAGES = {
   REGISTRATION_SUCCESS: 'Registration initiated. Please check your email for verification code.',
   LOGIN_SUCCESS: 'Login successful',
@@ -15,7 +22,13 @@ export const AUTH_MESSAGES = {
   RESET_OTP_SENT: 'Password reset code sent to your email',
   PASSWORD_RESET_SUCCESS: 'Password has been reset successfully',
   USER_NOT_FOUND: 'No user found with this email',
-  RESET_SESSION_EXPIRED: 'Reset session expired. Please request a new code.'
+  RESET_SESSION_EXPIRED: 'Reset session expired. Please request a new code.',
+  NO_TOKEN: 'No token provided',
+  AUTH_SERVER_ERROR: 'Server error in authentication',
+  EMAIL_REQUIRED: 'Email is required',
+  EMAIL_OTP_REQUIRED: 'Email and OTP are required',
+  EMAIL_OTP_PWD_REQUIRED: 'Email, OTP, and new password are required',
+  OTP_VERIFIED_SUCCESS: 'OTP verified successfully'
 };
 
 export const BLOG_MESSAGES = {
@@ -29,5 +42,6 @@ export const BLOG_MESSAGES = {
   INVALID_ID: 'Invalid blog ID format',
   NOT_FOUND: 'Blog not found',
   UNAUTHORIZED_UPDATE: 'Unauthorized: You can only update your own blogs',
-  UNAUTHORIZED_DELETE: 'Unauthorized: You can only delete your own blogs'
+  UNAUTHORIZED_DELETE: 'Unauthorized: You can only delete your own blogs',
+  INVALID_FILE_TYPE: 'Invalid file type. Only JPEG, PNG and GIF images are allowed'
 };
