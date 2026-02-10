@@ -4,7 +4,6 @@ import { IBlogRepository } from '../../repositories/interfaces/IBlogRepository';
 import { IUserRepository } from '../../repositories/interfaces/IUserRepository';
 import { IBlog } from '../../models/Blog';
 import cloudinary from '../../config/cloudinary';
-// Removed path and fs/promises for Cloudinary migration
 
 /**
  * Blog Service Implementation

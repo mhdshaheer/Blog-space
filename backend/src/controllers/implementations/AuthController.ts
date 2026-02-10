@@ -4,6 +4,7 @@ import { IAuthService } from '../../services/interfaces/IAuthService';
 import { validationResult } from 'express-validator';
 import { HttpStatus } from '../../enums/HttpStatus';
 import { AUTH_MESSAGES } from '../../constants/Messages';
+import { Mapper } from '../../utils/mapper';
 
 /**
  * Auth Controller Implementation
@@ -69,7 +70,8 @@ export class AuthController implements IAuthController {
       res.status(HttpStatus.OK).json({
         success: true,
         message: AUTH_MESSAGES.LOGIN_SUCCESS,
-        ...result
+        token: result.token,
+        user: Mapper.toUserDto(result.user as any)
       });
     } catch (error) {
       next(error);
@@ -88,7 +90,8 @@ export class AuthController implements IAuthController {
       res.status(HttpStatus.OK).json({
         success: true,
         message: AUTH_MESSAGES.EMAIL_VERIFIED,
-        ...result
+        token: result.token,
+        user: Mapper.toUserDto(result.user as any)
       });
     } catch (error) {
       next(error);

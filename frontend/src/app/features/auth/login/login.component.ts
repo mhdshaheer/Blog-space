@@ -1,4 +1,9 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -7,12 +12,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
-
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
-  templateUrl: './login.component.html'
+  templateUrl: './login.component.html',
 })
 export class LoginComponent {
   // Inject dependencies
@@ -25,8 +29,9 @@ export class LoginComponent {
   // Form
   readonly loginForm: FormGroup = this._fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]]
+    password: ['', [Validators.required]],
   });
+
 
   // Signal-based state
   readonly isLoading = signal(false);
@@ -37,7 +42,7 @@ export class LoginComponent {
     const apiErrors: Array<{ msg?: string }> | undefined = err?.error?.errors;
     if (Array.isArray(apiErrors) && apiErrors.length > 0) {
       const msg = apiErrors
-        .map(e => e?.msg)
+        .map((e) => e?.msg)
         .filter(Boolean)
         .join(', ');
       if (msg) return msg;
@@ -55,7 +60,8 @@ export class LoginComponent {
 
     this.isLoading.set(true);
 
-    this._authService.login(this.loginForm.value)
+    this._authService
+      .login(this.loginForm.value)
       .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe({
         next: (response) => {
@@ -70,7 +76,7 @@ export class LoginComponent {
         error: (err) => {
           this._toast.error(this.getApiErrorMessage(err));
           this.isLoading.set(false);
-        }
+        },
       });
   }
 }

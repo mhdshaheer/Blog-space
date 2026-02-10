@@ -86,10 +86,7 @@ export class AuthService implements IAuthService {
       expiresIn: (process.env.JWT_EXPIRE || '24h')
     } as jwt.SignOptions);
 
-    const userObj = user.toObject();
-    delete userObj.password;
-    
-    return { token, user: userObj };
+    return { token, user };
   }
 
   async verifyOtp(email: string, otp: string): Promise<LoginResponse> {
@@ -127,10 +124,7 @@ export class AuthService implements IAuthService {
       expiresIn: (process.env.JWT_EXPIRE || '24h')
     } as jwt.SignOptions);
 
-    const userObj = user.toObject();
-    delete userObj.password;
-
-    return { token, user: userObj };
+    return { token, user };
   }
 
   async resendOtp(email: string): Promise<void> {
@@ -172,9 +166,7 @@ export class AuthService implements IAuthService {
     const user = await this._userRepository.findUserById(userId);
     if (!user) return null;
     
-    const userObj = user.toObject();
-    delete userObj.password;
-    return userObj;
+    return user;
   }
 
   async forgotPassword(email: string): Promise<void> {

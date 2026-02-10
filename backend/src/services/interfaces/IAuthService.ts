@@ -62,8 +62,6 @@ export interface IAuthService {
 
   /**
    * Request password reset OTP
-  /**
-   * Request password reset OTP
    * @param email - User email
    */
   forgotPassword(email: string): Promise<void>;

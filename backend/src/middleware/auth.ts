@@ -2,12 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { HttpStatus } from '../enums/HttpStatus';
 import { AUTH_MESSAGES } from '../constants/Messages';
-
-interface TokenPayload {
-  userId: string;
-  username: string;
-  email: string;
-}
+import { TokenPayload } from '../services/interfaces/IAuthService';
 
 /**
  * JWT Authentication Middleware

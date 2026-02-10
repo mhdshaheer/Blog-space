@@ -3,6 +3,7 @@
 <app-navbar></app-navbar>
 
 <main class="min-h-screen pb-20 fade-in-up">
+  <app-login (msgToParant)="handleMsgFromChild(recievedData)"> </app-login>
   <router-outlet></router-outlet>
 </main>
 

@@ -4,19 +4,8 @@ import { IBlogService } from '../../services/interfaces/IBlogService';
 import { validationResult } from 'express-validator';
 import { HttpStatus } from '../../enums/HttpStatus';
 import { BLOG_MESSAGES } from '../../constants/Messages';
+import { Mapper } from '../../utils/mapper';
 
-// Extend Express Request to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        userId: string;
-        username: string;
-        email: string;
-      };
-    }
-  }
-}
 
 /**
  * Blog Controller Implementation
@@ -64,7 +53,7 @@ export class BlogController implements IBlogController {
       res.status(HttpStatus.CREATED).json({
         success: true,
         message: BLOG_MESSAGES.CREATE_SUCCESS,
-        blog
+        blog: Mapper.toBlogDto(blog)
       });
     } catch (error) {
       next(error);
@@ -87,7 +76,10 @@ export class BlogController implements IBlogController {
       // Send response
       res.status(HttpStatus.OK).json({
         success: true,
-        ...result
+        blogs: Mapper.toBlogDtoList(result.blogs, req.user?.userId),
+        total: result.total,
+        page: result.page,
+        pages: result.pages
       });
     } catch (error) {
       next(error);
@@ -106,10 +98,15 @@ export class BlogController implements IBlogController {
       // Call service
       const blog = await this._blogService.getBlogById(id);
 
+      if (!blog) {
+        res.status(HttpStatus.NOT_FOUND).json({ message: BLOG_MESSAGES.NOT_FOUND });
+        return;
+      }
+
       // Send response
       res.status(HttpStatus.OK).json({
         success: true,
-        blog
+        blog: Mapper.toBlogDto(blog, req.user?.userId)
       });
     } catch (error) {
       next(error);
@@ -132,7 +129,7 @@ export class BlogController implements IBlogController {
       res.status(HttpStatus.OK).json({
         success: true,
         count: blogs.length,
-        blogs
+        blogs: Mapper.toBlogDtoList(blogs, userId)
       });
     } catch (error) {
       next(error);
@@ -169,7 +166,7 @@ export class BlogController implements IBlogController {
       res.status(HttpStatus.OK).json({
         success: true,
         message: BLOG_MESSAGES.UPDATE_SUCCESS,
-        blog
+        blog: Mapper.toBlogDto(blog, userId)
       });
     } catch (error) {
       next(error);
@@ -192,7 +189,7 @@ export class BlogController implements IBlogController {
       // Send response
       res.status(HttpStatus.OK).json({
         success: true,
-        ...result
+        message: result.message
       });
     } catch (error) {
       next(error);
@@ -215,7 +212,7 @@ export class BlogController implements IBlogController {
       res.status(HttpStatus.OK).json({
         success: true,
         count: blogs.length,
-        blogs
+        blogs: Mapper.toBlogDtoList(blogs, userId)
       });
     } catch (error) {
       next(error);
@@ -241,7 +238,7 @@ export class BlogController implements IBlogController {
         message: blog.likes.some(likeId => likeId.toString() === userId) 
           ? 'Blog liked' 
           : 'Blog unliked',
-        blog
+        blog: Mapper.toBlogDto(blog, userId)
       });
     } catch (error) {
       next(error);
@@ -267,7 +264,7 @@ export class BlogController implements IBlogController {
         message: blog.dislikes.some(likeId => likeId.toString() === userId) 
           ? 'Blog disliked' 
           : 'Dislike removed',
-        blog
+        blog: Mapper.toBlogDto(blog, userId)
       });
     } catch (error) {
       next(error);
@@ -293,7 +290,7 @@ export class BlogController implements IBlogController {
         message: blog.favorites.some(favId => favId.toString() === userId) 
           ? 'Added to favorites' 
           : 'Removed from favorites',
-        blog
+        blog: Mapper.toBlogDto(blog, userId)
       });
     } catch (error) {
       next(error);

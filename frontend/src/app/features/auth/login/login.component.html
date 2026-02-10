@@ -1,75 +1,116 @@
 <div class="container flex-center min-h-[90vh] py-20 px-4">
   <div class="w-full max-w-md animate-fade-in shadow-3xl">
     <header class="text-center mb-12">
-      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex-center text-white shadow-2xl mx-auto mb-6 transform -rotate-3 hover:rotate-0 transition-transform duration-500 overflow-visible">
+      <div
+        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex-center text-white shadow-2xl mx-auto mb-6 transform -rotate-3 hover:rotate-0 transition-transform duration-500 overflow-visible"
+      >
         <i class="fa-solid fa-feather-pointed text-2xl"></i>
       </div>
-      <h1 class="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 leading-none">Welcome Back.</h1>
-      <p class="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Access your professional workspace.</p>
+      <h1 class="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 leading-none">
+        Welcome Back.
+      </h1>
+      <p class="text-slate-500 font-bold uppercase tracking-widest text-[10px]">
+        Access your professional workspace.
+      </p>
     </header>
 
-    <div class="glass-card p-10 md:p-14 border-white/5 bg-white/[0.02] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] rounded-[32px]">
+    <div
+      class="glass-card p-10 md:p-14 border-white/5 bg-white/[0.02] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.6)] rounded-[32px]"
+    >
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-8">
         <!-- Email -->
         <div class="flex flex-col gap-2.5">
-          <label class="text-[10px] uppercase tracking-[0.3em] font-black text-slate-600 ml-1">Creator Account</label>
+          <label class="text-[10px] uppercase tracking-[0.3em] font-black text-slate-600 ml-1"
+            >Creator Account</label
+          >
           <div class="input-icon-wrapper group">
             <div class="input-icon">
               <i class="fa-solid fa-envelope text-slate-800 group-focus-within:text-indigo-400"></i>
             </div>
-            <input type="email" formControlName="email"
-                   class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/40 !rounded-2xl !py-4.5 !text-sm !font-bold"
-                   [ngClass]="{'!border-red-500/30': (loginForm.get('email')?.touched || isSubmitted()) && loginForm.get('email')?.invalid}"
-                   placeholder="name@studio.com">
+            <input
+              type="email"
+              formControlName="email"
+              class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/40 !rounded-2xl !py-4.5 !text-sm !font-bold"
+              [ngClass]="{
+                '!border-red-500/30':
+                  (loginForm.get('email')?.touched || isSubmitted()) &&
+                  loginForm.get('email')?.invalid
+              }"
+              placeholder="name@studio.com"
+            />
           </div>
-          @if ((loginForm.get('email')?.touched || isSubmitted()) && loginForm.get('email')?.invalid) {
-            <div class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
-              <i class="fa-solid fa-circle-exclamation"></i>
-              @if (loginForm.get('email')?.errors?.['required']) {
-                <span>Email is required</span>
-              }
-              @if (loginForm.get('email')?.errors?.['email']) {
-                <span>Enter a valid email</span>
-              }
-            </div>
+          @if ((loginForm.get('email')?.touched || isSubmitted()) &&
+          loginForm.get('email')?.invalid) {
+          <div
+            class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]"
+          >
+            <i class="fa-solid fa-circle-exclamation"></i>
+            @if (loginForm.get('email')?.errors?.['required']) {
+            <span>Email is required</span>
+            } @if (loginForm.get('email')?.errors?.['email']) {
+            <span>Enter a valid email</span>
+            }
+          </div>
           }
         </div>
 
         <!-- Password -->
         <div class="flex flex-col gap-2.5">
           <div class="flex justify-between items-center px-1">
-            <label class="text-[10px] uppercase tracking-[0.3em] font-black text-slate-600">Security Key</label>
-            <a routerLink="/forgot-password" class="text-[9px] uppercase tracking-widest font-black text-indigo-400 hover:text-indigo-300 transition-colors">Reset Access?</a>
+            <label class="text-[10px] uppercase tracking-[0.3em] font-black text-slate-600"
+              >Security Key</label
+            >
+            <a
+              routerLink="/forgot-password"
+              class="text-[9px] uppercase tracking-widest font-black text-indigo-400 hover:text-indigo-300 transition-colors"
+              >Reset Access?</a
+            >
           </div>
           <div class="relative group flex items-center w-full">
             <div class="input-icon">
               <i class="fa-solid fa-lock text-slate-800 group-focus-within:text-indigo-400"></i>
             </div>
-            <input [type]="showPassword() ? 'text' : 'password'" formControlName="password"
-                   class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/40 !rounded-2xl !py-4.5 !text-sm !font-bold !pr-14"
-                   [ngClass]="{'!border-red-500/30': (loginForm.get('password')?.touched || isSubmitted()) && loginForm.get('password')?.invalid}"
-                   placeholder="••••••••">
-            <button type="button" (click)="showPassword.set(!showPassword())" 
-                    class="absolute right-4 z-20 flex items-center text-slate-700 hover:text-white transition-colors cursor-pointer p-2">
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              class="form-input input-with-icon !bg-white/5 border-white/5 focus:border-indigo-500/40 !rounded-2xl !py-4.5 !text-sm !font-bold !pr-14"
+              [ngClass]="{
+                '!border-red-500/30':
+                  (loginForm.get('password')?.touched || isSubmitted()) &&
+                  loginForm.get('password')?.invalid
+              }"
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              (click)="showPassword.set(!showPassword())"
+              class="absolute right-4 z-20 flex items-center text-slate-700 hover:text-white transition-colors cursor-pointer p-2"
+            >
               <i class="fa-solid" [ngClass]="showPassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
             </button>
           </div>
-          @if ((loginForm.get('password')?.touched || isSubmitted()) && loginForm.get('password')?.invalid) {
-            <div class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]">
-              <i class="fa-solid fa-circle-exclamation"></i>
-              @if (loginForm.get('password')?.errors?.['required']) {
-                <span>Password is required</span>
-              }
-            </div>
+          @if ((loginForm.get('password')?.touched || isSubmitted()) &&
+          loginForm.get('password')?.invalid) {
+          <div
+            class="flex items-center gap-3 mt-2 text-red-500 text-[9px] font-black uppercase tracking-[0.2em]"
+          >
+            <i class="fa-solid fa-circle-exclamation"></i>
+            @if (loginForm.get('password')?.errors?.['required']) {
+            <span>Password is required</span>
+            }
+          </div>
           }
         </div>
 
         <!-- Submit Button -->
         <div class="pt-6">
-          <button type="submit" [disabled]="loginForm.invalid || isLoading()"
-                  class="w-full btn btn-primary !py-5 !rounded-2xl !text-base !font-black shadow-indigo-500/25 flex-center gap-4 active:scale-[0.98] transition-all">
+          <button
+            type="submit"
+            [disabled]="loginForm.invalid || isLoading()"
+            class="w-full btn btn-primary !py-5 !rounded-2xl !text-base !font-black shadow-indigo-500/25 flex-center gap-4 active:scale-[0.98] transition-all"
+          >
             @if (isLoading()) {
-              <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
             }
             {{ isLoading() ? 'Synchronizing...' : 'Enter Workspace' }}
           </button>
@@ -77,19 +118,28 @@
 
         <div class="pt-8 border-t border-white/5 text-center">
           <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">
-            No dynamic studio yet? 
-            <a routerLink="/register" class="text-indigo-400 hover:text-indigo-300 ml-2 transition-all">Join the Hub</a>
+            No dynamic studio yet?
+            <a
+              routerLink="/register"
+              class="text-indigo-400 hover:text-indigo-300 ml-2 transition-all"
+              >Join the Hub</a
+            >
           </p>
         </div>
       </form>
     </div>
 
     <!-- Security Indicator -->
-    <div class="mt-12 flex items-center justify-center gap-3 opacity-20 hover:opacity-40 transition-opacity duration-700">
-       <div class="h-1 w-8 bg-white/20 rounded-full"></div>
-       <i class="fa-solid fa-shield-halved text-[10px] text-white"></i>
-       <span class="text-[9px] font-black uppercase tracking-[0.4em] text-white whitespace-nowrap">Secure Workspace Tunnel</span>
-       <div class="h-1 w-8 bg-white/20 rounded-full"></div>
+    <div
+      class="mt-12 flex items-center justify-center gap-3 opacity-20 hover:opacity-40 transition-opacity duration-700"
+    >
+      <div class="h-1 w-8 bg-white/20 rounded-full"></div>
+      <i class="fa-solid fa-shield-halved text-[10px] text-white"></i>
+      <span class="text-[9px] font-black uppercase tracking-[0.4em] text-white whitespace-nowrap"
+        >Secure Workspace Tunnel</span
+      >
+      <div class="h-1 w-8 bg-white/20 rounded-full"></div>
     </div>
   </div>
 </div>
+
