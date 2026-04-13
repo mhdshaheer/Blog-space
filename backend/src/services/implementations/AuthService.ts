@@ -1,109 +1,98 @@
 import { IAuthService, LoginResponse, TokenPayload } from '../interfaces/IAuthService';
 import { AUTH_MESSAGES } from '../../constants/Messages';
 import { IUserRepository } from '../../repositories/interfaces/IUserRepository';
-import { IUser } from '../../models/User';
-import * as jwt from 'jsonwebtoken';
-import { sendEmail } from '../../utils/email';
-import { redisClient } from '../../utils/redis';
+import { Mapper } from '../../utils/mapper';
+import { UserDto } from '../../dtos/UserDto';
+import { LoginRequestDto, RegisterRequestDto } from '../../dtos/AuthDto';
+import { IMailService } from '../interfaces/IMailService';
+import { ICacheService } from '../interfaces/ICacheService';
+import { ITokenService } from '../interfaces/ITokenService';
 
 /**
  * Auth Service Implementation
+ * Follows SOLID principles by injecting dependencies
  */
 export class AuthService implements IAuthService {
   private _userRepository: IUserRepository;
+  private _mailService: IMailService;
+  private _cacheService: ICacheService;
+  private _tokenService: ITokenService;
 
-  constructor(userRepository: IUserRepository) {
+  constructor(
+    userRepository: IUserRepository,
+    mailService: IMailService,
+    cacheService: ICacheService,
+    tokenService: ITokenService
+  ) {
     this._userRepository = userRepository;
+    this._mailService = mailService;
+    this._cacheService = cacheService;
+    this._tokenService = tokenService;
   }
 
   private generateOTP(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  async registerUser(userData: Partial<IUser>): Promise<Partial<IUser>> {
+  private getRegistrationKey(email: string): string {
+    return `registration:${email}`;
+  }
+
+  private getPasswordResetKey(email: string): string {
+    return `password-reset:${email}`;
+  }
+
+  async registerUser(userData: RegisterRequestDto): Promise<UserDto> {
     const { username, email, password } = userData;
 
-    if (!username || !email || !password) {
-      throw new Error(AUTH_MESSAGES.REQUIRED_FIELDS);
-    }
-
-    // Check if user already exists in permanent DB
     const existingUser = await this._userRepository.findUserByEmail(email);
     if (existingUser) {
       throw new Error(AUTH_MESSAGES.EMAIL_EXISTS);
     }
 
     const otp = this.generateOTP();
-    const pendingUserData = { username, email, password, otp };
+    await this._cacheService.set(this.getRegistrationKey(email), { username, email, password, otp }, 600);
 
-    // Store in Cloud Redis (Auto-expires after 10 mins)
     try {
-      await redisClient.setEx(
-        `registration:${email}`,
-        600, // 10 minutes
-        JSON.stringify(pendingUserData)
-      );
+      await this._mailService.sendVerificationEmail(email, otp);
     } catch (error) {
-      throw new Error(AUTH_MESSAGES.INTERNAL_ERROR);
+      // Log error but don't fail registration process if email fails (can be resent)
+      console.error('Failed to send verification email:', error);
     }
 
-    // Send Verification Email
-    try {
-      await sendEmail({
-        email,
-        subject: 'Account Verification | Creator Identity',
-        message: `Your secure registration code is ${otp}. It will expire in 10 minutes.`
-      });
-    } catch (error) {
-      // Email sending failed silently
-    }
-
-    return { username, email };
+    return {
+      _id: '',
+      username,
+      email,
+      isVerified: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
   }
 
-  async loginUser(email: string, password: string): Promise<LoginResponse> {
-    if (!email || !password) {
-      throw new Error(AUTH_MESSAGES.CREDENTIALS_REQUIRED);
-    }
-
+  async loginUser(credentials: LoginRequestDto): Promise<LoginResponse> {
+    const { email, password } = credentials;
     const user = await this._userRepository.findUserByEmail(email);
-    if (!user) {
+    if (!user || !(await user.comparePassword(password))) {
       throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);
     }
 
-    const isPasswordValid = await user.comparePassword(password);
-    if (!isPasswordValid) {
-      throw new Error(AUTH_MESSAGES.INVALID_CREDENTIALS);
-    }
-
-    const payload: TokenPayload = {
-      userId: String(user._id),
-      username: user.username,
-      email: user.email
+    const payload: TokenPayload = { 
+      userId: String(user._id), 
+      username: user.username, 
+      email: user.email 
     };
+    const token = this._tokenService.generateToken(payload);
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
-      expiresIn: (process.env.JWT_EXPIRE || '24h')
-    } as jwt.SignOptions);
-
-    return { token, user };
+    return { token, user: Mapper.toUserDto(user) };
   }
 
   async verifyOtp(email: string, otp: string): Promise<LoginResponse> {
-    // Find pending registration from Redis
-    const pendingData = await redisClient.get(`registration:${email}`);
-    
-    if (!pendingData) {
-      throw new Error(AUTH_MESSAGES.SESSION_EXPIRED);
-    }
+    const pending = await this._cacheService.get<any>(this.getRegistrationKey(email));
+    if (!pending) throw new Error(AUTH_MESSAGES.SESSION_EXPIRED);
 
-    const pending = JSON.parse(pendingData);
+    if (pending.otp !== otp) throw new Error(AUTH_MESSAGES.INVALID_OTP);
 
-    if (pending.otp !== otp) {
-      throw new Error(AUTH_MESSAGES.INVALID_OTP);
-    }
-
-    // Create permanent user
     const user = await this._userRepository.createUser({
       username: pending.username,
       email: pending.email,
@@ -111,122 +100,67 @@ export class AuthService implements IAuthService {
       isVerified: true
     });
 
-    // Delete pending record from Redis
-    await redisClient.del(`registration:${email}`);
-
-    const payload: TokenPayload = {
-      userId: String(user._id),
-      username: user.username,
-      email: user.email
+    await this._cacheService.delete(this.getRegistrationKey(email));
+    
+    const payload: TokenPayload = { 
+      userId: String(user._id), 
+      username: user.username, 
+      email: user.email 
     };
+    const token = this._tokenService.generateToken(payload);
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
-      expiresIn: (process.env.JWT_EXPIRE || '24h')
-    } as jwt.SignOptions);
-
-    return { token, user };
+    return { token, user: Mapper.toUserDto(user) };
   }
 
   async resendOtp(email: string): Promise<void> {
-    const pendingData = await redisClient.get(`registration:${email}`);
-    
-    if (!pendingData) {
-      const user = await this._userRepository.findUserByEmail(email);
-      if (user) throw new Error(AUTH_MESSAGES.ALREADY_VERIFIED);
-      throw new Error(AUTH_MESSAGES.SESSION_EXPIRED);
-    }
+    const pending = await this._cacheService.get<any>(this.getRegistrationKey(email));
+    if (!pending) throw new Error(AUTH_MESSAGES.SESSION_EXPIRED);
 
-    const pending = JSON.parse(pendingData);
     const otp = this.generateOTP();
-    
-    // Update Redis with new OTP and reset TTL
     pending.otp = otp;
-    await redisClient.setEx(
-      `registration:${email}`,
-      600,
-      JSON.stringify(pending)
-    );
+    await this._cacheService.set(this.getRegistrationKey(email), pending, 600);
 
-    await sendEmail({
-      email,
-      subject: 'New Access Key | Verification Required',
-      message: `Your new secure access code is ${otp}. It will expire in 10 minutes.`
-    });
+    await this._mailService.sendVerificationEmail(email, otp);
   }
 
   async validateToken(token: string): Promise<TokenPayload> {
     try {
-      return jwt.verify(token, process.env.JWT_SECRET as string) as TokenPayload;
+      return this._tokenService.verifyToken(token);
     } catch (error) {
       throw new Error(AUTH_MESSAGES.INVALID_TOKEN);
     }
   }
 
-  async getUserById(userId: string): Promise<Partial<IUser> | null> {
+  async getUserById(userId: string): Promise<UserDto | null> {
     const user = await this._userRepository.findUserById(userId);
-    if (!user) return null;
-    
-    return user;
+    return user ? Mapper.toUserDto(user) : null;
   }
 
   async forgotPassword(email: string): Promise<void> {
     const user = await this._userRepository.findUserByEmail(email);
-    if (!user) {
-      throw new Error(AUTH_MESSAGES.USER_NOT_FOUND);
-    }
+    if (!user) throw new Error(AUTH_MESSAGES.USER_NOT_FOUND);
 
     const otp = this.generateOTP();
+    await this._cacheService.set(this.getPasswordResetKey(email), otp, 600);
 
-    // Store in Redis (10 minutes)
-    await redisClient.setEx(
-      `password-reset:${email}`,
-      600,
-      otp
-    );
-
-    await sendEmail({
-      email,
-      subject: 'Security Alert | Recovery Session Initiated',
-      message: `Your private recovery code is ${otp}. It will expire in 10 minutes.`
-    });
+    await this._mailService.sendPasswordResetEmail(email, otp);
   }
 
   async verifyResetOtp(email: string, otp: string): Promise<void> {
-    const storedOtp = await redisClient.get(`password-reset:${email}`);
-    
-    if (!storedOtp) {
-      throw new Error(AUTH_MESSAGES.RESET_SESSION_EXPIRED);
-    }
-
-    if (storedOtp !== otp) {
-      throw new Error(AUTH_MESSAGES.INVALID_OTP);
-    }
-    // OTP is valid, but we don't delete it yet. 
-    // It's needed for the final password reset step for verification.
+    const storedOtp = await this._cacheService.get<string>(this.getPasswordResetKey(email));
+    if (!storedOtp || storedOtp !== otp) throw new Error(AUTH_MESSAGES.INVALID_OTP);
   }
 
   async resetPassword(email: string, otp: string, newPassword: string): Promise<void> {
-    const storedOtp = await redisClient.get(`password-reset:${email}`);
-    
-    if (!storedOtp) {
-      throw new Error(AUTH_MESSAGES.RESET_SESSION_EXPIRED);
-    }
-
-    if (storedOtp !== otp) {
-      throw new Error(AUTH_MESSAGES.INVALID_OTP);
-    }
+    const storedOtp = await this._cacheService.get<string>(this.getPasswordResetKey(email));
+    if (!storedOtp || storedOtp !== otp) throw new Error(AUTH_MESSAGES.INVALID_OTP);
 
     const user = await this._userRepository.findUserByEmail(email);
-    if (!user) {
-      throw new Error(AUTH_MESSAGES.USER_NOT_FOUND);
-    }
+    if (!user) throw new Error(AUTH_MESSAGES.USER_NOT_FOUND);
 
-    // Update password using the model directly to ensure 'pre-save' hook runs
     user.password = newPassword;
     await user.save();
-
-    // Delete reset code from Redis
-    await redisClient.del(`password-reset:${email}`);
+    await this._cacheService.delete(this.getPasswordResetKey(email));
   }
 }
 

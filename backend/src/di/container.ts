@@ -4,6 +4,10 @@ import { AuthService } from '../services/implementations/AuthService';
 import { BlogService } from '../services/implementations/BlogService';
 import { AuthController } from '../controllers/implementations/AuthController';
 import { BlogController } from '../controllers/implementations/BlogController';
+import { MailService } from '../services/implementations/MailService';
+import { CacheService } from '../services/implementations/CacheService';
+import { TokenService } from '../services/implementations/TokenService';
+import { StorageService } from '../services/implementations/StorageService';
 
 /**
  * Dependency Injection Container
@@ -27,6 +31,46 @@ class DIContainer {
       DIContainer._instance = new DIContainer();
     }
     return DIContainer._instance;
+  }
+
+  /**
+   * Get Mail Service instance (singleton)
+   */
+  getMailService(): MailService {
+    if (!this._instances.has('mailService')) {
+      this._instances.set('mailService', new MailService());
+    }
+    return this._instances.get('mailService') as MailService;
+  }
+
+  /**
+   * Get Cache Service instance (singleton)
+   */
+  getCacheService(): CacheService {
+    if (!this._instances.has('cacheService')) {
+      this._instances.set('cacheService', new CacheService());
+    }
+    return this._instances.get('cacheService') as CacheService;
+  }
+
+  /**
+   * Get Token Service instance (singleton)
+   */
+  getTokenService(): TokenService {
+    if (!this._instances.has('tokenService')) {
+      this._instances.set('tokenService', new TokenService());
+    }
+    return this._instances.get('tokenService') as TokenService;
+  }
+
+  /**
+   * Get Storage Service instance (singleton)
+   */
+  getStorageService(): StorageService {
+    if (!this._instances.has('storageService')) {
+      this._instances.set('storageService', new StorageService());
+    }
+    return this._instances.get('storageService') as StorageService;
   }
 
   /**
@@ -56,7 +100,12 @@ class DIContainer {
     if (!this._instances.has('authService')) {
       this._instances.set(
         'authService',
-        new AuthService(this.getUserRepository())
+        new AuthService(
+          this.getUserRepository(),
+          this.getMailService(),
+          this.getCacheService(),
+          this.getTokenService()
+        )
       );
     }
     return this._instances.get('authService') as AuthService;
@@ -71,7 +120,8 @@ class DIContainer {
         'blogService',
         new BlogService(
           this.getBlogRepository(),
-          this.getUserRepository()
+          this.getUserRepository(),
+          this.getStorageService()
         )
       );
     }

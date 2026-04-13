@@ -4,13 +4,10 @@ import { IAuthService } from '../../services/interfaces/IAuthService';
 import { validationResult } from 'express-validator';
 import { HttpStatus } from '../../enums/HttpStatus';
 import { AUTH_MESSAGES } from '../../constants/Messages';
-import { Mapper } from '../../utils/mapper';
+import { LoginRequestDto, RegisterRequestDto, VerifyOtpRequestDto, ResetPasswordRequestDto } from '../../dtos/AuthDto';
 
 /**
  * Auth Controller Implementation
- * Implements IAuthController interface
- * Handles HTTP requests for authentication
- * Following Single Responsibility and Dependency Inversion Principles
  */
 export class AuthController implements IAuthController {
   private _authService: IAuthService;
@@ -21,23 +18,23 @@ export class AuthController implements IAuthController {
 
   /**
    * Handle user registration
-   * POST /api/auth/register
    */
    register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // Validate request
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         res.status(HttpStatus.BAD_REQUEST).json({ errors: errors.array() });
         return;
       }
 
-      const { username, email, password } = req.body;
+      const registerData: RegisterRequestDto = {
+        username: req.body.username,
+        email: req.body.email,
+        password: req.body.password
+      };
 
-      // Call service
-      const user = await this._authService.registerUser({ username, email, password });
+      const user = await this._authService.registerUser(registerData);
 
-      // Send response
       res.status(HttpStatus.CREATED).json({
         success: true,
         message: AUTH_MESSAGES.REGISTRATION_SUCCESS,
@@ -50,28 +47,27 @@ export class AuthController implements IAuthController {
 
   /**
    * Handle user login
-   * POST /api/auth/login
    */
   login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // Validate request
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         res.status(HttpStatus.BAD_REQUEST).json({ errors: errors.array() });
         return;
       }
 
-      const { email, password } = req.body;
+      const loginData: LoginRequestDto = {
+        email: req.body.email,
+        password: req.body.password
+      };
 
-      // Call service
-      const result = await this._authService.loginUser(email, password);
+      const result = await this._authService.loginUser(loginData);
 
-      // Send response
       res.status(HttpStatus.OK).json({
         success: true,
         message: AUTH_MESSAGES.LOGIN_SUCCESS,
         token: result.token,
-        user: Mapper.toUserDto(result.user as any)
+        user: result.user
       });
     } catch (error) {
       next(error);
@@ -80,18 +76,21 @@ export class AuthController implements IAuthController {
 
   /**
    * Handle OTP verification
-   * POST /api/auth/verify-otp
    */
   verifyOtp = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { email, otp } = req.body;
-      const result = await this._authService.verifyOtp(email, otp);
+      const verifyData: VerifyOtpRequestDto = {
+        email: req.body.email,
+        otp: req.body.otp
+      };
+      
+      const result = await this._authService.verifyOtp(verifyData.email, verifyData.otp);
 
       res.status(HttpStatus.OK).json({
         success: true,
         message: AUTH_MESSAGES.EMAIL_VERIFIED,
         token: result.token,
-        user: Mapper.toUserDto(result.user as any)
+        user: result.user
       });
     } catch (error) {
       next(error);
@@ -100,7 +99,6 @@ export class AuthController implements IAuthController {
 
   /**
    * Handle resending OTP
-   * POST /api/auth/resend-otp
    */
   resendOtp = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -118,7 +116,6 @@ export class AuthController implements IAuthController {
 
   /**
    * Handle forgot password request
-   * POST /api/auth/forgot-password
    */
   forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -141,7 +138,6 @@ export class AuthController implements IAuthController {
 
   /**
    * Handle verify reset OTP request
-   * POST /api/auth/verify-reset-otp
    */
   verifyResetOtp = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -164,17 +160,16 @@ export class AuthController implements IAuthController {
 
   /**
    * Handle reset password request
-   * POST /api/auth/reset-password
    */
   resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { email, otp, newPassword } = req.body;
-      if (!email || !otp || !newPassword) {
-        res.status(HttpStatus.BAD_REQUEST).json({ message: AUTH_MESSAGES.EMAIL_OTP_PWD_REQUIRED });
-        return;
-      }
+      const resetData: ResetPasswordRequestDto = {
+        email: req.body.email,
+        otp: req.body.otp,
+        newPassword: req.body.newPassword
+      };
 
-      await this._authService.resetPassword(email, otp, newPassword);
+      await this._authService.resetPassword(resetData.email, resetData.otp, resetData.newPassword);
 
       res.status(HttpStatus.OK).json({
         success: true,

@@ -3,32 +3,33 @@ import { BLOG_MESSAGES } from '../../constants/Messages';
 import { IBlogRepository } from '../../repositories/interfaces/IBlogRepository';
 import { IUserRepository } from '../../repositories/interfaces/IUserRepository';
 import { IBlog } from '../../models/Blog';
-import cloudinary from '../../config/cloudinary';
+import { BlogSummaryDto, BlogDetailDto, CreateBlogRequestDto, UpdateBlogRequestDto } from '../../dtos/BlogDto';
+import { Mapper } from '../../utils/mapper';
+import { IStorageService } from '../interfaces/IStorageService';
 
 /**
  * Blog Service Implementation
- * Implements IBlogService interface
- * Handles blog business logic
- * Following Single Responsibility and Dependency Inversion Principles
+ * Follows SOLID principles by injecting dependencies
  */
 export class BlogService implements IBlogService {
   private _blogRepository: IBlogRepository;
   private _userRepository: IUserRepository;
+  private _storageService: IStorageService;
 
-  constructor(blogRepository: IBlogRepository, userRepository: IUserRepository) {
+  constructor(
+    blogRepository: IBlogRepository, 
+    userRepository: IUserRepository,
+    storageService: IStorageService
+  ) {
     this._blogRepository = blogRepository;
     this._userRepository = userRepository;
+    this._storageService = storageService;
   }
 
   /**
    * Create a new blog
-   * @param blogData - Blog data
-   * @param authorId - Author user ID
-   * @param imageFile - Uploaded image file
-   * @returns Created blog
    */
-  async createBlog(blogData: Partial<IBlog>, authorId: string, imageFile: Express.Multer.File): Promise<IBlog> {
-    // Validate blog data
+  async createBlog(blogData: CreateBlogRequestDto, authorId: string, imageFile: Express.Multer.File): Promise<BlogDetailDto> {
     if (!blogData.title || blogData.title.length < 5) {
       throw new Error(BLOG_MESSAGES.TITLE_REQUIRED);
     }
@@ -41,47 +42,37 @@ export class BlogService implements IBlogService {
       throw new Error(BLOG_MESSAGES.IMAGE_REQUIRED);
     }
 
-    // Verify author exists
     const author = await this._userRepository.findUserById(authorId);
     if (!author) {
       throw new Error(BLOG_MESSAGES.AUTHOR_NOT_FOUND);
     }
 
-    // Process image upload (Cloudinary URL provided by multer-storage-cloudinary)
-    const imagePath = imageFile.path;
-
-    // Create blog with author and image
     const blog = await this._blogRepository.createBlog({
-      ...blogData,
+      title: blogData.title,
+      content: blogData.content,
       author: authorId,
-      image: imagePath
+      image: imageFile.path
     });
 
-    return blog;
+    const populatedBlog = await this._blogRepository.findBlogById(blog._id.toString());
+    return Mapper.toBlogDetailDto(populatedBlog!, authorId);
   }
 
   /**
-   * Get all blogs with pagination
-   * @param page - Page number
-   * @param limit - Items per page
-   * @param filters - Optional filters
-   * @returns Paginated blogs response
+   * Get all blogs with pagination (Summarized)
    */
-  async getAllBlogs(page: number = 1, limit: number = 10, filters: Record<string, unknown> = {}): Promise<PaginatedBlogsResponse> {
-    // Calculate skip
+  async getAllBlogs(page: number = 1, limit: number = 10, filters: Record<string, unknown> = {}, currentUserId?: string): Promise<PaginatedBlogsResponse> {
     const skip = (page - 1) * limit;
 
-    // Get blogs and total count
     const [blogs, total] = await Promise.all([
       this._blogRepository.findAllBlogs({ skip, limit, filters }),
       this._blogRepository.countBlogs(filters)
     ]);
 
-    // Calculate total pages
     const pages = Math.ceil(total / limit);
 
     return {
-      blogs,
+      blogs: Mapper.toBlogSummaryList(blogs, currentUserId),
       total,
       page,
       pages
@@ -89,225 +80,124 @@ export class BlogService implements IBlogService {
   }
 
   /**
-   * Get blog by ID
-   * @param id - Blog ID
-   * @returns Blog or null
+   * Get detailed blog by ID
    */
-  async getBlogById(id: string): Promise<IBlog | null> {
-    // Validate ID format
+  async getBlogById(id: string, currentUserId?: string): Promise<BlogDetailDto | null> {
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       throw new Error(BLOG_MESSAGES.INVALID_ID);
     }
 
     const blog = await this._blogRepository.findBlogById(id);
-    
     if (!blog) {
       throw new Error(BLOG_MESSAGES.NOT_FOUND);
     }
 
-    return blog;
+    return Mapper.toBlogDetailDto(blog, currentUserId);
   }
 
   /**
-   * Get all blogs by user
-   * @param userId - User ID
-   * @returns Array of blogs
+   * Get all blogs by user (Summarized)
    */
-  async getBlogsByUser(userId: string): Promise<IBlog[]> {
+  async getBlogsByUser(userId: string): Promise<BlogSummaryDto[]> {
     const blogs = await this._blogRepository.findBlogsByAuthor(userId);
-    return blogs;
+    return Mapper.toBlogSummaryList(blogs, userId);
   }
 
   /**
    * Update blog
-   * @param id - Blog ID
-   * @param updateData - Data to update
-   * @param userId - User ID (for ownership verification)
-   * @param imageFile - Optional new image file
-   * @returns Updated blog
    */
-  async updateBlog(id: string, updateData: Partial<IBlog>, userId: string, imageFile?: Express.Multer.File): Promise<IBlog> {
-    // Validate ID format
+  async updateBlog(id: string, updateData: UpdateBlogRequestDto, userId: string, imageFile?: Express.Multer.File): Promise<BlogDetailDto> {
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       throw new Error(BLOG_MESSAGES.INVALID_ID);
     }
 
-    // Fetch existing blog
     const existingBlog = await this._blogRepository.findBlogById(id);
-    
     if (!existingBlog) {
       throw new Error(BLOG_MESSAGES.NOT_FOUND);
     }
 
-    // Verify ownership - accurately extract ID whether populated or not
-    const author = existingBlog.author;
-    const existingAuthorId = (typeof author === 'object' && author !== null && '_id' in author)
-      ? String((author as { _id: unknown })._id)
-      : String(author);
-    const currentUserId = userId.toString();
-
-    if (existingAuthorId !== currentUserId) {
+    const authorId = typeof existingBlog.author === 'object' ? existingBlog.author?._id?.toString() : existingBlog.author?.toString();
+    if (authorId !== userId) {
       throw new Error(BLOG_MESSAGES.UNAUTHORIZED_UPDATE);
     }
 
-    // Validate update data
-    if (updateData.title && updateData.title.length < 5) {
-      throw new Error(BLOG_MESSAGES.TITLE_REQUIRED);
+    const update: Partial<IBlog> = {};
+    if (updateData.title) {
+        if (updateData.title.length < 5) throw new Error(BLOG_MESSAGES.TITLE_REQUIRED);
+        update.title = updateData.title;
+    }
+    if (updateData.content) {
+        if (updateData.content.length < 10) throw new Error(BLOG_MESSAGES.CONTENT_REQUIRED);
+        update.content = updateData.content;
     }
 
-    if (updateData.content && updateData.content.length < 10) {
-      throw new Error(BLOG_MESSAGES.CONTENT_REQUIRED);
-    }
-
-    // Process new image if provided
     if (imageFile) {
-      // Delete old image from Cloudinary if it exists
-      if (existingBlog.image && existingBlog.image.includes('cloudinary')) {
-        await this._deleteCloudinaryImage(existingBlog.image);
+      if (existingBlog.image) {
+        await this._storageService.deleteImage(existingBlog.image);
       }
-      
-      // Set new image path (Cloudinary URL)
-      updateData.image = imageFile.path;
+      update.image = imageFile.path;
     }
 
-    // Update blog
-    const updatedBlog = await this._blogRepository.updateBlog(id, updateData);
-    
-    return updatedBlog;
+    const updatedBlog = await this._blogRepository.updateBlog(id, update);
+    if (!updatedBlog) throw new Error(BLOG_MESSAGES.NOT_FOUND);
+
+    return Mapper.toBlogDetailDto(updatedBlog, userId);
   }
 
   /**
    * Delete blog
-   * @param id - Blog ID
-   * @param userId - User ID (for ownership verification)
-   * @returns Success message
    */
   async deleteBlog(id: string, userId: string): Promise<{ message: string }> {
-    // Fetch existing blog
     const existingBlog = await this._blogRepository.findBlogById(id);
-    
     if (!existingBlog) {
       throw new Error(BLOG_MESSAGES.NOT_FOUND);
     }
 
-    // Verify ownership
-    const author = existingBlog.author;
-    const authorId = (typeof author === 'object' && author !== null && '_id' in author)
-      ? String((author as { _id: unknown })._id)
-      : String(author);
+    const authorId = typeof existingBlog.author === 'object' ? existingBlog.author?._id?.toString() : existingBlog.author?.toString();
     if (authorId !== userId) {
       throw new Error(BLOG_MESSAGES.UNAUTHORIZED_DELETE);
     }
 
-    // Delete associated image from Cloudinary
-    if (existingBlog.image && existingBlog.image.includes('cloudinary')) {
-      await this._deleteCloudinaryImage(existingBlog.image);
+    if (existingBlog.image) {
+      await this._storageService.deleteImage(existingBlog.image);
     }
 
-    // Delete blog from database
     await this._blogRepository.deleteBlog(id);
-
     return { message: BLOG_MESSAGES.DELETE_SUCCESS };
   }
 
   /**
-   * Helper to delete image from Cloudinary
-   * @param imageUrl - Full Cloudinary URL
+   * Get favorite blogs (Summarized)
    */
-  private async _deleteCloudinaryImage(imageUrl: string): Promise<void> {
-    try {
-      // Extract public_id from URL
-      // Example: https://res.cloudinary.com/demo/image/upload/v1234/folder/public_id.jpg
-      const parts = imageUrl.split('/');
-      const lastPart = parts.pop() || '';
-      const publicIdWithExtension = lastPart.split('.')[0];
-      
-      // We need to include the folder path if it's there
-      // For this project, it's 'blog-space/blogs/'
-      const folderIndex = parts.indexOf('blog-space');
-      if (folderIndex !== -1) {
-        const folderPath = parts.slice(folderIndex).join('/');
-        const fullPublicId = `${folderPath}/${publicIdWithExtension}`;
-        await cloudinary.uploader.destroy(fullPublicId);
-      } else {
-        // Fallback for root folder images
-        await cloudinary.uploader.destroy(publicIdWithExtension);
-      }
-    } catch (error) {
-       console.error('[CLOUDINARY] Deletion error:', error);
-       // We don't throw here to ensure the record is still updated/deleted even if image deletion fails
-    }
+  async getFavoriteBlogs(userId: string): Promise<BlogSummaryDto[]> {
+    const blogs = await this._blogRepository.getFavoriteBlogs(userId);
+    return Mapper.toBlogSummaryList(blogs, userId);
   }
 
   /**
-   * Get blogs favorited by a user
-   * @param userId - User ID
-   * @returns Array of blogs
+   * Toggle like
    */
-  async getFavoriteBlogs(userId: string): Promise<IBlog[]> {
-    return await this._blogRepository.getFavoriteBlogs(userId);
-  }
-
-  /**
-   * Toggle like on a blog
-   * @param blogId - Blog ID
-   * @param userId - User ID
-   * @returns Updated blog
-   */
-  async toggleLike(blogId: string, userId: string): Promise<IBlog> {
-    // Validate ID format
-    if (!blogId.match(/^[0-9a-fA-F]{24}$/)) {
-      throw new Error(BLOG_MESSAGES.INVALID_ID);
-    }
-
+  async toggleLike(blogId: string, userId: string): Promise<BlogDetailDto> {
     const blog = await this._blogRepository.toggleLike(blogId, userId);
-    
-    if (!blog) {
-      throw new Error(BLOG_MESSAGES.NOT_FOUND);
-    }
-
-    return blog;
+    if (!blog) throw new Error(BLOG_MESSAGES.NOT_FOUND);
+    return Mapper.toBlogDetailDto(blog, userId);
   }
 
   /**
-   * Toggle dislike on a blog
-   * @param blogId - Blog ID
-   * @param userId - User ID
-   * @returns Updated blog
+   * Toggle dislike
    */
-  async toggleDislike(blogId: string, userId: string): Promise<IBlog> {
-    // Validate ID format
-    if (!blogId.match(/^[0-9a-fA-F]{24}$/)) {
-      throw new Error(BLOG_MESSAGES.INVALID_ID);
-    }
-
+  async toggleDislike(blogId: string, userId: string): Promise<BlogDetailDto> {
     const blog = await this._blogRepository.toggleDislike(blogId, userId);
-    
-    if (!blog) {
-      throw new Error(BLOG_MESSAGES.NOT_FOUND);
-    }
-
-    return blog;
+    if (!blog) throw new Error(BLOG_MESSAGES.NOT_FOUND);
+    return Mapper.toBlogDetailDto(blog, userId);
   }
 
   /**
-   * Toggle favorite on a blog
-   * @param blogId - Blog ID
-   * @param userId - User ID
-   * @returns Updated blog
+   * Toggle favorite
    */
-  async toggleFavorite(blogId: string, userId: string): Promise<IBlog> {
-    // Validate ID format
-    if (!blogId.match(/^[0-9a-fA-F]{24}$/)) {
-      throw new Error(BLOG_MESSAGES.INVALID_ID);
-    }
-
+  async toggleFavorite(blogId: string, userId: string): Promise<BlogDetailDto> {
     const blog = await this._blogRepository.toggleFavorite(blogId, userId);
-    
-    if (!blog) {
-      throw new Error(BLOG_MESSAGES.NOT_FOUND);
-    }
-
-    return blog;
+    if (!blog) throw new Error(BLOG_MESSAGES.NOT_FOUND);
+    return Mapper.toBlogDetailDto(blog, userId);
   }
 }
